@@ -449,8 +449,8 @@ if (C4::Context->preference("OPACShelfBrowser")) {
     my $starting_itemnumber = $query->param('shelfbrowse_itemnumber'); # || $items[0]->{itemnumber};
     $template->param( OpenOPACShelfBrowser => 1) if $starting_itemnumber;
     # find the right cn_sort value for this item
-    my ($starting_cn_sort, $starting_homebranch, $starting_location);
-    my $sth_get_cn_sort = $dbh->prepare("SELECT cn_sort,homebranch,location from items where itemnumber=?");
+    my ($starting_cn_sort, $starting_homebranch, $starting_location, $starting_ccode);
+    my $sth_get_cn_sort = $dbh->prepare("SELECT cn_sort,homebranch,location,ccode from items where itemnumber=?");
     $sth_get_cn_sort->execute($starting_itemnumber);
     while (my $result = $sth_get_cn_sort->fetchrow_hashref()) {
         $starting_cn_sort = $result->{'cn_sort'};
@@ -458,6 +458,8 @@ if (C4::Context->preference("OPACShelfBrowser")) {
         $starting_homebranch->{description} = $branches->{$result->{'homebranch'}}{branchname};
         $starting_location->{code} = $result->{'location'};
         $starting_location->{description} = GetAuthorisedValueDesc('','',   $result->{'location'} ,'','','LOC', 'opac');
+        $starting_ccode->{code} = $result->{'ccode'};
+        $starting_ccode->{description} = GetAuthorisedValueDesc('','',   $result->{'ccode'} ,'','','CCODE');
     
     }
     
@@ -465,7 +467,17 @@ if (C4::Context->preference("OPACShelfBrowser")) {
     # order by cn_sort, which should include everything we need for ordering purposes (though not
     # for limits, those need to be handled separately
     my $sth_shelfbrowse_previous;
-    if (defined $starting_location->{code}) {
+    if (defined $starting_ccode->{code} && defined $starting_location->{code}) {
+      $sth_shelfbrowse_previous = $dbh->prepare("
+        SELECT *
+        FROM items
+        WHERE
+            ((cn_sort = ? AND itemnumber < ?) OR cn_sort < ?) AND
+            homebranch = ? AND location = ? AND ccode = ?
+        ORDER BY cn_sort DESC, itemnumber LIMIT 3
+        ");
+      $sth_shelfbrowse_previous->execute($starting_cn_sort, $starting_itemnumber, $starting_cn_sort, $starting_homebranch->{code}, $starting_location->{code}, $starting_ccode->{code});
+    } elsif (defined $starting_location->{code}) {
       $sth_shelfbrowse_previous = $dbh->prepare("
         SELECT *
         FROM items
@@ -502,7 +514,17 @@ if (C4::Context->preference("OPACShelfBrowser")) {
     
     ## List of Next Items; this also intentionally catches the current item
     my $sth_shelfbrowse_next;
-    if (defined $starting_location->{code}) {
+    if (defined $starting_ccode->{code} && defined $starting_location->{code}) {
+      $sth_shelfbrowse_next = $dbh->prepare("
+        SELECT *
+        FROM items
+        WHERE
+            ((cn_sort = ? AND itemnumber >= ?) OR cn_sort > ?) AND
+            homebranch = ? AND location = ? AND ccode = ?
+        ORDER BY cn_sort, itemnumber LIMIT 3
+        ");
+      $sth_shelfbrowse_next->execute($starting_cn_sort, $starting_itemnumber, $starting_cn_sort, $starting_homebranch->{code}, $starting_location->{code}, $starting_ccode->{code});
+    } elsif (defined $starting_location->{code}) {
       $sth_shelfbrowse_next = $dbh->prepare("
         SELECT *
         FROM items
@@ -544,6 +566,7 @@ if (C4::Context->preference("OPACShelfBrowser")) {
     $template->param(
         starting_homebranch => $starting_homebranch->{description},
         starting_location => $starting_location->{description},
+        starting_ccode => $starting_ccode->{description},
         starting_itemnumber => $starting_itemnumber,
         shelfbrowser_prev_itemnumber => (@previous_items ? $previous_items[0]->{itemnumber} : 0),
         shelfbrowser_next_itemnumber => $shelfbrowser_next_itemnumber,
