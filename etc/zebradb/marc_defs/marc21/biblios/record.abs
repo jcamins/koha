@@ -10,6 +10,7 @@ encoding utf-8
 name marc21
 attset bib1.att
 attset gils.att
+attset nnan.att
 esetname F @
 esetname B @
 
@@ -46,14 +47,14 @@ melm 007        Microform-generation:n:range(data,11,1),Material-type,ff7-00:w:r
 
 melm 008        date-entered-on-file:n:range(data,0,5),date-entered-on-file:s:range(data,0,5),pubdate:w:range(data,7,4),pubdate:n:range(data,7,4),pubdate:y:range(data,7,4),pubdate:s:range(data,7,4),pl:w:range(data,15,3),ta:w:range(data,22,1),ff8-23:w:range(data,23,1),ff8-29:w:range(data,29,1),lf:w:range(data,33,1),bio:w:range(data,34,1),ln:n:range(data,35,3),ctype:w:range(data,24,4),Record-source:w:range(data,39,0)
 
-melm 010        LC-card-number,Identifier-standard
+melm 010        LC-card-number,Identifier-standard,Host-LCCN
 melm 011        LC-card-number,Identifier-standard
 melm 015        BNB-card-number,BGF-number,Number-db,Number-natl-biblio,Identifier-standard
 melm 017        Number-legal-deposit,Identifier-standard
 melm 018        Identifier-standard
-melm 020$a      ISBN:w,Identifier-standard:w
+melm 020$a      ISBN:w,Identifier-standard:w,Host-ISBN
 melm 020        Identifier-standard
-melm 022$a      ISSN:w,Identifier-standard:w
+melm 022$a      ISSN:w,Identifier-standard:w,Host-ISSN
 melm 022        Identifier-standard
 melm 023        Identifier-standard
 melm 024$a      Identifier-other
@@ -61,7 +62,7 @@ melm 024        Identifier-standard
 melm 025        Identifier-standard
 melm 027        Report-number,Identifier-standard
 melm 028        Number-music-publisher,Identifier-standard
-melm 030        CODEN,Identifier-standard
+melm 030        CODEN,Identifier-standard,Host-CODEN
 #melm 033       Date
 melm 034        Map-scale
 #melm 035       Local-number,Identifier-standard
@@ -295,3 +296,15 @@ melm 952$w      replacementpricedate
 #melm 952$x
 melm 952$y      itype:w
 melm 952$z      Note:w,Note:p
+
+#ANS Custom
+melm 033$a      Auction-date
+melm 693$a      Collection-name
+melm 773$a      Host-item,Host-author,Host-title
+melm 773$g      Host-relationship
+#melm 773$o      
+melm 773$t      Host-item,Host-title
+melm 773$w      LC-card-number,Component-LCCN
+melm 773$x      ISSN:w,Component-ISSN
+melm 773$y      CODEN,Component-CODEN
+melm 773$z      ISBN:w,Component-ISBN

@@ -1,0 +1,15 @@
+name nnan
+
+att 7001    Auction-date
+att 7002    Collection-name
+att 7101    Host-ISSN
+att 7201    Component-ISSN
+att 7102    Host-ISBN
+att 7202    Component-ISBN
+att 7103    Host-LCCN
+att 7203    Component-LCCN
+att 7104    Host-CODEN
+att 7204    Component-CODEN
+att 7110    Host-author
+att 7111    Host-title
+att 7112    Host-relationship

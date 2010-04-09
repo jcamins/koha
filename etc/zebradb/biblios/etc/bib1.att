@@ -2,6 +2,7 @@
 # Bib-1 Attribute Set
 name bib1
 reference Bib-1
+include nnan.att
 
 att 1    Personal-name
 att 2    Corporate-name
