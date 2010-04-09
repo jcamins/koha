@@ -949,7 +949,19 @@
                         </xsl:when>
 
 
-				   <xsl:when test="count(key('item-by-status', 'available'))=0 and count(key('item-by-status', 'reference'))=0">No copies available
+				   <xsl:when test="count(key('item-by-status', 'available'))=0 and count(key('item-by-status', 'reference'))=0">
+                        <xsl:choose>
+                        <xsl:when test="marc:datafield[@tag=852]">
+                            <xsl:for-each select="marc:datafield[@tag=852]">
+                                <xsl:call-template name="subfieldSelect">
+                                <xsl:with-param name="codes">abchijlp</xsl:with-param>
+                                <xsl:with-param name="delimeter"> -- </xsl:with-param>
+                                </xsl:call-template>
+                                <xsl:choose><xsl:when test="position()=last()"><xsl:text>. </xsl:text></xsl:when><xsl:otherwise><xsl:text>, </xsl:text></xsl:otherwise></xsl:choose>
+                            </xsl:for-each>
+                        </xsl:when>
+                        <xsl:otherwise>No copies available</xsl:otherwise>
+                        </xsl:choose>
 				   </xsl:when>
                    <xsl:when test="count(key('item-by-status', 'available'))>0">
                    <span class="available">
