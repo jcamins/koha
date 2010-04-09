@@ -422,7 +422,13 @@ YAHOO.util.Event.onContentReady("furtherm", function () {
 	</table>
     <!-- /TMPL_IF -->
 <!-- TMPL_ELSE -->
-<p>No physical items for this record</p>
+    <!-- TMPL_IF NAME="location_noitems" --><p>
+    <!-- TMPL_LOOP NAME="NOITEMLOCATIONS" -->
+        <p><b>Location:</b> <!-- TMPL_VAR NAME="noitemloc" --></p>
+    <!-- /TMPL_LOOP -->
+    <!-- TMPL_ELSE -->
+        <p>No physical items for this record</p>
+    <!-- /TMPL_IF -->
 <!-- /TMPL_IF -->
 
 <!-- TMPL_IF NAME="OpenOPACShelfBrowser" -->

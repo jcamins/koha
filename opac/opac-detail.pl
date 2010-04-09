@@ -206,6 +206,27 @@ my $marcseriesarray  = GetMarcSeries  ($record,$marcflavour);
 my $marcurlsarray    = GetMarcUrls    ($record,$marcflavour);
 my $subtitle         = GetRecordValue('subtitle', $record, GetFrameworkCode($biblionumber));
 
+my @noitemlocations = ();
+my $location_noitems = 0;
+my $noitemlocation;
+my @field852s = $record->field('852');
+
+for my $field852 (@field852s) {
+    $location_noitems = 1;
+    my %noitemloc;
+    $noitemloc{'noitemloc'} = $field852->subfield('a');
+    
+    if ($field852->subfield('b')) {
+        my @subfieldb = $field852->subfield('b');
+        $noitemloc{'noitemloc'} .= '--' . join('--', @subfieldb);
+    }
+    if ($field852->subfield('c')) {
+        my @subfieldc = $field852->subfield('c');
+        $noitemloc{'noitemloc'} .= ' (' . join('/', @subfieldc) . ')';
+    }
+    push(@noitemlocations, \%noitemloc);
+}
+
     $template->param(
                      MARCNOTES               => $marcnotesarray,
                      MARCSUBJCTS             => $marcsubjctsarray,
@@ -219,6 +240,8 @@ my $subtitle         = GetRecordValue('subtitle', $record, GetFrameworkCode($bib
                      itemdata_uri            => $itemfields{uri},
                      itemdata_copynumber     => $itemfields{copynumber},
                      itemdata_itemnotes          => $itemfields{itemnotes},
+                     location_noitems        => $location_noitems,
+                     NOITEMLOCATIONS         => \@noitemlocations,
                      authorised_value_images => $biblio_authorised_value_images,
                      subtitle                => $subtitle,
     );
