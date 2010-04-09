@@ -530,9 +530,32 @@
                         <xsl:with-param name="codes">at</xsl:with-param>
                     </xsl:call-template>
                 </xsl:variable>
-             <a><xsl:attribute name="href">/cgi-bin/koha/opac-search.pl?q=<xsl:value-of select="translate($f773, '()', '')"/></xsl:attribute>
+            <a>
+            <xsl:choose>
+            <xsl:when test="marc:subfield[@code='z']">
+                <xsl:attribute name="href">/cgi-bin/koha/opac-search.pl?q=<xsl:value-of select="translate(marc:subfield[@code='z'], '()', '')"/></xsl:attribute>
+            </xsl:when>
+            <xsl:when test="marc:subfield[@code='x']">
+                <xsl:attribute name="href">/cgi-bin/koha/opac-search.pl?q=<xsl:value-of select="translate(marc:subfield[@code='x'], '()', '')"/></xsl:attribute>
+            </xsl:when>
+            <xsl:when test="marc:subfield[@code='y']">
+                <xsl:attribute name="href">/cgi-bin/koha/opac-search.pl?q=<xsl:value-of select="translate(marc:subfield[@code='y'], '()', '')"/></xsl:attribute>
+            </xsl:when>
+            <xsl:when test="marc:subfield[@code='w']">
+                <xsl:attribute name="href">/cgi-bin/koha/opac-search.pl?q=<xsl:value-of select="translate(marc:subfield[@code='w'], '()', '')"/></xsl:attribute>
+            </xsl:when>
+            <xsl:when test="starts-with(marc:subfield[@code='n']/text(),'NNAN')">
+                <xsl:attribute name="href">/cgi-bin/koha/opac-search.pl?q=<xsl:value-of select="translate(marc:subfield[@code='n'], '()', '')"/></xsl:attribute>
+            </xsl:when>
+            <xsl:otherwise>
+                <xsl:attribute name="href">/cgi-bin/koha/opac-search.pl?q=<xsl:value-of select="translate($f773, '()', '')"/></xsl:attribute>
+            </xsl:otherwise>
+            </xsl:choose>
                 <xsl:value-of select="translate($f773, '()', '')"/>
-            </a>
+            </a>,
+            <xsl:call-template name="subfieldSelect">
+                <xsl:with-param name="codes">dghkq</xsl:with-param>
+            </xsl:call-template>
         </span>
  
             <span class="results_summary"><xsl:value-of select="marc:subfield[@code='n']"/></span>
