@@ -374,24 +374,38 @@
         <xsl:if test="marc:datafield[substring(@tag, 1, 1) = '6']">
             <span class="results_summary"><span class="label">Related Subjects: </span>
             <xsl:for-each select="marc:datafield[substring(@tag, 1, 1) = '6']">
+            <xsl:variable name="f6xx">
+                <xsl:call-template name="chopPunctuation">
+                    <xsl:with-param name="chopString">
+                        <xsl:call-template name="subfieldSelect">
+                            <xsl:with-param name="codes">abcdvxyz</xsl:with-param>
+                            <xsl:with-param name="subdivCodes">vxyz</xsl:with-param>
+                            <xsl:with-param name="subdivDelimiter">-- </xsl:with-param>
+                        </xsl:call-template>
+                    </xsl:with-param>
+                </xsl:call-template>
+            </xsl:variable>
             <a>
             <xsl:choose>
             <xsl:when test="marc:subfield[@code=9]">
                 <xsl:attribute name="href">/cgi-bin/koha/opac-search.pl?q=an:<xsl:value-of select="marc:subfield[@code=9]"/></xsl:attribute>
             </xsl:when>
             <xsl:otherwise>
-                <xsl:attribute name="href">/cgi-bin/koha/opac-search.pl?q=su:<xsl:value-of select="marc:subfield[@code='a']"/></xsl:attribute>
+                <xsl:variable name="search">
+                    <xsl:call-template name="chopPunctuation">
+                        <xsl:with-param name="chopString">
+                            <xsl:call-template name="subfieldSelect">
+                                <xsl:with-param name="codes">abcdvxyz</xsl:with-param>
+                                <xsl:with-param name="subdivCodes">vxyz</xsl:with-param>
+                                <xsl:with-param name="delimeter"> and su:</xsl:with-param>
+                            </xsl:call-template>
+                        </xsl:with-param>
+                    </xsl:call-template>
+                </xsl:variable>
+                <xsl:attribute name="href" xml:space="strip">/cgi-bin/koha/opac-search.pl?q=su:<xsl:value-of select="normalize-space($search)"/></xsl:attribute>
             </xsl:otherwise>
             </xsl:choose>
-            <xsl:call-template name="chopPunctuation">
-                <xsl:with-param name="chopString">
-                    <xsl:call-template name="subfieldSelect">
-                        <xsl:with-param name="codes">abcdvxyz</xsl:with-param>
-                        <xsl:with-param name="subdivCodes">vxyz</xsl:with-param>
-                        <xsl:with-param name="subdivDelimiter">-- </xsl:with-param>
-                    </xsl:call-template>
-                </xsl:with-param>
-            </xsl:call-template>
+            <xsl:value-of select="$f6xx"/>
             </a>
             <xsl:choose>
             <xsl:when test="position()=last()"></xsl:when>
