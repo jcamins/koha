@@ -2,7 +2,12 @@
 <xsl:stylesheet version="1.0" xmlns:marc="http://www.loc.gov/MARC21/slim" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" exclude-result-prefixes="marc">
 	<xsl:import href="MARC21slimUtils.xsl"/>
 	<xsl:output method="xml" indent="yes"/>
-	<!--Added ISBN and deleted attributes 6/04 jer-->
+	<!--
+    We probably don't want to suppress 856q 2010-04-12 jcamins
+	Suppressed duplicate 520,521.  fixed 752 subfield list, added 662.  2008-01-22 ntra
+	Fixed 500 fields. 2006-12-11 ntra
+	Added ISBN and deleted attributes 6/04 jer
+	-->
 	<xsl:template match="/">
 		<xsl:if test="marc:collection">
 			<oai_dc:dcCollection xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
@@ -86,17 +91,17 @@
 				<xsl:value-of select="."/>
 			</dc:format>
 		</xsl:for-each>
-		<xsl:for-each select="marc:datafield[@tag=520]">
+		<!--<xsl:for-each select="marc:datafield[@tag=520]">
 			<dc:description>
 				<xsl:value-of select="marc:subfield[@code='a']"/>
 			</dc:description>
-		</xsl:for-each>
-		<xsl:for-each select="marc:datafield[@tag=521]">
+		</xsl:for-each>-->
+		<!--<xsl:for-each select="marc:datafield[@tag=521]">
 			<dc:description>
 				<xsl:value-of select="marc:subfield[@code='a']"/>
 			</dc:description>
-		</xsl:for-each>
-		<xsl:for-each select="marc:datafield[500&lt;@tag][@tag&lt;=599][not(@tag=506 or @tag=530 or @tag=540 or @tag=546)]">
+		</xsl:for-each>-->
+		<xsl:for-each select="marc:datafield[500&lt;= @tag and @tag&lt;= 599][not(@tag=506 or @tag=530 or @tag=540 or @tag=546)]">
 			<dc:description>
 				<xsl:value-of select="marc:subfield[@code='a']"/>
 			</dc:description>
@@ -143,10 +148,17 @@
 				</xsl:call-template>
 			</dc:subject>
 		</xsl:for-each>
+        <xsl:for-each select="marc:datafield[@tag=662]">
+			<dc:coverage>
+				<xsl:call-template name="subfieldSelect">
+					<xsl:with-param name="codes">abcdefgh</xsl:with-param>
+				</xsl:call-template>
+			</dc:coverage>
+		</xsl:for-each>
 		<xsl:for-each select="marc:datafield[@tag=752]">
 			<dc:coverage>
 				<xsl:call-template name="subfieldSelect">
-					<xsl:with-param name="codes">abcd</xsl:with-param>
+					<xsl:with-param name="codes">abcdfgh</xsl:with-param>
 				</xsl:call-template>
 			</dc:coverage>
 		</xsl:for-each>
@@ -189,7 +201,11 @@
 	</xsl:template>
 </xsl:stylesheet>
 
-<!-- Stylus Studio meta-information - (c)1998-2003 Copyright Sonic Software Corporation. All rights reserved.
+<!-- Stylus Studio meta-information - (c) 2004-2005. Progress Software Corporation. All rights reserved.
+<metaInformation>
+<scenarios ><scenario default="yes" name="Scenario1" userelativepaths="yes" externalpreview="no" url="..\..\..\..\..\..\..\..\..\..\javadev4\testsets\diacriticu8.xml" htmlbaseurl="" outputurl="" processortype="internal" useresolver="yes" profilemode="0" profiledepth="" profilelength="" urlprofilexml="" commandline="" additionalpath="" additionalclasspath="" postprocessortype="none" postprocesscommandline="" postprocessadditionalpath="" postprocessgeneratedext="" validateoutput="no" validator="internal" customvalidator=""/></scenarios><MapperMetaTag><MapperInfo srcSchemaPathIsRelative="yes" srcSchemaInterpretAsXML="no" destSchemaPath="" destSchemaRoot="" destSchemaPathIsRelative="yes" destSchemaInterpretAsXML="no"/><MapperBlockPosition></MapperBlockPosition><TemplateContext></TemplateContext><MapperFilter side="source"></MapperFilter></MapperMetaTag>
+</metaInformation>
+--><!-- Stylus Studio meta-information - (c)1998-2002 eXcelon Corp.
 <metaInformation>
 <scenarios/><MapperInfo srcSchemaPath="" srcSchemaRoot="" srcSchemaPathIsRelative="yes" srcSchemaInterpretAsXML="no" destSchemaPath="" destSchemaRoot="" destSchemaPathIsRelative="yes" destSchemaInterpretAsXML="no"/>
 </metaInformation>
