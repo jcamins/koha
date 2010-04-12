@@ -1182,6 +1182,7 @@ sub GetCOinSBiblio {
     my $isbn      = '';
     my $issn      = '';
     my $publisher = '';
+    my $pages     = '';
     my $titletype = 'b';
 
     # For the purposes of generating COinS metadata, LDR/06-07 can be
@@ -1270,14 +1271,31 @@ sub GetCOinSBiblio {
         $title = "&amp;rft." . $titletype . "title=" . $record->subfield( '245', 'a' );
         $subtitle = $record->subfield( '245', 'b' ) || '';
         $title .= $subtitle;
-        $pubyear   = $record->subfield( '260', 'c' ) || '';
-        $publisher = $record->subfield( '260', 'b' ) || '';
-        $isbn      = $record->subfield( '020', 'a' ) || '';
-        $issn      = $record->subfield( '022', 'a' ) || '';
+        if ($titletype eq 'a') {
+            $pubyear   = substr $record->field('008')->data(), 7, 4;
+            $isbn      = $record->subfield( '773', 'z' ) || '';
+            $issn      = $record->subfield( '773', 'x' ) || '';
+#            if ($mtx eq 'journal') {
+                $title    .= "&amp;rft.title=" . (($record->subfield( '773', 't' ) || $record->subfield( '773', 'a')));
+#            } else {
+#                $title    .= "&amp;rft.btitle=" . (($record->subfield( '773', 't' ) || $record->subfield( '773', 'a')) || '');
+#            }
+            foreach my $rel ($record->subfield( '773', 'g' )) {
+                if ($pages) {
+                    $pages .= ', ';
+                }
+                $pages .= $rel;
+            }
+        } else {
+            $pubyear   = $record->subfield( '260', 'c' ) || '';
+            $publisher = $record->subfield( '260', 'b' ) || '';
+            $isbn      = $record->subfield( '020', 'a' ) || '';
+            $issn      = $record->subfield( '022', 'a' ) || '';
+        }
 
     }
     my $coins_value =
-"ctx_ver=Z39.88-2004&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3A$mtx$genre$title&amp;rft.isbn=$isbn&amp;rft.issn=$issn&amp;rft.aulast=$aulast&amp;rft.aufirst=$aufirst$oauthors&amp;rft.pub=$publisher&amp;rft.date=$pubyear";
+"ctx_ver=Z39.88-2004&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3A$mtx$genre$title&amp;rft.isbn=$isbn&amp;rft.issn=$issn&amp;rft.aulast=$aulast&amp;rft.aufirst=$aufirst$oauthors&amp;rft.pub=$publisher&amp;rft.date=$pubyear&amp;rft.pages=$pages";
     $coins_value =~ s/(\ |&[^a])/\+/g;
 
 #<!-- TMPL_VAR NAME="ocoins_format" -->&amp;rft.au=<!-- TMPL_VAR NAME="author" -->&amp;rft.btitle=<!-- TMPL_VAR NAME="title" -->&amp;rft.date=<!-- TMPL_VAR NAME="publicationyear" -->&amp;rft.pages=<!-- TMPL_VAR NAME="pages" -->&amp;rft.isbn=<!-- TMPL_VAR NAME=amazonisbn -->&amp;rft.aucorp=&amp;rft.place=<!-- TMPL_VAR NAME="place" -->&amp;rft.pub=<!-- TMPL_VAR NAME="publishercode" -->&amp;rft.edition=<!-- TMPL_VAR NAME="edition" -->&amp;rft.series=<!-- TMPL_VAR NAME="series" -->&amp;rft.genre="
