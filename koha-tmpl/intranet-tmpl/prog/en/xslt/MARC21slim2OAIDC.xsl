@@ -176,6 +176,13 @@
 				</xsl:call-template>
 			</dc:relation>
 		</xsl:for-each>
+		<xsl:for-each select="marc:datafield[@tag=773]">
+			<dc:source>
+				<xsl:call-template name="subfieldSelect">
+					<xsl:with-param name="codes">abdghkt</xsl:with-param>
+				</xsl:call-template>
+			</dc:source>
+		</xsl:for-each>
 		<xsl:for-each select="marc:datafield[@tag=856]">
 			<dc:identifier>
 				<xsl:value-of select="marc:subfield[@code='u']"/>
