@@ -1275,11 +1275,11 @@ sub GetCOinSBiblio {
             $pubyear   = substr $record->field('008')->data(), 7, 4;
             $isbn      = $record->subfield( '773', 'z' ) || '';
             $issn      = $record->subfield( '773', 'x' ) || '';
-#            if ($mtx eq 'journal') {
+            if ($mtx eq 'journal') {
                 $title    .= "&amp;rft.title=" . (($record->subfield( '773', 't' ) || $record->subfield( '773', 'a')));
-#            } else {
-#                $title    .= "&amp;rft.btitle=" . (($record->subfield( '773', 't' ) || $record->subfield( '773', 'a')) || '');
-#            }
+            } else {
+                $title    .= "&amp;rft.btitle=" . (($record->subfield( '773', 't' ) || $record->subfield( '773', 'a')) || '');
+            }
             foreach my $rel ($record->subfield( '773', 'g' )) {
                 if ($pages) {
                     $pages .= ', ';
