@@ -223,6 +223,19 @@ for my $field852 (@field852s) {
         my @subfieldc = $field852->subfield('c');
         $noitemloc{'noitemloc'} .= ' (' . join('/', @subfieldc) . ')';
     }
+    if ($field852->subfield('j')) {
+        my @subfieldj = $field852->subfield('j');
+        $noitemloc{'noitemloc'} .= ': ' . join(',', @subfieldj);
+    } elsif ($field852->subfield('i')) {
+        my @subfieldi = $field852->subfield('i');
+        $noitemloc{'noitemloc'} .= ': ' . join(',', @subfieldi);
+    } elsif ($field852->subfield('p')) {
+        my @subfieldp = $field852->subfield('p');
+        $noitemloc{'noitemloc'} .= ': ' . join(',', @subfieldp);
+    } elsif ($field852->subfield('l')) {
+        my @subfieldl = $field852->subfield('l');
+        $noitemloc{'noitemloc'} .= ': ' . join(',', @subfieldl);
+    }
     push(@noitemlocations, \%noitemloc);
 }
 
