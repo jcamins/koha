@@ -1,0 +1,67 @@
+=============================
+Local notes for the American Numismatic Society's installation of Koha
+=============================
+
+Copyright (C) 2010 American Numismatic Society (http://numismatics.org)
+
+Written by: Jared Camins-Esakov (camins AT numismatics DOT org)
+
+This document last modified: 26 April 2010
+
+Source code control
+=============================
+
+The canonical copy of the Koha source code used by the American Numismatic
+Society is kept in Jared Camins-Esakov's repository on github:
+    http://github.com/jcamins/koha
+
+In order to clone a new repository based on the nnan branch:
+    $ git clone git://github.com/jcamins/koha.git nnankoha
+    $ git branch --track nnan origin/nnan
+    $ git checkout nnan
+
+In order to update your local repository with remote changes, run the following
+at any time (but note that this command might not work if you have made changes
+to your local repository; see below):
+    $ git pull origin nnan
+
+If you are going to be making changes, run the following command to create
+a branch for your local changes:
+    $ git checkout -b my-nnan-mods
+
+The use of git for active source control is out of the scope of this document.
+See the page "Version Control for Koha using Git" on the Koha Developer Wiki
+for a brief introduction, or read the man pages:
+    http://wiki.koha.org/doku.php?id=en:development:git_usage
+
+    $ man 1 git
+
+ANS server setup
+=============================
+In order to take advantage of the customizations in this repository in the
+American Numismatic Society's server environment, we recommend several changes
+from the installation procedure described in INSTALL.*
+
+1. Create a symlink from ~/kohaclone to ~/nnankoha (or wherever you have checked
+   out this repository to)
+2. Run the installer from the ~/kohaclone directory
+3. It is very important to choose the 'dev' install mode
+
+Local changes
+=============================
+The following local changes have been made in the American Numismatic Society's
+Koha repository, with the generous help of the Koha community (this list is
+non-exhaustive and is updated only irregularly):
+* Implement proper semantics for the first indicator of 780/785 fields
+* Display Host publication information (773 fields)
+* Pay attention to the collection code when using the shelfbrowser
+* Display call numbers for bibliographic records that do not include item
+  records
+* Make subject tracings search for the entire subject, and not just the main
+  entry
+* Link (via 773 fields) on ISSN/ISBN/LCCN
+* Provide correct genre and format information in COinS
+
+In cases where local changes might have a general value to the Koha community as
+a whole and were not originally contributed via koha-patches, patches will be
+submitted to the Koha project with the permission of the authors.
