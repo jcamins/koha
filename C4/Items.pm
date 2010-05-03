@@ -18,6 +18,7 @@ package C4::Items;
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 use strict;
+#use warnings; FIXME - Bug 2505
 
 use Carp;
 use C4::Context;
@@ -65,6 +66,7 @@ BEGIN {
         GetItemsInfo
         get_itemnumbers_of
         GetItemnumberFromBarcode
+        GetBarcodeFromItemnumber
 
 		DelItemCheck
 		MoveItemFromBiblio 
@@ -593,7 +595,7 @@ sub ModDateLastSeen {
 
 =over 4
 
-DelItem($biblionumber, $itemnumber);
+DelItem($dbh, $biblionumber, $itemnumber);
 
 =back
 
@@ -1270,6 +1272,7 @@ sub GetItemsInfo {
            biblioitems.url,
            items.notforloan as itemnotforloan,
            itemtypes.description,
+           itemtypes.notforloan as notforloan_per_itemtype,
            branchurl
      FROM items
      LEFT JOIN branches ON items.homebranch = branches.branchcode
@@ -1353,7 +1356,6 @@ sub GetItemsInfo {
             my ($lib) = $sthnflstatus->fetchrow;
             $data->{notforloanvalue} = $lib;
         }
-		$data->{itypenotforloan} = $data->{notforloan} if (C4::Context->preference('item-level_itypes'));
 
         # my stack procedures
         my $stackstatus = $dbh->prepare(
@@ -1512,6 +1514,27 @@ sub GetItemnumberFromBarcode {
     my $rq =
       $dbh->prepare("SELECT itemnumber FROM items WHERE items.barcode=?");
     $rq->execute($barcode);
+    my ($result) = $rq->fetchrow;
+    return ($result);
+}
+
+=head2 GetBarcodeFromItemnumber
+
+=over 4
+
+$result = GetBarcodeFromItemnumber($itemnumber);
+
+=back
+
+=cut
+
+sub GetBarcodeFromItemnumber {
+    my ($itemnumber) = @_;
+    my $dbh = C4::Context->dbh;
+
+    my $rq =
+      $dbh->prepare("SELECT barcode FROM items WHERE items.itemnumber=?");
+    $rq->execute($itemnumber);
     my ($result) = $rq->fetchrow;
     return ($result);
 }

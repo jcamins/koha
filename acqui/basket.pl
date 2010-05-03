@@ -159,9 +159,9 @@ if ( $op eq 'delete_confirm' ) {
                             });
             ModBasket( { basketno => $basketno,
                          basketgroupid => $basketgroupid } );
-            print $query->redirect('/cgi-bin/koha/acqui/basketgroup.pl?booksellerid='.$booksellerid);
+            print $query->redirect('/cgi-bin/koha/acqui/basketgroup.pl?booksellerid='.$booksellerid.'&closed=1');
         } else {
-            print $query->redirect('/cgi-bin/koha/acqui/basketgroup.pl?basketno='.$basketno.'&amp;op=attachbasket&amp;booksellerid=' . $booksellerid);
+            print $query->redirect('/cgi-bin/koha/acqui/booksellers.pl?supplierid=' . $booksellerid);
         }
         exit;
     } else {
@@ -257,10 +257,8 @@ if ( $op eq 'delete_confirm' ) {
         $line{line_total}     = sprintf( "%.2f", $line_total );
         $line{odd}            = $i % 2;
         if ($line{uncertainprice}) {
-            $template->param( unclosable => 1 );
-            for my $key (qw/ecost line_total rrp/) {
-                $line{$key} .= '??';
-            }
+            $template->param( uncertainprices => 1 );
+            $line{rrp} .= ' (Uncertain)';
         }
 	if ($line{'title'}){
 	    my $volume = $results[$i]->{'volume'};
@@ -288,6 +286,7 @@ if ( $op eq 'delete_confirm' ) {
 	my $total_est_gste = $total_rrp_gste - ($total_rrp_gste * $discount);
 
     my $contract = &GetContract($basket->{contractnumber});
+    my @orders = GetOrders($basketno);
     $template->param(
         basketno             => $basketno,
         basketname           => $basket->{'basketname'},
@@ -317,6 +316,7 @@ if ( $op eq 'delete_confirm' ) {
         GST                  => $gist,
         basketgroups         => $basketgroups,
         grouped              => $basket->{basketgroupid},
+        unclosable           => @orders ? 0 : 1, 
     );
 }
 

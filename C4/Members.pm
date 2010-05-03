@@ -19,6 +19,7 @@ package C4::Members;
 
 
 use strict;
+#use warnings; FIXME - Bug 2505
 use C4::Context;
 use C4::Dates qw(format_date_in_iso);
 use Digest::MD5 qw(md5_base64);
@@ -578,41 +579,42 @@ sub GetMember {
 
 =over 4
 
-my $blocked = IsMemberBlocked( $borrowernumber );
-
-return the status, and the number of day or documents, depends his punishment
-
-return :
--1 if the user have overdue returns
-1 if the user is punished X days
-0 if the user is authorised to loan
+my ($block_status, $count) = IsMemberBlocked( $borrowernumber );
 
 =back
+
+Returns whether a patron has overdue items that may result
+in a block or whether the patron has active fine days
+that would block circulation privileges.
+
+C<$block_status> can have the following values:
+
+1 if the patron has outstanding fine days, in which case C<$count> is the number of them
+
+-1 if the patron has overdue items, in which case C<$count> is the number of them
+
+0 if the patron has no overdue items or outstanding fine days, in which case C<$count> is 0
+
+Outstanding fine days are checked before current overdue items
+are.
+
+FIXME: this needs to be split into two functions; a potential block
+based on the number of current overdue items could be orthogonal
+to a block based on whether the patron has any fine days accrued.
 
 =cut
 
 sub IsMemberBlocked {
     my $borrowernumber = shift;
     my $dbh            = C4::Context->dbh;
-    # if he have late issues
-    my $sth = $dbh->prepare(
-        "SELECT COUNT(*) as latedocs
-         FROM issues
-         WHERE borrowernumber = ?
-         AND date_due < now()"
-    );
-    $sth->execute($borrowernumber);
-    my $latedocs = $sth->fetchrow_hashref->{'latedocs'};
 
-    return (-1, $latedocs) if $latedocs > 0;
-
+    # does patron have current fine days?
 	my $strsth=qq{
             SELECT
             ADDDATE(returndate, finedays * DATEDIFF(returndate,date_due) ) AS blockingdate,
             DATEDIFF(ADDDATE(returndate, finedays * DATEDIFF(returndate,date_due)),NOW()) AS blockedcount
             FROM old_issues
 	};
-    # or if he must wait to loan
     if(C4::Context->preference("item-level_itypes")){
         $strsth.=
 		qq{ LEFT JOIN items ON (items.itemnumber=old_issues.itemnumber)
@@ -629,7 +631,7 @@ sub IsMemberBlocked {
             AND borrowernumber = ?
             ORDER BY blockingdate DESC, blockedcount DESC
             LIMIT 1};
-	$sth=$dbh->prepare($strsth);
+	my $sth=$dbh->prepare($strsth);
     $sth->execute($borrowernumber);
     my $row = $sth->fetchrow_hashref;
     my $blockeddate  = $row->{'blockeddate'};
@@ -637,7 +639,19 @@ sub IsMemberBlocked {
 
     return (1, $blockedcount) if $blockedcount > 0;
 
-    return 0
+    # if he have late issues
+    $sth = $dbh->prepare(
+        "SELECT COUNT(*) as latedocs
+         FROM issues
+         WHERE borrowernumber = ?
+         AND date_due < curdate()"
+    );
+    $sth->execute($borrowernumber);
+    my $latedocs = $sth->fetchrow_hashref->{'latedocs'};
+
+    return (-1, $latedocs) if $latedocs > 0;
+
+    return (0, 0);
 }
 
 =head2 GetMemberIssuesAndFines
@@ -668,7 +682,7 @@ sub GetMemberIssuesAndFines {
     $sth = $dbh->prepare(
         "SELECT COUNT(*) FROM issues 
          WHERE borrowernumber = ? 
-         AND date_due < now()"
+         AND date_due < curdate()"
     );
     $sth->execute($borrowernumber);
     my $overdue_count = $sth->fetchrow_arrayref->[0];
@@ -1507,48 +1521,31 @@ sub add_member_orgs {
 
 }    # sub add_member_orgs
 
-=head2 GetCities (OUEST-PROVENCE)
+=head2 GetCities
 
-  ($id_cityarrayref, $city_hashref) = &GetCities();
+  $cityarrayref = GetCities();
 
-Looks up the different city and zip in the database. Returns two
-elements: a reference-to-array, which lists the zip city
-codes, and a reference-to-hash, which maps the name of the city.
-WHERE =>OUEST PROVENCE OR EXTERIEUR
+  Returns an array_ref of the entries in the cities table
+  If there are entries in the table an empty row is returned
+  This is currently only used to populate a popup in memberentry
 
 =cut
 
 sub GetCities {
 
-    #my ($type_city) = @_;
     my $dbh   = C4::Context->dbh;
-    my $query = qq|SELECT cityid,city_zipcode,city_name 
-        FROM cities 
-        ORDER BY city_name|;
-    my $sth = $dbh->prepare($query);
-
-    #$sth->execute($type_city);
-    $sth->execute();
-    my %city;
-    my @id;
-    #    insert empty value to create a empty choice in cgi popup
-    push @id, " ";
-    $city{""} = "";
-    while ( my $data = $sth->fetchrow_hashref ) {
-        push @id, $data->{'city_zipcode'}."|".$data->{'city_name'};
-        $city{ $data->{'city_zipcode'}."|".$data->{'city_name'} } = $data->{'city_name'};
+    my $city_arr = $dbh->selectall_arrayref(
+        q|SELECT cityid,city_zipcode,city_name FROM cities ORDER BY city_name|,
+        { Slice => {} });
+    if ( @{$city_arr} ) {
+        unshift @{$city_arr}, {
+            city_zipcode => q{},
+            city_name    => q{},
+            cityid       => q{},
+        };
     }
 
-#test to know if the table contain some records if no the function return nothing
-    my $id = @id;
-    if ( $id == 1 ) {
-        # all we have is the one blank row
-        return ();
-    }
-    else {
-        unshift( @id, "" );
-        return ( \@id, \%city );
-    }
+    return  $city_arr;
 }
 
 =head2 GetSortDetails (OUEST-PROVENCE)

@@ -19,6 +19,7 @@
     <xsl:variable name="DisplayOPACiconsXSLT" select="marc:sysprefs/marc:syspref[@name='DisplayOPACiconsXSLT']"/>
     <xsl:variable name="OPACURLOpenInNewWindow" select="marc:sysprefs/marc:syspref[@name='OPACURLOpenInNewWindow']"/>
     <xsl:variable name="URLLinkText" select="marc:sysprefs/marc:syspref[@name='URLLinkText']"/>
+    <xsl:variable name="ShowISBD" select="marc:sysprefs/marc:syspref[@name='viewISBD']"/>
         <xsl:variable name="leader" select="marc:leader"/>
         <xsl:variable name="leader6" select="substring($leader,7,1)"/>
         <xsl:variable name="leader7" select="substring($leader,8,1)"/>
@@ -139,10 +140,18 @@
             </xsl:otherwise>
         </xsl:choose>
         <xsl:call-template name="nameABCDN"/></a>
-        <xsl:choose><xsl:when test="position()=last()"><xsl:text>.</xsl:text></xsl:when><xsl:otherwise><xsl:text>; </xsl:text></xsl:otherwise></xsl:choose>
+        <xsl:choose><xsl:when test="position()=last()"><xsl:text> </xsl:text></xsl:when><xsl:otherwise><xsl:text>; </xsl:text></xsl:otherwise></xsl:choose>
         </xsl:for-each>
 
         <xsl:for-each select="marc:datafield[@tag=111 or @tag=711]">
+            <xsl:choose>
+            <xsl:when test="marc:subfield[@code='n']">
+               <xsl:text> </xsl:text>
+               <xsl:call-template name="subfieldSelect">
+                  <xsl:with-param name="codes">n</xsl:with-param>                              </xsl:call-template>
+               <xsl:text> </xsl:text>
+            </xsl:when>
+            </xsl:choose>
         <a>
         <xsl:choose>
             <xsl:when test="marc:subfield[@code=9]">
@@ -163,7 +172,9 @@
         <span class="view"><span id="Normalview">Normal View</span> </span>
         <span class="view"><a id="MARCviewPop" href="/cgi-bin/koha/opac-showmarc.pl?id={marc:datafield[@tag=999]/marc:subfield[@code='c']}" title="MARC" rel="gb_page_center[600,500]">MARC View</a></span>
         <span class="view"><a id="MARCview" href="/cgi-bin/koha/opac-MARCdetail.pl?biblionumber={marc:datafield[@tag=999]/marc:subfield[@code='c']}" title="MARC">Expanded MARC View</a></span>
+<xsl:if test="$ShowISBD!='0'">
         <span class="view"><a id="ISBDview" href="/cgi-bin/koha/opac-ISBDdetail.pl?biblionumber={marc:datafield[@tag=999]/marc:subfield[@code='c']}">Card View (ISBD)</a></span>
+</xsl:if>
         </div> 
 
    <xsl:if test="$DisplayOPACiconsXSLT!='0'">
@@ -473,15 +484,15 @@
         <xsl:for-each select="marc:datafield[@tag=505]">
         <span class="results_summary"><span class="label">
         <xsl:choose>
-        <xsl:when test="@ind1=0">
-            Contents:
-        </xsl:when>
         <xsl:when test="@ind1=1">
             Incomplete contents:
         </xsl:when>
         <xsl:when test="@ind1=1">
             Partial contents:
         </xsl:when>
+        <xsl:otherwise>
+            Contents:
+        </xsl:otherwise>
         </xsl:choose>  
         </span>
         <xsl:choose>
@@ -554,6 +565,23 @@
         </xsl:if>
         </xsl:for-each>
         </xsl:if>
+
+        <xsl:for-each select="marc:datafield[@tag=520]">
+        <span class="results_summary"><span class="label">
+        <xsl:choose>
+          <xsl:when test="@ind1=0"><xsl:text>Subject: </xsl:text></xsl:when>
+          <xsl:when test="@ind1=1"><xsl:text>Review: </xsl:text></xsl:when>
+          <xsl:when test="@ind1=2"><xsl:text>Scope and content: </xsl:text></xsl:when>
+          <xsl:when test="@ind1=3"><xsl:text>Abstract: </xsl:text></xsl:when>
+          <xsl:when test="@ind1=4"><xsl:text>Content advice: </xsl:text></xsl:when>
+          <xsl:otherwise><xsl:text>Summary: </xsl:text></xsl:otherwise>
+        </xsl:choose>
+        </span>
+        <xsl:call-template name="subfieldSelect">
+          <xsl:with-param name="codes">abcu</xsl:with-param>
+        </xsl:call-template>
+        </span>
+        </xsl:for-each>
 
         <!-- 780 -->
         <xsl:if test="marc:datafield[@tag=780]">

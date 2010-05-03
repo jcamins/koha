@@ -19,7 +19,7 @@ package C4::Circulation;
 
 
 use strict;
-#use warnings;  # soon!
+#use warnings; FIXME - Bug 2505
 use C4::Context;
 use C4::Stats;
 use C4::Reserves;
@@ -326,8 +326,9 @@ sub transferbook {
 
         # don't need to update MARC anymore, we do it in batch now
         $messages->{'WasTransfered'} = 1;
-		ModDateLastSeen( $itemnumber );
+
     }
+    ModDateLastSeen( $itemnumber );
     return ( $dotransfer, $messages, $biblio );
 }
 
@@ -688,6 +689,7 @@ sub CanBookBeIssued {
     if ( $borrower->{'category_type'} eq 'X' && (  $item->{barcode}  )) { 
     	# stats only borrower -- add entry to statistics table, and return issuingimpossible{STATS} = 1  .
         &UpdateStats(C4::Context->userenv->{'branch'},'localuse','','',$item->{'itemnumber'},$item->{'itemtype'},$borrower->{'borrowernumber'});
+        ModDateLastSeen( $item->{'itemnumber'} );
         return( { STATS => 1 }, {});
     }
     if ( $borrower->{flags}->{GNA} ) {
@@ -731,12 +733,17 @@ sub CanBookBeIssued {
     }
 
     my ($blocktype, $count) = C4::Members::IsMemberBlocked($borrower->{'borrowernumber'});
-    if($blocktype == -1){
-        ## remaining overdue documents
+    if ($blocktype == -1) {
+        ## patron has outstanding overdue loans
+	    if ( C4::Context->preference("OverduesBlockCirc") eq 'block'){
+	        $issuingimpossible{USERBLOCKEDOVERDUE} = $count;
+	    }
+	    elsif ( C4::Context->preference("OverduesBlockCirc") eq 'confirmation'){
+	        $needsconfirmation{USERBLOCKEDOVERDUE} = $count;
+	    }
+    } elsif($blocktype == 1) {
+        # patron has accrued fine days
         $issuingimpossible{USERBLOCKEDREMAINING} = $count;
-    }elsif($blocktype == 1){
-        ## blocked because of overdue return
-        $issuingimpossible{USERBLOCKEDOVERDUE} = $count;
     }
 
 #
@@ -798,8 +805,10 @@ sub CanBookBeIssued {
     if ( C4::Context->preference("IndependantBranches") ) {
         my $userenv = C4::Context->userenv;
         if ( ($userenv) && ( $userenv->{flags} % 2 != 1 ) ) {
-            $issuingimpossible{NOTSAMEBRANCH} = 1
+            $issuingimpossible{ITEMNOTSAMEBRANCH} = 1
               if ( $item->{C4::Context->preference("HomeOrHoldingBranch")} ne $userenv->{branch} );
+            $needsconfirmation{BORRNOTSAMEBRANCH} = GetBranchName( $borrower->{'branchcode'} )
+              if ( $borrower->{'branchcode'} ne $userenv->{branch} );
         }
     }
 
@@ -1476,10 +1485,12 @@ sub AddReturn {
     # case of a return of document (deal with issues and holdingbranch)
     if ($doreturn) {
         $borrower or warn "AddReturn without current borrower";
-		my $circControlBranch = _GetCircControlBranch($item,$borrower);
+		my $circControlBranch;
         if ($dropbox) {
-            # don't allow dropbox mode to create an invalid entry in issues (issuedate > returndate) FIXME: actually checks eq, not gt
-            undef($dropbox) if ( $item->{'issuedate'} eq C4::Dates->today('iso') );
+            # define circControlBranch only if dropbox mode is set
+            # don't allow dropbox mode to create an invalid entry in issues (issuedate > today)
+            # FIXME: check issuedate > returndate, factoring in holidays
+            $circControlBranch = _GetCircControlBranch($item,$borrower) unless ( $item->{'issuedate'} eq C4::Dates->today('iso') );;
         }
 
         if ($borrowernumber) {
@@ -2062,9 +2073,9 @@ sub CanBookBeRenewed {
                    LEFT JOIN biblioitems USING (biblioitemnumber)
                    
                    WHERE
-                    issuingrules.categorycode = borrowers.categorycode
+                    (issuingrules.categorycode = borrowers.categorycode OR issuingrules.categorycode = '*')
                    AND
-                    issuingrules.itemtype = $itype
+                    (issuingrules.itemtype = $itype OR issuingrules.itemtype = '*')
                    AND
                     (issuingrules.branchcode = $controlbranch OR issuingrules.branchcode = '*') 
                    AND 

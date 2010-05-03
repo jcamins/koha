@@ -18,6 +18,7 @@ package C4::Auth;
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 use strict;
+#use warnings; FIXME - Bug 2505
 use Digest::MD5 qw(md5_base64);
 use Storable qw(thaw freeze);
 use URI::Escape;
@@ -353,6 +354,8 @@ sub get_template_and_user {
     if ( $in->{'type'} eq "intranet" ) {
         $template->param(
             AmazonContent               => C4::Context->preference("AmazonContent"),
+            AmazonCoverImages           => C4::Context->preference("AmazonCoverImages"),
+            AmazonEnabled               => C4::Context->preference("AmazonEnabled"),
             AmazonSimilarItems          => C4::Context->preference("AmazonSimilarItems"),
             AutoLocation                => C4::Context->preference("AutoLocation"),
             "BiblioDefaultView".C4::Context->preference("IntranetBiblioDefaultView") => 1,

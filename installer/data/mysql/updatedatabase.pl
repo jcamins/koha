@@ -3555,6 +3555,47 @@ if (C4::Context->preference('Version') < TransformToNum($DBversion)){
     SetVersion ($DBversion);
 }
 
+$DBversion = "3.01.00.129";
+if (C4::Context->preference("Version") < TransformToNum($DBversion)) {
+	$dbh->do("UPDATE `permissions` SET `code` = 'items_batchdel' WHERE `permissions`.`module_bit` =13 AND `permissions`.`code` = 'batchdel' LIMIT 1 ;");
+	$dbh->do("UPDATE `permissions` SET `code` = 'items_batchmod' WHERE `permissions`.`module_bit` =13 AND `permissions`.`code` = 'batchmod' LIMIT 1 ;");
+	print "Upgrade done (Change permissions names for item batch modification / deletion)\n";
+
+    SetVersion ($DBversion);
+}
+
+$DBversion = "3.01.00.130";
+if (C4::Context->preference("Version") < TransformToNum($DBversion)) {
+    $dbh->do("UPDATE reserves SET expirationdate = NULL WHERE expirationdate = '0000-00-00'");
+    print "Upgrade done (change reserves.expirationdate values of 0000-00-00 to NULL (bug 1532)"; 
+    SetVersion ($DBversion);
+}
+
+$DBversion = "3.01.00.131";
+if (C4::Context->preference("Version") < TransformToNum($DBversion)) {
+	$dbh->do(q{
+INSERT IGNORE INTO message_transport_types (message_transport_type) VALUES ('print'),('feed');
+    });
+    print "Upgrade to $DBversion done (adding print and feed message transport types)\n";
+    SetVersion ($DBversion);
+}
+
+$DBversion = "3.01.00.132";
+if (C4::Context->preference("Version") < TransformToNum($DBversion)) {
+	$dbh->do(q{
+    ALTER TABLE language_descriptions ADD INDEX subtag_type_lang (subtag, type, lang);
+    });
+    print "Upgrade to $DBversion done (Adding index to language_descriptions table)\n";
+    SetVersion ($DBversion);
+}
+
+$DBversion = '3.01.00.133';
+if (C4::Context->preference('Version') < TransformToNum($DBversion)){
+    $dbh->do("INSERT INTO `systempreferences` (variable,value,explanation,options,type) VALUES ('OverduesBlockCirc','noblock','When checking out an item should overdues block checkout, generate a confirmation dialogue, or allow checkout','noblock|confirmation|block','Choice')");
+    print "Upgrade to $DBversion done (bug 4405: added OverduesBlockCirc syspref to control whether circulation is blocked if a borrower has overdues)\n";
+    SetVersion ($DBversion);
+}
+
 =item DropAllForeignKeys($table)
 
   Drop all foreign keys of the table $table

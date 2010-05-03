@@ -69,7 +69,6 @@ my $op             = $input->param('op');
 my $destination    = $input->param('destination');
 my $cardnumber     = $input->param('cardnumber');
 my $check_member   = $input->param('check_member');
-my $name_city      = $input->param('name_city');
 my $nodouble       = $input->param('nodouble');
 $nodouble = 1 if $op eq 'modify'; # FIXME hack to represent fact that if we're
                                   # modifying an existing patron, it ipso facto
@@ -130,6 +129,7 @@ if ($op eq 'insert' || $op eq 'modify' || $op eq 'save') {
     my $syspref = $dateobject->regexp();		# same syspref format for all 3 dates
     my $iso     = $dateobject->regexp('iso');	#
     foreach (qw(dateenrolled dateexpiry dateofbirth)) {
+        next unless exists $newdata{$_};
         my $userdate = $newdata{$_} or next;
         if ($userdate =~ /$syspref/) {
             $newdata{$_} = format_date_in_iso($userdate);	# if they match syspref format, then convert to ISO
@@ -274,7 +274,7 @@ if ($op eq 'save' || $op eq 'insert'){
 }
 
 if ($op eq 'modify' || $op eq 'insert' || $op eq 'save' ){
-    unless ($newdata{'dateexpiry'}){
+    if (exists ($newdata{'dateexpiry'}) && !($newdata{'dateexpiry'})){
         my $arg2 = $newdata{'dateenrolled'} || C4::Dates->today('iso');
         $newdata{'dateexpiry'} = GetExpiryDate($newdata{'categorycode'},$arg2);
     }
@@ -373,8 +373,6 @@ if (C4::Context->preference("IndependantBranches")) {
     }
 }
 if ($op eq 'add'){
-    my $arg2 = $newdata{'dateenrolled'} || C4::Dates->today('iso');
-    $data{'dateexpiry'} = GetExpiryDate($newdata{'categorycode'},$arg2);
     $template->param( updtype => 'I', step_1=>1, step_2=>1, step_3=>1, step_4=>1, step_5 => 1, step_6 => 1);
 }
 if ($op eq "modify")  {
@@ -435,15 +433,20 @@ $select_city=getidcity($data{'city'}) if defined $guarantorid and ($guarantorid 
 if (!defined($select_city) or $select_city eq '' ){
 	$default_city = &getidcity($data{'city'});
 }
-my($cityid);
-($cityid,$name_city)=GetCities();
-$template->param( city_cgipopup => 1) if ($cityid );
-my $citypopup = CGI::popup_menu(-name=>'select_city',
-        -id => 'select_city',
-        '-values' =>$cityid,
-        -labels=>$name_city,
-        -default=>$default_city,
-        );  
+
+my $city_arrayref = GetCities();
+if (@{$city_arrayref} ) {
+    $template->param( city_cgipopup => 1);
+
+    if ($default_city) { # flag the current or default val
+        for my $city ( @{$city_arrayref} ) {
+            if ($default_city == $city->{cityid}) {
+                $city->{selected} = 1;
+                last;
+            }
+        }
+    }
+}
   
 my $default_roadtype;
 $default_roadtype=$data{'streettype'} ;
@@ -629,7 +632,7 @@ $template->param(
   guarantorid => (defined($borrower_data->{'guarantorid'})) ? $borrower_data->{'guarantorid'} : $guarantorid,
   ethcatpopup => $ethcatpopup,
   relshiploop => \@relshipdata,
-  citypopup => $citypopup,
+  city_loop => $city_arrayref,
   roadpopup => $roadpopup,  
   borrotitlepopup => $borrotitlepopup,
   guarantorinfo   => $guarantorinfo,

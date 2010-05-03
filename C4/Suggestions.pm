@@ -19,6 +19,7 @@ package C4::Suggestions;
 
 
 use strict;
+#use warnings; FIXME - Bug 2505
 use CGI;
 
 use C4::Context;
@@ -386,6 +387,7 @@ sub ModSuggestion {
             letter=>$letter,
             borrowernumber=>$suggestion->{suggestedby},
             suggestionid=>$suggestion->{suggestionid},
+            LibraryName => C4::Context->preference("LibraryName"),
             msg_transport_type=>'email'
             });
         if (!$enqueued){warn "can't enqueue letter $letter";}

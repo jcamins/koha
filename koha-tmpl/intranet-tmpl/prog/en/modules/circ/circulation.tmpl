@@ -224,7 +224,7 @@ function refocus(calendar) {
 <!-- /TMPL_IF -->
 
 <!-- TMPL_IF NAME="RESERVED" -->
-    <li>Item is on reserve for <!-- TMPL_VAR NAME="RESERVED" --></li>
+    <li>Item is on hold for <!-- TMPL_VAR NAME="RESERVED" --></li>
 <!-- /TMPL_IF -->
 
 <!-- TMPL_IF NAME="ISSUED_TO_ANOTHER" -->
@@ -235,12 +235,19 @@ function refocus(calendar) {
     <li>Too many checked out (already checked out / max : <!-- TMPL_VAR name="TOO_MANY" -->)</li>
 <!-- /TMPL_IF -->
 
+<!-- TMPL_IF NAME="BORRNOTSAMEBRANCH" -->
+    <li>This patrons is from a different library (<!-- TMPL_VAR NAME="BORRNOTSAMEBRANCH" -->)</li>
+<!-- /TMPL_IF -->
+
 <!-- TMPL_IF NAME="PATRON_CANT" -->
     <li>This patron can't check out this item per library circulation policy</i>
 <!-- /TMPL_IF -->
 
 <!-- TMPL_IF NAME="NOT_FOR_LOAN_FORCING" -->
     <li>Item is normally not for loan.  Check out anyway?</li>
+<!-- /TMPL_IF -->
+<!-- TMPL_IF NAME="USERBLOCKEDOVERDUE" -->
+    <li>Patron has <!-- TMPL_VAR NAME="USERBLOCKEDOVERDUE" --> overdue item(s).  Check out anyway?</li>
 <!-- /TMPL_IF -->
 </ul>
 
@@ -249,14 +256,14 @@ function refocus(calendar) {
 <!-- TMPL_IF NAME="RESERVED" -->
     <p>
     <input type="checkbox" id="cancelreserve" name="cancelreserve" value="1" />
-    <label for="cancelreserve">Cancel Reserve</label>
+    <label for="cancelreserve">Cancel hold</label>
     </p>
 <!-- /TMPL_IF -->
 
 <!-- TMPL_IF NAME="RESERVE_WAITING" -->
     <p>
     <input type="checkbox" id="cancelreserve" name="cancelreserve" value="1" />
-    <label for="cancelreserve">Cancel Reserve</label>
+    <label for="cancelreserve">Cancel hold</label>
     </p>
 <!-- /TMPL_IF -->
 
@@ -334,8 +341,16 @@ function refocus(calendar) {
             <li>Patron's card is expired</li>
         <!-- /TMPL_IF -->
 
-        <!-- TMPL_IF NAME="NOTSAMEBRANCH" -->
+        <!-- TMPL_IF NAME="ITEMNOTSAMEBRANCH" -->
             <li>This item belongs to <!-- TMPL_VAR NAME="itemhomebranch" --> and cannot be issued from this location.</li>
+        <!-- /TMPL_IF -->
+
+        <!-- TMPL_IF NAME="USERBLOCKEDREMAINING" -->
+            <li>Patron has had overdue items and is blocked for <!-- TMPL_VAR NAME="USERBLOCKEDREMAINING" --> day(s).</li>
+        <!-- /TMPL_IF -->
+	
+	    <!-- TMPL_IF NAME="USERBLOCKEDOVERDUE" -->
+            <li>Patron has <!-- TMPL_VAR NAME="USERBLOCKEDOVERDUE" --> overdue item(s).  Check out anyway?</li>
         <!-- /TMPL_IF -->
         </ul>
 
@@ -406,7 +421,7 @@ No patron matched <span class="ex"><!-- TMPL_VAR name="message" --></span>
     <label for="barcode">Checking out to <!-- TMPL_VAR name="firstname" --> <!-- TMPL_VAR name="surname" --> (<!-- TMPL_VAR NAME="cardnumber" -->) </label>
 	<div class="hint">Enter item barcode:</div>
 
-	<input type="text" name="barcode" id="barcode" class="barcode focus" size="14" /> <input type="submit" value="Check Out" />
+	<input type="text" name="barcode" id="barcode" class="barcode focus" size="14" <!-- TMPL_IF NAME="NEEDSCONFIRMATION" -->disabled="disabled"<!-- /TMPL_IF -->/> <input type="submit" value="Check Out" />
 
     <!-- TMPL_IF NAME="SpecifyDueDate" --><div class="date-select">
         <div class="hint">Specify Due Date <!-- TMPL_INCLUDE NAME="date-format.inc" -->: </div>

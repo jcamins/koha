@@ -20,6 +20,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 use strict;
+#use warnings; FIXME - Bug 2505
 use C4::Auth;
 use C4::Output;
 use CGI;
@@ -49,7 +50,7 @@ my ($picture, $dberror) = GetPatronImage($borrower->{'cardnumber'});
 $template->param( picture => 1 ) if $picture;
 
 # Getting the messages
-my $queued_messages = C4::Letters::GetQueuedMessages({$borrowernumber});
+my $queued_messages = C4::Letters::GetQueuedMessages({borrowernumber => $borrowernumber});
 
 warn Data::Dumper::Dumper( $queued_messages );
 $template->param(
