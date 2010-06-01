@@ -308,3 +308,4 @@ melm 773$w      LC-card-number,Component-LCCN
 melm 773$x      ISSN:w,Component-ISSN
 melm 773$y      CODEN,Component-CODEN
 melm 773$z      ISBN:w,Component-ISBN
+melm 852        ANS-location
