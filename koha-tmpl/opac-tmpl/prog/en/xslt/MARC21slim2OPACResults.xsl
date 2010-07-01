@@ -508,14 +508,14 @@
     </xsl:if>
 
     <xsl:if test="marc:datafield[@tag=773]">
-	<span class="results_summary">
-    <span class="label"><xsl:choose><xsl:when test="marc:subfield[@code='i']"><xsl:value-of select="marc:subfield[@code='i']"/> </xsl:when><xsl:otherwise>In: </xsl:otherwise></xsl:choose></span>
-            <xsl:for-each select="marc:datafield[@tag=773]">
-                    <xsl:call-template name="subfieldSelect">
-                        <xsl:with-param name="codes">atdghkq</xsl:with-param>
-                    </xsl:call-template>
-            </xsl:for-each>
-	</span>
+    	<xsl:for-each select="marc:datafield[@tag=773]">
+            <span class="results_summary">
+                <span class="label"><xsl:choose><xsl:when test="marc:subfield[@code='i']"><xsl:value-of select="marc:subfield[@code='i']"/> </xsl:when><xsl:otherwise>In: </xsl:otherwise></xsl:choose></span>
+                <xsl:call-template name="subfieldSelect">
+                    <xsl:with-param name="codes">atdghkq</xsl:with-param>
+                </xsl:call-template>
+            </span>
+	</xsl:for-each>
     </xsl:if>
 
 <xsl:if test="$DisplayOPACiconsXSLT!='0'">
