@@ -235,6 +235,9 @@ for my $field852 (@field852s) {
     } elsif ($field852->subfield('l')) {
         my @subfieldl = $field852->subfield('l');
         $noitemloc{'noitemloc'} .= ': ' . join(',', @subfieldl);
+    } elsif ($field852->subfield('z')) {
+        my @subfieldz = $field852->subfield('z');
+        $noitemloc{'noitemloc'} .= ' (' . join(', ', @subfieldz) . ')';
     }
     push(@noitemlocations, \%noitemloc);
 }
