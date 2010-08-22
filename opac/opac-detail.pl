@@ -584,6 +584,27 @@ if (C4::Context->preference('TagsEnabled') and $tag_quantity = C4::Context->pref
 								'sort'=>'-weight', limit=>$tag_quantity}));
 }
 
+my @images;
+my @url_fields = $record->field(856);
+my $imagecount = 0;
+
+foreach my $url_field (@url_fields) {
+    if ($url_field->subfield('q') =~ /^image/) {
+        my $this_image;
+        $this_image->{'uri'} = $url_field->subfield('u');
+        $this_image->{'link'} = $url_field->subfield('y');
+        $this_image->{'note'} = $url_field->subfield('z');
+        push @images, $this_image;
+        $imagecount++;
+    }
+}
+
+$template->param(
+    IMAGE_RESULTS => \@images,
+    imagecount => $imagecount,
+    );
+
+
 #Search for title in links
 if (my $search_for_title = C4::Context->preference('OPACSearchForTitleIn')){
     $dat->{author} ? $search_for_title =~ s/{AUTHOR}/$dat->{author}/g : $search_for_title =~ s/{AUTHOR}//g;

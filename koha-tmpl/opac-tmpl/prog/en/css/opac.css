@@ -1958,3 +1958,17 @@ div.ft {
 	list-style:disc outside url("../../images/item-bullet.gif");
 	padding:0.2em 0;
 }
+
+div.image {
+	float: left;
+	margin: 15px 15px 15px 15px;
+}
+  
+div.image p {
+	text-align: center;
+}
+
+div.image img {
+	max-height: 320px;
+	max-width: 320px;
+}
