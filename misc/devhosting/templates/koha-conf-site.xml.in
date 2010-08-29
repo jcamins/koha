@@ -1,0 +1,145 @@
+<yazgfs>
+
+<listen id="biblioserver" >unix:/home/hosting/koha-dev/__KOHASITE__/var/run/zebradb/bibliosocket</listen>
+<listen id="authorityserver" >unix:/home/hosting/koha-dev/__KOHASITE__/var/run/zebradb/authoritysocket</listen>
+
+<!-- BIBLIOGRAPHIC RECORDS -->
+<server id="biblioserver"  listenref="biblioserver"> 
+    <directory>/home/hosting/koha-dev/__KOHASITE__/var/lib/biblios</directory>
+    <config>/home/hosting/koha-dev/__KOHASITE__/etc/zebradb/zebra-biblios.cfg</config>
+    <cql2rpn>/home/hosting/koha-dev/shared/etc/zebradb/pqf.properties</cql2rpn>
+     <retrievalinfo>
+       <retrieval syntax="usmarc" name="F"/>
+       <retrieval syntax="usmarc" name="B"/>
+       <retrieval syntax="xml" name="F"/>
+       <retrieval syntax="xml" name="B"/>
+       <retrieval syntax="xml" name="marcxml"
+                  identifier="info:srw/schema/1/marcxml-v1.1">
+         <backend syntax="usmarc" name="F">
+           <marc inputformat="marc" outputformat="marcxml"
+                 inputcharset="utf-8"/>
+         </backend>
+       </retrieval>
+       <retrieval syntax="xml" name="dc">
+         <backend syntax="usmarc" name="F">
+           <marc inputformat="marc" outputformat="marcxml"
+                 inputcharset="utf-8"/>
+           <xslt stylesheet="/home/hosting/kohaclone/koha-tmpl/intranet-tmpl/prog/en/xslt/MARC21slim2DC.xsl"/>
+         </backend>
+       </retrieval>
+       <retrieval syntax="xml" name="mods">
+         <backend syntax="usmarc" name="F">
+           <marc inputformat="marc" outputformat="marcxml"
+                 inputcharset="utf-8"/>
+           <xslt stylesheet="/home/hosting/kohaclone/koha-tmpl/intranet-tmpl/prog/en/xslt/MARC21slim2MODS.xsl"/>
+         </backend>
+       </retrieval>
+       <retrieval syntax="xml" name="rdfdc">
+         <backend syntax="usmarc" name="F">
+           <marc inputformat="marc" outputformat="marcxml"
+                 inputcharset="utf-8"/>
+           <xslt stylesheet="/home/hosting/kohaclone/koha-tmpl/intranet-tmpl/prog/en/xslt/MARC21slim2RDFDC.xsl"/>
+         </backend>
+       </retrieval>
+       <retrieval syntax="xml" name="rss2">
+         <backend syntax="usmarc" name="F">
+           <marc inputformat="marc" outputformat="marcxml"
+                 inputcharset="utf-8"/>
+           <xslt stylesheet="/home/hosting/kohaclone/koha-tmpl/intranet-tmpl/prog/en/xslt/MARC21slim2RSS2.xsl"/>
+         </backend>
+       </retrieval>
+       <retrieval syntax="xml" name="utils">
+         <backend syntax="usmarc" name="F">
+           <marc inputformat="marc" outputformat="marcxml"
+                 inputcharset="utf-8"/>
+           <xslt stylesheet="/home/hosting/kohaclone/koha-tmpl/intranet-tmpl/prog/en/xslt/MARC21slimUtils.xsl"/>
+         </backend>
+       </retrieval>
+     </retrievalinfo>
+</server>
+<serverinfo id="biblioserver">
+        <ccl2rpn>/home/hosting/koha-dev/shared/etc/zebradb/ccl.properties</ccl2rpn>
+        <user>kohauser</user>    
+        <password>__ZEBRA_PASS__</password>
+</serverinfo>
+
+<!-- AUTHORITY RECORDS -->
+<server id="authorityserver"  listenref="authorityserver" >
+    <directory>/home/hosting/koha-dev/__KOHASITE__/var/lib/authorities</directory>
+    <config>/home/hosting/koha-dev/__KOHASITE__/etc/zebradb/zebra-authorities-dom.cfg</config>
+    <cql2rpn>/home/hosting/koha-dev/shared/etc/zebradb/pqf.properties</cql2rpn>
+    <xi:include href="/home/hosting/koha-dev/shared/etc/zebradb/retrieval-info-auth-dom.xml"
+                xmlns:xi="http://www.w3.org/2001/XInclude">
+      <xi:fallback>
+     <retrievalinfo>
+       <retrieval syntax="usmarc" name="F"/>
+       <retrieval syntax="usmarc" name="B"/>
+       <retrieval syntax="xml" name="marcxml"
+                  identifier="info:srw/schema/1/marcxml-v1.1">
+         <backend syntax="usmarc" name="F">
+           <marc inputformat="marc" outputformat="marcxml"
+                 inputcharset="utf-8"/>
+         </backend>
+       </retrieval>
+       <retrieval syntax="xml" name="dc">
+         <backend syntax="usmarc" name="F">
+           <marc inputformat="marc" outputformat="marcxml"
+                 inputcharset="utf-8"/>
+           <xslt stylesheet="/home/hosting/kohaclone/koha-tmpl/intranet-tmpl/prog/en/xslt/MARC21slim2DC.xsl"/>
+         </backend>
+       </retrieval>
+       <retrieval syntax="xml" name="mods">
+         <backend syntax="usmarc" name="F">
+           <marc inputformat="marc" outputformat="marcxml"
+                 inputcharset="utf-8"/>
+           <xslt stylesheet="/home/hosting/kohaclone/koha-tmpl/intranet-tmpl/prog/en/xslt/MARC21slim2MODS.xsl"/>
+         </backend>
+       </retrieval>
+       <retrieval syntax="xml" name="rdfdc">
+         <backend syntax="usmarc" name="F">
+           <marc inputformat="marc" outputformat="marcxml"
+                 inputcharset="utf-8"/>
+           <xslt stylesheet="/home/hosting/kohaclone/koha-tmpl/intranet-tmpl/prog/en/xslt/MARC21slim2RDFDC.xsl"/>
+         </backend>
+       </retrieval>
+       <retrieval syntax="xml" name="utils">
+         <backend syntax="usmarc" name="F">
+           <marc inputformat="marc" outputformat="marcxml"
+                 inputcharset="utf-8"/>
+           <xslt stylesheet="/home/hosting/kohaclone/koha-tmpl/intranet-tmpl/prog/en/xslt/MARC21slimUtils.xsl"/>
+         </backend>
+       </retrieval>
+     </retrievalinfo>
+      </xi:fallback>
+    </xi:include>
+</server>
+<serverinfo id="authorityserver">
+    <ccl2rpn>/home/hosting/koha-dev/shared/etc/zebradb/ccl.properties</ccl2rpn>
+    <user>kohauser</user>
+    <password>zebrastripes</password>
+</serverinfo>
+
+<config>
+ <db_scheme>mysql</db_scheme>
+ <database>__DB_NAME__</database>
+ <hostname>__DB_HOST__</hostname>
+ <port>3306</port>
+ <user>__DB_USER__</user>
+ <pass>__DB_PASS__</pass>
+ <biblioserver>biblios</biblioserver>
+ <biblioservershadow>1</biblioservershadow>
+ <authorityserver>authorities</authorityserver>
+ <authorityservershadow>1</authorityservershadow>
+ <intranetdir>/home/hosting/kohaclone</intranetdir>
+ <opacdir>/home/hosting/kohaclone/opac</opacdir>
+ <opachtdocs>/home/hosting/kohaclone/koha-tmpl/opac-tmpl</opachtdocs>
+ <intrahtdocs>/home/hosting/kohaclone/koha-tmpl/intranet-tmpl</intrahtdocs>
+ <includes>/home/hosting/kohaclone/koha-tmpl/intranet-tmpl/prog/en/includes/</includes>
+ <logdir>/home/hosting/koha-dev/__KOHASITE__/var/log</logdir>
+ <install_log>/home/hosting/koha-dev/misc/koha-install-log</install_log>
+ <useldapserver>0</useldapserver><!-- see C4::Auth_with_ldap for extra configs you must add if you want to turn this on -->
+ <memcached_servers></memcached_servers>
+ <memcached_namespace></memcached_namespace>
+</config>
+
+</yazgfs>

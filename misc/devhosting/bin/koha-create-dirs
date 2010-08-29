@@ -1,0 +1,63 @@
+#!/bin/sh
+#
+# koha-create-dirs -- Create dirs for a Koha instance.
+# Copyright 2010  Catalyst IT, Ltd
+# 
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+
+set -e
+
+userdir() {
+    local username="$1-koha"
+    local directory="$2"
+    if [ ! -d "$directory" ]
+    then
+        install -d -o "$username" -g "www-data" "$directory"
+    fi
+}
+
+rootdir() {
+    local directory="$1"
+    if [ ! -d "$directory" ]
+    then
+        install -d -o root -g root "$directory"
+    fi
+}
+
+for name in "$@"
+do
+    rootdir "/home/hosting/koha-dev/$name/var/spool"
+    userdir "$name" "/home/hosting/koha-dev/$name"
+    userdir "$name" "/home/hosting/koha-dev/$name/etc"
+    userdir "$name" "/home/hosting/koha-dev/$name/etc/zebradb"
+    userdir "$name" "/home/hosting/koha-dev/$name/etc/zebradb/etc"
+    userdir "$name" "/home/hosting/koha-dev/$name/var/lib"
+    userdir "$name" "/home/hosting/koha-dev/$name/var/lib/zebradb"
+    userdir "$name" "/home/hosting/koha-dev/$name/var/lib/zebradb/authorities"
+    userdir "$name" "/home/hosting/koha-dev/$name/var/lib/zebradb/authorities/key"
+    userdir "$name" "/home/hosting/koha-dev/$name/var/lib/zebradb/authorities/register"
+    userdir "$name" "/home/hosting/koha-dev/$name/var/lib/zebradb/authorities/shadow"
+    userdir "$name" "/home/hosting/koha-dev/$name/var/lib/zebradb/biblios"
+    userdir "$name" "/home/hosting/koha-dev/$name/var/lib/zebradb/biblios/key"
+    userdir "$name" "/home/hosting/koha-dev/$name/var/lib/zebradb/biblios/register"
+    userdir "$name" "/home/hosting/koha-dev/$name/var/lib/zebradb/biblios/shadow"
+    userdir "$name" "/home/hosting/koha-dev/$name/var/lock"
+    userdir "$name" "/home/hosting/koha-dev/$name/var/lock/zebradb"
+    userdir "$name" "/home/hosting/koha-dev/$name/var/lock/zebradb/authorities"
+    userdir "$name" "/home/hosting/koha-dev/$name/var/lock/zebradb/biblios"
+    userdir "$name" "/home/hosting/koha-dev/$name/var/run"
+    userdir "$name" "/home/hosting/koha-dev/$name/var/run/zebradb"
+done
+

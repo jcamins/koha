@@ -1,0 +1,37 @@
+# Koha instance __KOHASITE__ Apache config.
+
+# OPAC
+<VirtualHost *:__OPACPORT__>
+   Include /home/hosting/koha-dev/shared/etc/apache-shared.conf
+#  Include /home/hosting/koha-dev/shared/etc/apache-shared-disable.conf
+   Include /home/hosting/koha-dev/shared/etc/apache-shared-opac.conf
+
+   ServerName __OPACSERVER__
+   SetEnv KOHA_CONF "/home/hosting/koha-dev/__KOHASITE__/etc/koha-conf.xml"
+   AssignUserID __UNIXUSER__ __UNIXGROUP__
+
+   Alias /images/ "/home/hosting/koha-dev/__KOHASITE__/images/"
+   Alias /favicon.ico "/home/hosting/koha-dev/__KOHASITE__/images/favicon.ico"
+
+   ErrorLog    /home/hosting/koha-dev/__KOHASITE__/var/log/opac-error.log
+#  TransferLog /home/hosting/koha-dev/__KOHASITE__/var/log/opac-access_log
+#  RewriteLog  /home/hosting/koha-dev/__KOHASITE__/var/log/opac-rewrite.log
+</VirtualHost>
+
+# Intranet
+<VirtualHost *:__INTRAPORT__>
+   Include /home/hosting/koha-dev/shared/etc/apache-shared.conf
+#  Include /home/hosting/koha-dev/shared/etc/apache-shared-disable.conf
+   Include /home/hosting/koha-dev/shared/etc/apache-shared-intranet.conf
+   
+   ServerName __INTRASERVER__
+   SetEnv KOHA_CONF "/home/hosting/koha-dev/__KOHASITE__/etc/koha-conf.xml"
+   AssignUserID __UNIXUSER__ __UNIXGROUP__
+
+   Alias /images/ "/home/hosting/koha-dev/__KOHASITE__/images/"
+   Alias /favicon.ico "/home/hosting/koha-dev/__KOHASITE__/images/favicon.ico"
+
+   ErrorLog    /home/hosting/koha-dev/__KOHASITE__/var/log/intranet-error.log
+#  TransferLog /home/hosting/koha-dev/__KOHASITE__/var/log/intranet-access_log
+#  RewriteLog  /home/hosting/koha-dev/__KOHASITE__/var/log/intranet-rewrite.log
+</VirtualHost>
