@@ -62,6 +62,7 @@ BEGIN {
 
       &GetRecordValue
       &GetFieldMapping
+      &GetSingleFieldMapping
       &SetFieldMapping
       &DeleteFieldMapping
 
@@ -580,6 +581,26 @@ sub GetFieldMapping {
     }
     return \@return;
 }
+
+=head2 GetSingleFieldMapping
+
+  GetSingleFieldMapping($frameworkcode, $mapping);
+
+Get a single field mappings for a specified frameworkcode
+
+=cut
+
+sub GetSingleFieldMapping {
+    my ($framework, $mapping) = @_;
+    my $dbh = C4::Context->dbh;
+
+    my $sth = $dbh->prepare('SELECT * FROM fieldmapping WHERE frameworkcode = ? AND field = ?');
+    $sth->execute($framework, $mapping);
+
+    my $row = $sth->fetchrow_hashref;
+    return $row;
+}
+
 
 =head2 GetBiblioData
 
