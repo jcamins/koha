@@ -1,0 +1,85 @@
+<html>
+<head>
+<title>Example Simple Cataloging Interface</title>
+<script src="http://code.jquery.com/jquery-latest.js"></script>
+<script>
+$(document).ready(function() {
+    $("#language option[value='[% language %]']").attr('selected', 'selected');
+    $("#authorlist").hide();
+});
+
+function clone_subfield( from_a ) {
+    console.debug( 'clone_subfield', from_a.parentNode );
+    var $original   = $(from_a.parentNode);
+    var $clone      = $original.clone();
+
+    $clone.insertAfter( $original );
+}
+
+
+function remove_subfield( from_a ) {
+    console.debug( 'remove_subfield', from_a );
+    var $original = $(from_a.parentNode);
+    $original.remove();
+}
+
+function authorize_heading(from_a) {
+    $.ajax({
+type: 'GET',
+url: '/cgi-bin/koha/cataloguing/simple-auth.pl',
+dataType: 'json',
+data: { op: "authorize", key: $("input[name='author']").val() },
+success: function(data){
+    for (var heading in data.headings) {
+        $("#authorlist tbody").append("<tr><td class=\"authid\">" + data.headings[heading].authid + "</td><td><a href=\"#\" onclick=\"select_author('" + data.headings[heading].authid + "', '" + data.headings[heading].summary + "'); return(false);\">" + data.headings[heading].summary + "</a></td><td>" + data.headings[heading].used + "</td></tr>");
+    }
+    $("#authorlist").show();
+}
+});
+}
+
+function select_author(authid, heading) {
+    $("#author_authid").val(authid);
+    $("#author_name").val(heading);
+    $("#authorlist").hide();
+}
+</script>
+<style type="text/css">
+.authid {
+    visibility: hidden;
+}
+</style>
+</head>
+<body>
+This page will allow you to enter bibliographic information in a form that is less confusing than the standard format.
+
+<form method="post" name="f" id="f" action="/cgi-bin/koha/cataloguing/addbiblio-simple.pl">
+    <input type="hidden" name="biblionumber" value="[% biblionumber %]"/>
+    <input type="hidden" name="op" value="addbiblio"/>
+    <div id="author"><span class="label">Author: </span><input type="hidden" name="author_authid" id="author_authid" value="[% author_authid %]"/><input type="text" name="author" id="author_name" value="[% author_name %]"/> <a href="#" onclick="authorize_heading(this); return(false);">...</a> <a href="#">+</a></div>
+    <table id="authorlist"><thead><tr><th class="authid">Authid</th><th>Heading</th><th>Times used</th></tr></thead><tbody></tbody></table>
+    <div><span class="label">Title: </span><textarea name="title" cols="64" rows="2">[% titleproper %][% IF subtitle %][% ' ' _ subtitle %][% END %][% IF responsibility %][% ' ' _ responsibility %][% END %]</textarea></div>
+    <div><span class="label">Publication city: </span><input type="text" name="city" value="[% city %]"/></div>
+    <div><span class="label">Publisher: </span><input type="text" name="publisher" value="[% publisher %]"/></div>
+    <div><span class="label">Date: </span><input type="text" name="date" size="4" maxlength="4" value="[% date %]"/></div>
+    <div><span class="label">Language: </span><select id="language" name="language">
+    [% FOREACH language IN languages %]
+        <option value="[% language.iso639_2_code %]">[% language.language_description %]</option>
+    [% END %]
+    </select>
+    <div><span class="label">Pagination: </span><input type="text" name="pagination" value="[% pagination %]"/></div>
+    <div><span class="label">Size: </span><input type="text" name="size" value="[% size %]"/></div>
+    <div><span class="label">Subjects: </span><input type="text" name="subjects"/><a href="#" onclick="alert('Authorizing subject...')">...</a> <a href="#">+</a></div>
+    [% FOREACH note IN notes %]
+    <div><span class="label">General Notes: </span><textarea name="notesinput" cols="64" rows="3">[% note %]</textarea><a href="#" onclick="clone_subfield(this); return false;">+</a> <a href="#" onclick="remove_subfield(this); return false;">-</a></div>
+    [% END %]
+    [% FOREACH note IN provenance %]
+    <div><span class="label">Provenance: </span><textarea name="provenanceinput" cols="64" rows="3">[% note %]</textarea><a href="#" onclick="clone_subfield(this); return false;">+</a> <a href="#" onclick="remove_subfield(this); return false;">-</a></div>
+    [% END %]
+    [% FOREACH note IN binding %]
+    <div><span class="label">Binding description: </span><textarea name="bindinginput" cols="64" rows="3">[% note %]</textarea><a href="#" onclick="clone_subfield(this); return false;">+</a> <a href="#" onclick="remove_subfield(this); return false;">-</a></div>
+    [% END %]
+    <input type="submit"/><input type="reset" value="Clear"/>
+</form>
+</body>
+</html>
