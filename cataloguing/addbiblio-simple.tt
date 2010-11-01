@@ -26,7 +26,7 @@ function remove_subfield( from_a ) {
 function authorize_heading(from_a) {
     $.ajax({
 type: 'GET',
-url: '/cgi-bin/koha/cataloguing/simple-auth.pl',
+url: '/cgi-bin/koha/authorities/simple-auth.pl',
 dataType: 'json',
 data: { op: "authorize", key: $("input[name='author']").val() },
 success: function(data){

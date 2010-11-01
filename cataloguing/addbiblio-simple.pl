@@ -18,13 +18,11 @@
 # Suite 330, Boston, MA  02111-1307 USA
 
 # TODO: hook into the C4 framework
-# TODO: make duplicating fields work
-# TODO: extract data from MARC record
-# TODO: add support for looking up authorities
 # TODO: make the auth_finder search more than one authority type
 # TODO: add ability push data into MARC records
 # TODO: add intelligence to parse input based on punctuation, etc.
 
+use warnings;
 use strict;
 use CGI;
 use Template;
