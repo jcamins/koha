@@ -17,7 +17,6 @@
 # Koha; if not, write to the Free Software Foundation, Inc., 59 Temple Place,
 # Suite 330, Boston, MA  02111-1307 USA
 
-# TODO: hook into the C4 framework
 # TODO: make the auth_finder search more than one authority type
 # TODO: add ability push data into MARC records
 # TODO: add intelligence to parse input based on punctuation, etc.
@@ -27,6 +26,7 @@ use strict;
 use CGI;
 use Template;
 use C4::Biblio;
+use C4::Auth;
 use C4::AuthoritiesMarc;
 use MARC::Record;
 use C4::Koha;    # XXX subfield_is_koha_internal_p
@@ -45,6 +45,10 @@ my $dbh           = C4::Context->dbh;
 my @notes;
 my @provenancenotes;
 my @bindingnotes;
+
+my ($user, $cookie, $sessionID, $flags);
+($user, $cookie, $sessionID, $flags)
+    = checkauth($cgi, 0, {catalogue => 1}, "intranet");
 
 if ( C4::Context->preference('marcflavour') eq 'UNIMARC' ) {
     MARC::File::XML->default_record_format('UNIMARC');
