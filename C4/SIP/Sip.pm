@@ -9,6 +9,9 @@ use warnings;
 use English;
 use Exporter;
 
+use Encode;
+use Unicode::Normalize;
+
 use Sys::Syslog qw(syslog);
 use POSIX qw(strftime);
 use Socket qw(:crlf);
@@ -142,6 +145,37 @@ sub boolspace {
     return $bool ? 'Y' : ' ';
 }
 
+sub clean_text {
+    my $text = shift || '';
+
+    # hardcoded to ASCII since Koha configs don't take encoding as institution params
+    my $target_encoding = 'ascii';
+
+    # Convert our incoming UTF8 data into Perl's internal string format
+
+    # Also convert to Normalization Form D, as the ASCII, iso-8859-1,
+    # and latin-1 encodings (at least) require this to substitute
+    # characters rather than simply returning a string truncated
+    # after the first non-ASCII character
+    $text = NFD(decode_utf8($text));
+
+    if ($target_encoding eq 'ascii') {
+
+        # Try to maintain a reasonable version of the content by
+        # stripping diacritics from the text, given that the SIP client
+        # wants just plain ASCII. This is the base requirement according
+        # to the SIP2 specification.
+
+        $text =~ s/\pM+//og;
+    }
+
+    # Characters that cannot be represented in the target encoding will
+    # generally be replaced with a question mark (?) character.
+    $text = encode($target_encoding, $text);
+
+    return $text;
+}
+
 
 # read_SIP_packet($file)
 #
@@ -218,7 +252,7 @@ sub write_msg {
     my ($self, $msg, $file) = @_;
     my $cksum;
 
-    # $msg = encode_utf8($msg);
+    $msg = clean_text($msg);
     if ($error_detection) {
         if (defined($self->{seqno})) {
             $msg .= 'AY' . $self->{seqno};
