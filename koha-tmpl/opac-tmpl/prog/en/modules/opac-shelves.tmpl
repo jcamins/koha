@@ -142,7 +142,7 @@ $(function() {
       <!-- TMPL_INCLUDE NAME="masthead.inc" -->
       <div id="yui-main">
         <div class="yui-b">
-          <div class="container">
+          <div id="usershelves" class="container">
           
             <!-- TMPL_IF NAME="paramsloop" -->
               <!-- TMPL_LOOP NAME="paramsloop" -->
@@ -240,7 +240,7 @@ $(function() {
                     <!-- /TMPL_UNLESS -->
                         <td><input type="checkbox" name="REM-<!-- TMPL_VAR NAME="biblionumber" -->"
                                    value="<!-- TMPL_VAR NAME="biblionumber">" /></td>
-                    <!-- TMPL_UNLESS NAME="item-level_itypes" -->
+                    <!-- TMPL_UNLESS NAME="item_level_itypes" -->
                         <td>
                           <!-- TMPL_UNLESS NAME="noItemTypeImages" -->
                           <img src="<!-- TMPL_VAR NAME="imageurl" -->" alt="<!-- TMPL_VAR NAME="description" -->" title="<!-- TMPL_VAR NAME="description" -->" />
@@ -249,6 +249,10 @@ $(function() {
                         </td>
                     <!-- /TMPL_UNLESS -->
                         <td>
+                        <!-- TMPL_IF NAME="XSLTBloc" -->
+                         <!-- TMPL_VAR NAME="XSLTBloc" -->
+                        <!-- TMPL_ELSE -->
+
                                 <!-- TMPL_IF name="BiblioDefaultViewmarc" --><a class="title" href="/cgi-bin/koha/opac-MARCdetail.pl?biblionumber=<!-- TMPL_VAR NAME="biblionumber" ESCAPE="URL" -->" title="View details for this title">
                                 <!-- TMPL_ELSE -->
                                 <!-- TMPL_IF name="BiblioDefaultViewisbd" --><a class="title" href="/cgi-bin/koha/opac-ISBDdetail.pl?biblionumber=<!-- TMPL_VAR NAME="biblionumber" ESCAPE="URL" -->" title="View details for this title">
@@ -272,7 +276,7 @@ $(function() {
         (<!-- TMPL_VAR NAME="itemcallnumber" -->)<!-- TMPL_IF NAME="__LAST__" -->.<!-- TMPL_ELSE -->,<!-- /TMPL_IF -->
           <!-- /TMPL_IF -->
           <!-- /TMPL_LOOP --><!-- TMPL_ELSE -->This record has no items.<!-- /TMPL_IF --></span>
-
+            <!-- /TMPL_IF -->
         <!-- TMPL_IF NAME="TagsEnabled" -->
                 <!-- TMPL_IF NAME="TagsShowOnList" -->
                 <!-- TMPL_IF NAME="TagLoop" -->
@@ -594,7 +598,7 @@ $(function() {
       </div>
       <!-- TMPL_IF EXPR="OpacNav||loggedinusername" -->
         <div class="yui-b">
-          <div class="container">
+          <div is="leftmenus" class="container">
             <!-- TMPL_INCLUDE NAME="navigation.inc" -->
             <!-- TMPL_INCLUDE NAME="usermenu.inc" -->
           </div>

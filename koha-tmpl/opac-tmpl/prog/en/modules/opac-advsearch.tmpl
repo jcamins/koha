@@ -94,6 +94,7 @@
 <!-- TMPL_ELSE -->
             <option value="nb">ISBN</option>
 <!-- /TMPL_IF -->
+            <option value="bc">Barcode</option>
         </select>
         <input type="text" size="30" name="q" title="Enter search terms" value="" />
 <!-- TMPL_IF NAME="expanded_options" -->
@@ -238,7 +239,7 @@
         
         <select name="limit" id="branchloop">
         <option value="">All libraries</option>
-        <!-- TMPL_LOOP NAME="branchloop" -->
+        <!-- TMPL_LOOP NAME="BranchesLoop" -->
         <!--TMPL_IF Name="selected"-->
         <option value="branch:<!-- TMPL_VAR NAME="value" -->" selected="selected"><!-- TMPL_VAR NAME="branchname" --></option>
         <!--TMPL_ELSE-->    

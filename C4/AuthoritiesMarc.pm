@@ -26,6 +26,7 @@ use C4::Search;
 use C4::AuthoritiesMarc::MARC21;
 use C4::AuthoritiesMarc::UNIMARC;
 use C4::Charset;
+use C4::Log;
 
 use vars qw($VERSION @ISA @EXPORT);
 
@@ -266,8 +267,9 @@ sub SearchAuthorities {
                             '@attr 7=2 @attr 1=Heading 0'
                            :''
                         );            
-        $query=($query?"\@or $orderstring $query":"\@or \@attr 1=_ALLRECORDS \@attr 2=103 '' $orderstring ");
-        
+        $query=($query?$query:"\@attr 1=_ALLRECORDS \@attr 2=103 ''");
+        $query="\@or $orderstring $query" if $orderstring;
+
         $offset=0 unless $offset;
         my $counter = $offset;
         $length=10 unless $length;
@@ -622,6 +624,7 @@ sub AddAuthority {
       $f5->update($time.".0");
     }
 
+    SetUTF8Flag($record);
 	if ($format eq "MARC21") {
 		if (!$record->leader) {
 			$record->leader($leader);
@@ -648,7 +651,7 @@ sub AddAuthority {
 	}
 
   if (($format eq "UNIMARCAUTH") && (!$record->subfield('100','a'))){
-        $record->leader("     nx  j22             ");
+        $record->leader("     nx  j22             ") unless ($record->leader());
         my $date=POSIX::strftime("%Y%m%d",localtime);    
         if ($record->field('100')){
           $record->field('100')->update('a'=>$date."afrey50      ba0");
@@ -699,6 +702,7 @@ sub AddAuthority {
     my $sth=$dbh->prepare("insert into auth_header (authid,datecreated,authtypecode,marc,marcxml) values (?,now(),?,?,?)");
     $sth->execute($authid,$authtypecode,$record->as_usmarc,$record->as_xml_record($format));
     $sth->finish;
+    logaction( "AUTHORITIES", "ADD", $authid, "authority" ) if C4::Context->preference("AuthoritiesLog");
   }
   ModZebra($authid,'specialUpdate',"authorityserver",$oldRecord,$record);
   return ($authid);
@@ -717,9 +721,10 @@ sub DelAuthority {
     my ($authid) = @_;
     my $dbh=C4::Context->dbh;
 
+    logaction( "AUTHORITIES", "DELETE", $authid, "authority" ) if C4::Context->preference("AuthoritiesLog");
     ModZebra($authid,"recordDelete","authorityserver",GetAuthority($authid),undef);
-    $dbh->do("delete from auth_header where authid=$authid") ;
-
+    my $sth = $dbh->prepare("DELETE FROM auth_header WHERE authid=?");
+    $sth->execute($authid);
 }
 
 sub ModAuthority {
@@ -747,6 +752,7 @@ sub ModAuthority {
       print AUTH $authid;
       close AUTH;
   }
+  logaction( "AUTHORITIES", "MODIFY", $authid, "BEFORE=>" . $oldrecord->as_formatted ) if C4::Context->preference("AuthoritiesLog");
   return $authid;
 }
 
@@ -1037,7 +1043,7 @@ sub BuildSummary{
             $narrowerterms =~s/-- \n$//;
             $seealso =~s/-- \n$//;
             $see =~s/-- \n$//;
-      $summary = "<b><a href=\"detail.pl?authid=$authid\">".$heading."</a></b><br />".($notes?"$notes <br />":"");
+      $summary = "<b>".$heading."</b><br />".($notes?"$notes <br />":"");
       $summary.= '<p><div class="label">TG : '.$broaderterms.'</div></p>' if ($broaderterms);
       $summary.= '<p><div class="label">TS : '.$narrowerterms.'</div></p>' if ($narrowerterms);
       $summary.= '<p><div class="label">TA : '.$seealso.'</div></p>' if ($seealso);

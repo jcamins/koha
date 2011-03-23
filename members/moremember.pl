@@ -1,6 +1,7 @@
 #!/usr/bin/perl
 
 # Copyright 2000-2002 Katipo Communications
+# Copyright 2010 BibLibre
 #
 # This file is part of Koha.
 #
@@ -155,7 +156,7 @@ $data->{ "sex_".$data->{'sex'}."_p" } = 1;
 
 my $catcode;
 if ( $category_type eq 'C') {
-	if ($data->{'guarantorid'} ne '0' ) {
+	if ($data->{guarantorid} ) {
     	my $data2 = GetMember( 'borrowernumber' => $data->{'guarantorid'} );
     	foreach (qw(address city B_address B_city phone mobile zipcode country B_country)) {
     	    $data->{$_} = $data2->{$_};
@@ -229,6 +230,12 @@ my $lib1 = &GetSortDetails( "Bsort1", $data->{'sort1'} );
 my $lib2 = &GetSortDetails( "Bsort2", $data->{'sort2'} );
 $template->param( lib1 => $lib1 ) if ($lib1);
 $template->param( lib2 => $lib2 ) if ($lib2);
+
+# Show OPAC privacy preference is system preference is set
+if ( C4::Context->preference('OPACPrivacy') ) {
+    $template->param( OPACPrivacy => 1);
+    $template->param( "privacy".$data->{'privacy'} => 1);
+}
 
 # current issues
 #

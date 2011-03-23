@@ -45,18 +45,23 @@ Staff Client:
             - pref: intranetuserjs
               type: textarea
               class: code
-        -   
+        -
+            - Use the image at
+            - pref: IntranetFavicon
+              class: url
+            - for the Staff Client's favicon. (This should be a complete URL, starting with <code>http://</code>.)
+        -
             - Show biblio records on result page in the staff client
             - pref: XSLTResultsDisplay
               choices:
                   yes: using XSLT stylesheets.
                   no: normally.
-        -   
+        -
             - Show item details pages in the staff client
             - pref: XSLTDetailsDisplay
               choices:
                   yes: using XSLT stylesheets.
-                  no: normally.              
+                  no: normally.
         -
             - Use the Yahoo UI libraries
             - pref: yuipath

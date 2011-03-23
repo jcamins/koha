@@ -77,7 +77,7 @@ use C4::Budgets;
 use C4::Input;
 use C4::Dates;
 
-use C4::Bookseller;		# GetBookSellerFromId
+use C4::Bookseller  qw/ GetBookSellerFromId /;
 use C4::Acquisition;
 use C4::Suggestions;	# GetSuggestion
 use C4::Biblio;			# GetBiblioData
@@ -134,7 +134,14 @@ if ( $ordernumber eq '' and defined $params->{'breedingid'}){
 
     my $duplicatetitle;
 #look for duplicates
-    if (! (($biblionumber,$duplicatetitle) = FindDuplicate($marcrecord))){
+    ($biblionumber,$duplicatetitle) = FindDuplicate($marcrecord);
+    if($biblionumber && !$input->param('use_external_source')) {
+	#if duplicate record found and user did not decide yet, first warn user
+	#and let him choose between using new record or existing record
+	Load_Duplicate($duplicatetitle);
+	exit;
+    }
+    #from this point: add a new record
         if (C4::Context->preference("BiblioAddsAuthorities")){
             my ($countlinked,$countcreated)=BiblioAddAuthorities($marcrecord, $params->{'frameworkcode'});
         }
@@ -163,11 +170,9 @@ if ( $ordernumber eq '' and defined $params->{'breedingid'}){
             }
         }
         SetImportRecordStatus($params->{'breedingid'}, 'imported');
-    }
 }
 
 
-my $cur = GetCurrency();
 
 if ( $ordernumber eq '' ) {    # create order
     $new = 'yes';
@@ -195,17 +200,35 @@ else {    #modify order
 }
 
 # get currencies (for change rates calcs if needed)
+my $active_currency = GetCurrency();
+my $default_currency;
+if (! $data->{currency} ) { # New order no currency set
+    if ( $bookseller->{listprice} ) {
+        $default_currency = $bookseller->{listprice};
+    }
+    else {
+        $default_currency = $active_currency->{currency};
+    }
+}
+
 my @rates = GetCurrencies();
-my $count = scalar @rates;
 
 # ## @rates
 
 my @loop_currency = ();
-for ( my $i = 0 ; $i < $count ; $i++ ) {
-    my %line;
-    $line{currency} = $rates[$i]->{'currency'};
-    $line{rate}     = $rates[$i]->{'rate'};
-    push @loop_currency, \%line;
+for my $curr ( @rates ) {
+    my $selected;
+    if ($data->{currency} ) {
+        $selected = $curr->{currency} eq $data->{currency};
+    }
+    else {
+        $selected = $curr->{currency} eq $default_currency;
+    }
+    push @loop_currency, {
+        currcode => $curr->{currency},
+        rate     => $curr->{rate},
+        selected => $selected,
+    }
 }
 
 # build branches list
@@ -334,9 +357,8 @@ $template->param(
     listincgst       => $bookseller->{'listincgst'},
     invoiceincgst    => $bookseller->{'invoiceincgst'},
     name             => $bookseller->{'name'},
-    cur_active_sym   => $cur->{'symbol'},
-    cur_active       => $cur->{'currency'},
-    currency         => $bookseller->{'listprice'} || $cur->{'currency'}, # eg: 'EUR'
+    cur_active_sym   => $active_currency->{'symbol'},
+    cur_active       => $active_currency->{'currency'},
     loop_currencies  => \@loop_currency,
     orderexists      => ( $new eq 'yes' ) ? 0 : 1,
     title            => $data->{'title'},
@@ -348,7 +370,7 @@ $template->param(
     quantity         => $data->{'quantity'},
     quantityrec      => $data->{'quantity'},
     rrp              => $data->{'rrp'},
-    listprice        => sprintf("%.2f", $data->{'listprice'}||$listprice),
+    listprice        => sprintf("%.2f", $data->{'listprice'}||$data->{'price'}||$listprice),
     total            => sprintf("%.2f", ($data->{'ecost'}||0)*($data->{'quantity'}||0) ),
     ecost            => $data->{'ecost'},
     notes            => $data->{'notes'},
@@ -471,3 +493,26 @@ sub MARCfindbreeding {
     return -1;
 }
 
+sub Load_Duplicate {
+  my ($duplicatetitle)= @_;
+  ($template, $loggedinuser, $cookie) = get_template_and_user(
+    {
+        template_name   => "acqui/neworderempty_duplicate.tmpl",
+        query           => $input,
+        type            => "intranet",
+        authnotrequired => 0,
+        flagsrequired   => { acquisition => 'order_manage' },
+#        debug           => 1,
+    }
+  );
+
+  $template->param(
+    biblionumber        => $biblionumber,
+    basketno            => $basketno,
+    booksellerid        => $basket->{'booksellerid'},
+    breedingid          => $params->{'breedingid'},
+    duplicatetitle      => $duplicatetitle,
+  );
+
+  output_html_with_http_headers $input, $cookie, $template->output;
+}

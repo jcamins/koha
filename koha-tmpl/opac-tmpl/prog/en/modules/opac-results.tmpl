@@ -235,7 +235,7 @@ $(document).ready(function(){
 
 	<div id="yui-main">
 	<div class="yui-b">
-	<div class="container">
+	<div id="userresults" class="container">
   <!-- TMPL_IF NAME="koha_spsuggest" -->
 	Did you mean:
     <ul style="list-style: none;">
@@ -332,8 +332,10 @@ $(document).ready(function(){
             <!-- checkall, clearall are now needed for placehold -->
             <span class="checkall"></span>
         	<span class="clearall"></span>
-            <a href="#" class="highlight_toggle" id="highlight_toggle_off">Unhighlight</a>
-            <a href="#" class="highlight_toggle" id="highlight_toggle_on">Highlight</a>
+            <!-- TMPL_IF NAME="OpacHighlightedWords" -->
+            	<a href="#" class="highlight_toggle" id="highlight_toggle_off">Unhighlight</a>
+            	<a href="#" class="highlight_toggle" id="highlight_toggle_on">Highlight</a>
+            <!-- /TMPL_IF -->
             <!-- TMPL_IF EXPR="opacbookbag || virtualshelves" -->
     	    	<span class="addto"></span>
             <!-- /TMPL_IF -->
@@ -372,8 +374,9 @@ $(document).ready(function(){
 <!-- TMPL_IF NAME="RequestOnOpac" --><!-- TMPL_UNLESS NAME="norequests" --><!-- TMPL_IF NAME="opacuserlogin" --><input type="checkbox" id="bib<!-- TMPL_VAR NAME="biblionumber" -->" name="biblionumber" value="<!-- TMPL_VAR NAME="biblionumber" -->" /> <label for="bib<!-- TMPL_VAR NAME="biblionumber" -->"></label><!-- /TMPL_IF --><!-- /TMPL_UNLESS --><!-- /TMPL_IF --><!-- /TMPL_IF --><!-- /TMPL_IF --></td>
                 <td class="select selectcol"><!-- TMPL_VAR NAME="result_number" -->.</td>
 
-				<!-- TMPL_UNLESS NAME="item-level_itypes" -->
+				<!-- TMPL_UNLESS NAME="item_level_itypes" -->
                 <!-- TMPL_UNLESS NAME="noItemTypeImages" -->
+
 				<td class="itypecol">
                 <!-- TMPL_IF name="imageurl" -->
 				<img src="<!-- TMPL_VAR name="imageurl" -->" title="<!-- TMPL_VAR name="description" -->" alt="<!-- TMPL_VAR name="description" -->" />
@@ -541,7 +544,7 @@ $(document).ready(function(){
 </div>
 </div>
         <!-- TMPL_IF NAME="opacfacets" -->
-<div class="yui-b"><div class="container">
+<div class="yui-b"><div id="facetcontainer" class="container">
         <!-- FACETS START -->
 		<!-- TMPL_INCLUDE NAME="opac-facets.inc" -->
         <!-- FACETS END -->
