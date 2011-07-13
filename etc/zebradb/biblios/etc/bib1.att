@@ -360,3 +360,7 @@ att 9653    Index-term-uncontrolled
 att 9655    Index-term-genre
 att 9906    ln-audio
 att 9907    ln-subtitle
+
+att 9510    Note-reference
+att 9561    Note-provenance
+att 9563    Note-binding
