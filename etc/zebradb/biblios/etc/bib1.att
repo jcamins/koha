@@ -291,3 +291,7 @@ att 9013    arp
 att 9520    Item
 # Curriculum
 att 9658    curriculum
+
+att 9510    Note-reference
+att 9561    Note-provenance
+att 9563    Note-binding
