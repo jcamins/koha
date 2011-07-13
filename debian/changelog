@@ -68,6 +68,12 @@ koha (3.4.2-1) squeeze; urgency=low
 
  -- Robin Sheat <robin@catalyst.net.nz>  Fri, 15 Jul 2011 15:02:54 +1200
 
+koha (3.5-1~git20110712202625.986be376) squeeze-dev; urgency=low
+
+  * Initial package for C & P Bibliography
+
+ -- Jared Camins-Esakov <jcamins@cpbibliography.com>  Tue, 12 Jul 2011 20:26:29 -0400
+
 koha (3.2.9-1) squeeze; urgency=high
 
   * New upstream release (3.02.09)
