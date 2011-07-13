@@ -156,13 +156,15 @@ melm 502        Material-type
 melm 505$r      Author
 melm 505$t      Title
 melm 505        Note:w,Note:p
-melm 510        Indexed-by
+melm 510        Indexed-by:w,Indexed-by:p,Indexed-by:s
 melm 520        Abstract:w,Abstract:p
 melm 521$a      lex:n
 melm 526$c      arl,arl:n
 melm 526$d      arp,arp:n
 #melm 533$d     pubdate,pubdate:s
 #melm 541$d     Date-of-acquisition,Date-of-acquisition:s
+melm 561        Note-provenance:w
+melm 563        Note-binding:w
 melm 590        Note:w,Note:p
 
 melm 600$a      Name-and-title,Name,Personal-name,Subject-name-personal,Subject,Subject:p
