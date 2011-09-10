@@ -1,0 +1,89 @@
+#!/usr/bin/perl
+
+use Config::Simple;
+use POSIX qw/strftime/;
+use Getopt::Long;
+use IO::Compress::Gzip qw(:constants);
+
+my $mysqluser;
+my $mysqlpass;
+my $kohapath = "/var/lib/koha";
+my $backuppath = "backups";
+my $incbase = '';
+my $config = 'config';
+my $mode = 'full';
+my $name;
+my $filename;
+my $incremental;
+
+GetOptions (
+    'incremental' => \$incremental,
+    'mysqluser=s' => \$mysqluser,
+    'mysqlpass=s' => \$mysqlpass,
+    'koha-path=s' => \$kohapath,
+    'backup-path=s' => \$backuppath,
+    'create-base' => \$incbase,
+    'config' => \$config
+);
+
+if ($incremental) {
+    $mode = 'inc';
+}
+
+if (!$mysqluser) {
+    my $mysqlcfg = Config::Simple->new('/etc/mysql/debian.cnf');
+    $mysqluser ||= $mysqlcfg->param("client.user");
+    $mysqlpass ||= $mysqlcfg->param("client.password");
+}
+
+die "Couldn't retrieve database credentials.\n" if (!$mysqluser);
+
+foreach (@ARGV) {
+    $name = $_;
+
+    my $backupcfg = Config::Simple->new(syntax=>'ini') or die Config::Simple->error();
+    my $filename = "$kohapath/$name/$backuppath/$name-$mode-" . strftime('%Y-%m-%d-%H%M%S', localtime) . ".sql";
+    my $configfile = "$kohapath/$name/$backuppath/$config";
+    my $gz = new IO::Compress::Gzip "$filename.gz", { -Level => Z_BEST_COMPRESSION };
+
+    if ($mode eq 'full') {
+        open(FULL, "mysqldump --user=$mysqluser --pass=$mysqlpass --disable-keys --single-transaction --quick --master-data=2 $name |") or die "Couldn't open pipe from mysqldump for $name.\n";
+
+        eval {
+            while (<FULL>) {
+                $gz->print($_);
+                if ( m/-- CHANGE MASTER TO MASTER_LOG_FILE='([^']*)', MASTER_LOG_POS=([0-9]*);/ ) {
+                    $backupcfg->param('logfile', $1);
+                    $backupcfg->param('position', $2);
+                }
+            }
+        };
+
+        die "Error writing full backup for $name.\n" if ($@);
+
+        eval { close (FULL) };
+
+        if ($incbase) {
+            $backupcfg->param('base', $filename);
+            $backupcfg->write("$configfile");
+        }
+    } elsif ($mode eq 'inc') {
+        $backupcfg->read("$configfile") || die "Unable to find log coordinates for $name.\n";
+        my $logfile = $backupcfg->param('logfile');
+        my $position = $backupcfg->param('position');
+
+        open(INC, "mysqlbinlog --to-last-log --read-from-remote-server --user=$mysqluser --pass=$mysqlpass --database=$name --start-position=$position $logfile |") or die "Unable to open pipe from mysqlbinlog for $name.\n";
+
+        eval {
+            while (<INC>) {
+                s/\/\*!\*\///; # remove empty comments
+                if ( m/^#/ || m/^$/ ) {
+                    # no-op, strip comments
+                } else {
+                    $gz->print($_) ;
+                }
+            }
+        }
+    }
+    $gz->close();
+}
