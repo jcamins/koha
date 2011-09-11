@@ -1,30 +1,60 @@
 #!/usr/bin/perl
+#
+# Copyright (C) 2011 C & P Bibliography Services
+#
+# This file is part of Koha.
+#
+# Koha is free software; you can redistribute it and/or modify it under the
+# terms of the GNU General Public License as published by the Free Software
+# Foundation; either version 2 of the License, or (at your option) any later
+# version.
+#
+# Koha is distributed in the hope that it will be useful, but WITHOUT ANY
+# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+# A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with Koha; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
 
 use Config::Simple;
-use POSIX qw/strftime/;
+use File::Path;
 use Getopt::Long;
 use IO::Compress::Gzip qw(:constants);
+use Pod::Usage;
+use POSIX qw/strftime/;
+
+sub usage {
+    pod2usage( -verbose => 2 );
+    exit;
+}
 
 my $mysqluser;
 my $mysqlpass;
 my $kohapath = "/var/lib/koha";
 my $backuppath = "backups";
-my $incbase = '';
+my $checkpoint = '';
 my $config = 'config';
 my $mode = 'full';
 my $name;
 my $filename;
 my $incremental;
+my $verbose;
 
 GetOptions (
-    'incremental' => \$incremental,
+    'incremental|i' => \$incremental,
+    'checkpoint|c' => \$checkpoint,
     'mysqluser=s' => \$mysqluser,
     'mysqlpass=s' => \$mysqlpass,
     'koha-path=s' => \$kohapath,
     'backup-path=s' => \$backuppath,
-    'create-base' => \$incbase,
-    'config' => \$config
+    'configfile' => \$config,
+    'help|h' => \$help,
+    'verbose|v' => \$verbose,
 );
+
+usage() if $help;
 
 if ($incremental) {
     $mode = 'inc';
@@ -39,8 +69,9 @@ if (!$mysqluser) {
 die "Couldn't retrieve database credentials.\n" if (!$mysqluser);
 
 foreach (@ARGV) {
-    $name = $_;
+    $name = "koha_$_";
 
+    mkpath("$kohapath/$name/$backuppath");
     my $backupcfg = Config::Simple->new(syntax=>'ini') or die Config::Simple->error();
     my $filename = "$kohapath/$name/$backuppath/$name-$mode-" . strftime('%Y-%m-%d-%H%M%S', localtime) . ".sql";
     my $configfile = "$kohapath/$name/$backuppath/$config";
@@ -63,7 +94,7 @@ foreach (@ARGV) {
 
         eval { close (FULL) };
 
-        if ($incbase) {
+        if ($checkpoint) {
             $backupcfg->param('base', $filename);
             $backupcfg->write("$configfile");
         }
@@ -71,9 +102,11 @@ foreach (@ARGV) {
         $backupcfg->read("$configfile") || die "Unable to find log coordinates for $name.\n";
         my $logfile = $backupcfg->param('logfile');
         my $position = $backupcfg->param('position');
+        my $base = $backupcfg->param('base');
 
         open(INC, "mysqlbinlog --to-last-log --read-from-remote-server --user=$mysqluser --pass=$mysqlpass --database=$name --start-position=$position $logfile |") or die "Unable to open pipe from mysqlbinlog for $name.\n";
 
+        $gz->print("# Based on full backup in $base (logfile: $logfile, position: $position)\n");
         eval {
             while (<INC>) {
                 s/\/\*!\*\///; # remove empty comments
@@ -86,4 +119,73 @@ foreach (@ARGV) {
         }
     }
     $gz->close();
+    chown getpwnam("$name-koha"), getgrnam("$name-koha"), "$filename.gz";
 }
+
+=head1 NAME
+
+koha-backup
+
+=head1 SYNOPSIS
+
+  koha-backup instancename
+  koha-backup --incremental instancename
+  koha-backup --checkpoint instancename
+
+=head1 DESCRIPTION
+
+koha-backup is used to backup the Koha database. By default, the script creates
+a full backup, but it can be configured to create incremental backups when
+binary logging is enabled, and a checkpoint has been initialized. Incremental
+backups require a MySQL user with the REPLICATION SLAVE permission, so by
+default the script uses the Debian system maintenance MySQL user (and therefore
+must be run as root).
+
+=over 8
+
+=item B<--help>
+
+Prints this help.
+
+=item B<-v>
+
+Provide verbose log information.
+
+=item B<--incremental>
+
+Creates an incremental backup with the events since the last checkpoint. If no
+checkpoint has been created, this will fail.
+
+=item B<--checkpoint>
+
+Creates a checkpoint full backup for use with future incremental backups. The
+checkpoint is described in the configuration file, which by default is stored
+in /var/lib/koha/instancename/backups/config.
+
+=item B<--mysqluser=user>
+
+Specify the MySQL user.
+
+=item B<--mysqlpass=pass>
+
+Specify the MySQL password.
+
+=item B<--koha-path=/var/lib/koha>
+
+Specify the Koha home path, without a training slash. On default package
+installations, this is /var/lib/koha.
+
+=item B<--backup-path=backups>
+
+Specify the path backups should be stored in, without a training slash. On
+default package installations, this is backups. If the directory does not exist,
+it will be created.
+
+=item B<--configfile=config>
+
+Specify the name of the backup configuration file. This file will not exist
+until after you create a checkpoint backup.
+
+=back
+
+=cut
