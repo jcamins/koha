@@ -172,12 +172,12 @@ Specify the MySQL password.
 
 =item B<--koha-path=/var/lib/koha>
 
-Specify the Koha home path, without a training slash. On default package
+Specify the Koha home path, without a trailing slash. On default package
 installations, this is /var/lib/koha.
 
 =item B<--backup-path=backups>
 
-Specify the path backups should be stored in, without a training slash. On
+Specify the path backups should be stored in, without a trailing slash. On
 default package installations, this is backups. If the directory does not exist,
 it will be created.
 
