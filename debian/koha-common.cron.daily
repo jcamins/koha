@@ -24,3 +24,4 @@ koha-foreach --enabled /usr/share/koha/bin/cronjobs/cleanup_database.pl --sessio
 koha-foreach --enabled --noemail /usr/share/koha/bin/cronjobs/cleanup_database.pl --mail
 koha-foreach --enabled /usr/share/koha/bin/cronjobs/holds/auto_unsuspend_holds.pl > /dev/null 2>&1
 koha-run-backups --days 2 --output /var/spool/koha
+koha-foreach --enabled /usr/sbin/koha-backup-s3
