@@ -61,11 +61,14 @@ use C4::Debug;
 my $input = new CGI;
 my $title                   = $input->param( 'title');
 my $author                  = $input->param('author');
+my $isbn          	    = $input->param('isbn');
 my $name                    = $input->param( 'name' );
 my $basket                  = $input->param( 'basket' );
 my $booksellerinvoicenumber = $input->param( 'booksellerinvoicenumber' );
-my $from_placed_on          = C4::Dates->new($input->param('from')) if $input->param('from');
-my $to_placed_on            = C4::Dates->new($input->param(  'to')) if $input->param('to');
+my $from_placed_on          = $input->param('from');
+$from_placed_on             = C4::Dates->new($from_placed_on) if $from_placed_on;
+my $to_placed_on            = $input->param('to');
+$to_placed_on               = C4::Dates->new($to_placed_on) if $to_placed_on;
 
 my $dbh = C4::Context->dbh;
 my ( $template, $loggedinuser, $cookie ) = get_template_and_user(
@@ -89,12 +92,13 @@ if ( $d = $input->param('iso') ) {
 
 my ( $order_loop, $total_qty, $total_price, $total_qtyreceived );
 # If we're supplied any value then we do a search. Otherwise we don't.
-my $do_search = $title || $author || $name || $basket || $booksellerinvoicenumber ||
+my $do_search = $title || $author || $isbn || $name || $basket || $booksellerinvoicenumber ||
     $from_placed_on || $to_placed_on;
 if ($do_search) {
     ( $order_loop, $total_qty, $total_price, $total_qtyreceived ) = GetHistory(
         title => $title,
         author => $author,
+	isbn   => $isbn,
         name => $name,
         from_placed_on => $from_iso,
         to_placed_on => $to_iso,
@@ -103,8 +107,8 @@ if ($do_search) {
     );
 }
 
-my $from_date = $from_placed_on->output('syspref') if $from_placed_on;
-my $to_date = $to_placed_on->output('syspref') if $to_placed_on;
+my $from_date = $from_placed_on ? $from_placed_on->output('syspref') : undef;
+my $to_date = $to_placed_on ? $to_placed_on->output('syspref') : undef;
 
 $template->param(
     suggestions_loop        => $order_loop,
@@ -114,6 +118,7 @@ $template->param(
     numresults              => $order_loop ? scalar(@$order_loop) : undef,
     title                   => $title,
     author                  => $author,
+    isbn		    => $isbn,
     name                    => $name,
     basket                  => $basket,
     booksellerinvoicenumber => $booksellerinvoicenumber,

@@ -52,6 +52,7 @@ use C4::Branch; # GetBranchName
 use C4::Form::MessagingPreferences;
 use C4::NewsChannels; #get slip news
 use List::MoreUtils qw/uniq/;
+use C4::Members::Attributes qw(GetBorrowerAttributes);
 
 #use Smart::Comments;
 #use Data::Dumper;
@@ -259,15 +260,12 @@ sub build_issue_data {
     my $localissue;
 
     for ( my $i = 0 ; $i < $issuecount ; $i++ ) {
-        # Getting borrower details
-        my $memberdetails = GetMemberDetails($issue->[$i]{'borrowernumber'});
-        $issue->[$i]{'borrowername'} = $memberdetails->{'firstname'} . " " . $memberdetails->{'surname'};
-        $issue->[$i]{'cardnumber'} = $memberdetails->{'cardnumber'};
         my $datedue = $issue->[$i]{'date_due'};
         my $issuedate = $issue->[$i]{'issuedate'};
         $issue->[$i]{'date_due'}  = C4::Dates->new($issue->[$i]{'date_due'}, 'iso')->output('syspref');
         $issue->[$i]{'issuedate'} = C4::Dates->new($issue->[$i]{'issuedate'},'iso')->output('syspref');
         my $biblionumber = $issue->[$i]{'biblionumber'};
+        $issue->[$i]{'issuingbranchname'} = GetBranchName($issue->[$i]{'branchcode'});
         my %row = %{ $issue->[$i] };
         $totalprice += $issue->[$i]{'replacementprice'};
         $row{'replacementprice'} = $issue->[$i]{'replacementprice'};
@@ -305,7 +303,7 @@ sub build_issue_data {
 
         #find the charge for an item
         my ( $charge, $itemtype ) =
-          GetIssuingCharges( $issue->[$i]{'itemnumber'}, $borrowernumber );
+          GetIssuingCharges( $issue->[$i]{'itemnumber'}, $issue->[$i]{'borrowernumber'} );
 
         my $itemtypeinfo = getitemtypeinfo($itemtype);
         $row{'itemtype_description'} = $itemtypeinfo->{description};
@@ -313,7 +311,7 @@ sub build_issue_data {
 
         $row{'charge'} = sprintf( "%.2f", $charge );
 
-        my ( $renewokay,$renewerror ) = CanBookBeRenewed( $borrowernumber, $issue->[$i]{'itemnumber'}, $override_limit );
+        my ( $renewokay,$renewerror ) = CanBookBeRenewed( $issue->[$i]{'borrowernumber'}, $issue->[$i]{'itemnumber'}, $override_limit );
         $row{'norenew'} = !$renewokay;
         $row{'can_confirm'} = ( !$renewokay && $renewerror ne 'on_reserve' );
         $row{"norenew_reason_$renewerror"} = 1 if $renewerror;
@@ -427,8 +425,11 @@ my $branch=C4::Context->userenv->{'branch'};
 $template->param(%$data);
 
 if (C4::Context->preference('ExtendedPatronAttributes')) {
-    $template->param(ExtendedPatronAttributes => 1);
-    $template->param(patron_attributes => C4::Members::Attributes::GetBorrowerAttributes($borrowernumber));
+    my $attributes = GetBorrowerAttributes($borrowernumber);
+    $template->param(
+        ExtendedPatronAttributes => 1,
+        extendedattributes => $attributes
+    );
     my @types = C4::Members::AttributeTypes::GetAttributeTypes();
     if (scalar(@types) == 0) {
         $template->param(no_patron_attribute_types => 1);

@@ -54,6 +54,10 @@ sub get_out ($$$) {
 # get borrower information ....
 my ( $borr ) = GetMemberDetails( $borrowernumber );
 
+# Pass through any reserve charge
+if ($borr->{reservefee} > 0){
+    $template->param( RESERVE_CHARGE => sprintf("%.2f",$borr->{reservefee}));
+}
 # get branches and itemtypes
 my $branches = GetBranches();
 my $itemTypes = GetItemTypes();
@@ -119,6 +123,20 @@ foreach my $biblioNumber (@biblionumbers) {
     $biblioDataHash{$biblioNumber} = $biblioData;
 
     my @itemInfos = GetItemsInfo($biblioNumber);
+
+    my $marcrecord= GetMarcBiblio($biblioNumber);
+
+	# flag indicating existence of at least one item linked via a host record
+	my $hostitemsflag;
+	# adding items linked via host biblios
+	my @hostitemInfos = GetHostItemsInfo($marcrecord);
+	if (@hostitemInfos){
+		$hostitemsflag =1;
+	        push (@itemInfos,@hostitemInfos);
+	}
+
+
+
     $biblioData->{itemInfos} = \@itemInfos;
     foreach my $itemInfo (@itemInfos) {
         $itemInfoHash{$itemInfo->{itemnumber}} = $itemInfo;
@@ -183,6 +201,14 @@ if ( $query->param('place_reserve') ) {
         if ($singleBranchMode || ! $OPACChooseBranch) { # single branch mode or disabled user choosing
             $branch = $borr->{'branchcode'};
         }
+
+	#item may belong to a host biblio, if yes change biblioNum to hosts bilbionumber
+	if ($itemNum ne '') {
+		my $hostbiblioNum = GetBiblionumberFromItemnumber($itemNum);
+		if ($hostbiblioNum ne $biblioNum) {
+			$biblioNum = $hostbiblioNum;
+		}
+	}
 
         my $biblioData = $biblioDataHash{$biblioNum};
         my $found;
@@ -378,6 +404,11 @@ foreach my $biblioNum (@biblionumbers) {
         my ($reservedate,$reservedfor,$expectedAt) = GetReservesFromItemnumber($itemNum);
         my $ItemBorrowerReserveInfo = GetMemberDetails( $reservedfor, 0);
 
+	# the item could be reserved for this borrower vi a host record, flag this
+	if ($reservedfor eq $borrowernumber){
+		$itemLoopIter->{already_reserved} = 1;
+	}
+
         if ( defined $reservedate ) {
             $itemLoopIter->{backgroundcolor} = 'reserved';
             $itemLoopIter->{reservedate}     = format_date($reservedate);
@@ -419,6 +450,13 @@ foreach my $biblioNum (@biblionumbers) {
             $itemLoopIter->{nocancel} = 1;
         }
 
+	# if the items belongs to a host record, show link to host record
+	if ($itemInfo->{biblionumber} ne $biblioNum){
+		$biblioLoopIter{hostitemsflag} = 1;
+		$itemLoopIter->{hostbiblionumber} = $itemInfo->{biblionumber};
+		$itemLoopIter->{hosttitle} = GetBiblioData($itemInfo->{biblionumber})->{title};
+	}
+
         # If there is no loan, return and transfer, we show a checkbox.
         $itemLoopIter->{notforloan} = $itemLoopIter->{notforloan} || 0;
 
@@ -432,7 +470,7 @@ foreach my $biblioNum (@biblionumbers) {
             $policy_holdallowed = 0;
         }
 
-        if (IsAvailableForItemLevelRequest($itemNum) and $policy_holdallowed and CanItemBeReserved($borrowernumber,$itemNum)) {
+        if (IsAvailableForItemLevelRequest($itemNum) and $policy_holdallowed and CanItemBeReserved($borrowernumber,$itemNum) and ($itemLoopIter->{already_reserved} ne 1)) {
             $itemLoopIter->{available} = 1;
             $numCopiesAvailable++;
         }
@@ -447,13 +485,13 @@ foreach my $biblioNum (@biblionumbers) {
 	$itemLoopIter->{imageurl} = getitemtypeimagelocation( 'opac', $itemTypes->{ $itemInfo->{itype} }{imageurl} );
 
     # Show serial enumeration when needed
-    if ($itemLoopIter->{enumchron}) {
-        $itemdata_enumchron = 1;
-    }
-    $template->param( itemdata_enumchron => $itemdata_enumchron );
+        if ($itemLoopIter->{enumchron}) {
+            $itemdata_enumchron = 1;
+        }
 
         push @{$biblioLoopIter{itemLoop}}, $itemLoopIter;
     }
+    $template->param( itemdata_enumchron => $itemdata_enumchron );
 
     if ($numCopiesAvailable > 0) {
         $numBibsAvailable++;

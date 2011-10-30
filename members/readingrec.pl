@@ -32,6 +32,7 @@ use C4::Branch;
 use List::MoreUtils qw/any/;
 
 use C4::Dates qw/format_date/;
+use C4::Members::Attributes qw(GetBorrowerAttributes);
 
 my $input = CGI->new;
 
@@ -96,6 +97,14 @@ if (! $limit){
 my ($picture, $dberror) = GetPatronImage($data->{'cardnumber'});
 $template->param( picture => 1 ) if $picture;
 
+if (C4::Context->preference('ExtendedPatronAttributes')) {
+    my $attributes = GetBorrowerAttributes($borrowernumber);
+    $template->param(
+        ExtendedPatronAttributes => 1,
+        extendedattributes => $attributes
+    );
+}
+
 $template->param(
 						readingrecordview => 1,
 						biblionumber => $data->{'biblionumber'},
@@ -122,7 +131,8 @@ $template->param(
 			   			is_child        => ($data->{'category_type'} eq 'C'),
 			   			branchname => GetBranchName($data->{'branchcode'}),
 						showfulllink => (scalar @loop_reading > 50),					
-						loop_reading => \@loop_reading);
+						loop_reading => \@loop_reading,
+);
 output_html_with_http_headers $input, $cookie, $template->output;
 
 

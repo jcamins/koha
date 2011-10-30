@@ -48,6 +48,13 @@
             <li> <span class="empty">No email stored.</span>    </li>
         [% END %]
     [% END %]
+    [% IF ( ExtendedPatronAttributes ) %][% FOREACH extendedattribute IN extendedattributes %]
+        [% IF ( extendedattribute.display_checkout ) %]
+            [% IF ( extendedattribute.value ) %]
+                <li>[% extendedattribute.description %] : [% IF ( extendedattribute.value_description ) %][% extendedattribute.value_description %][% ELSE %][% extendedattribute.value %][% END %]</li>
+            [% END %]
+        [% END %]
+    [% END %][% END %]
     <li>Category: [% categoryname %] ([% categorycode %])</li>
     <li>Home Library: [% IF ( branchname ) %][% branchname %][% ELSE %][% branch %][% END %]</li>
 </ul></div>
@@ -63,7 +70,6 @@
 	[% IF ( intranetreadinghistory ) %][% IF ( readingrecordview ) %]<li class="active">[% ELSE %]<li>[% END %]<a href="/cgi-bin/koha/members/readingrec.pl?borrowernumber=[% borrowernumber %]">Circulation History</a></li>[% END %]
 	[% IF ( CAN_user_parameters ) %][% IF ( logview ) %]<li class="active">[% ELSE %]<li>[% END %]<a href="/cgi-bin/koha/tools/viewlog.pl?do_it=1&amp;modules=MEMBERS&amp;modules=circulation&amp;object=[% borrowernumber %]&amp;src=circ">Modification Log</a></li>[% END %]
     [% IF ( EnhancedMessagingPreferences ) %]
-    [% IF ( messagingview ) %]<li class="active">[% ELSE %]<li>[% END %]<a href="/cgi-bin/koha/members/messaging.pl?borrowernumber=[% borrowernumber %]">Messaging</a></li>
     [% END %]	
 	[% IF ( sentnotices ) %]<li class="active">[% ELSE %]<li>[% END %]<a href="/cgi-bin/koha/members/notices.pl?borrowernumber=[% borrowernumber %]">Notices</a></li>
 </ul></div>

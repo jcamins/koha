@@ -23,8 +23,7 @@ use strict;
 use C4::Context;
 use C4::Stats;
 use C4::Members;
-use C4::Items;
-use C4::Circulation qw(MarkIssueReturned);
+use C4::Circulation qw(ReturnLostItem);
 
 use vars qw($VERSION @ISA @EXPORT);
 
@@ -38,7 +37,9 @@ BEGIN {
 		&getnextacctno &reconcileaccount &getcharges &ModNote &getcredits
 		&getrefunds &chargelostitem
 		&ReversePayment
-	); # removed &fixaccounts
+        makepartialpayment
+        recordpayment_selectaccts
+	);
 }
 
 =head1 NAME
@@ -216,7 +217,7 @@ sub makepayment {
 
     #check to see what accounttype
     if ( $data->{'accounttype'} eq 'Rep' || $data->{'accounttype'} eq 'L' ) {
-        returnlost( $borrowernumber, $data->{'itemnumber'} );
+        ReturnLostItem( $borrowernumber, $data->{'itemnumber'} );
     }
 }
 
@@ -276,64 +277,34 @@ EOT
 
 =cut
 
-sub returnlost{
-    my ( $borrowernumber, $itemnum ) = @_;
-    C4::Circulation::MarkIssueReturned( $borrowernumber, $itemnum );
-    my $borrower = C4::Members::GetMember( 'borrowernumber'=>$borrowernumber );
-    my @datearr = localtime(time);
-    my $date = ( 1900 + $datearr[5] ) . "-" . ( $datearr[4] + 1 ) . "-" . $datearr[3];
-    my $bor = "$borrower->{'firstname'} $borrower->{'surname'} $borrower->{'cardnumber'}";
-    ModItem({ paidfor =>  "Paid for by $bor $date" }, undef, $itemnum);
-}
-
-
 sub chargelostitem{
 # lost ==1 Lost, lost==2 longoverdue, lost==3 lost and paid for
 # FIXME: itemlost should be set to 3 after payment is made, should be a warning to the interface that
 # a charge has been added
 # FIXME : if no replacement price, borrower just doesn't get charged?
-   
     my $dbh = C4::Context->dbh();
-    my ($itemnumber) = @_;
-    my $sth=$dbh->prepare("SELECT issues.*,items.*,biblio.title 
-                           FROM issues 
-                           JOIN items USING (itemnumber) 
-                           JOIN biblio USING (biblionumber)
-                           WHERE issues.itemnumber=?");
-    $sth->execute($itemnumber);
-    my $issues=$sth->fetchrow_hashref();
+    my ($borrowernumber, $itemnumber, $amount, $description) = @_;
 
-    # if a borrower lost the item, add a replacement cost to the their record
-    if ( $issues->{borrowernumber} ){
+    # first make sure the borrower hasn't already been charged for this item
+    my $sth1=$dbh->prepare("SELECT * from accountlines
+    WHERE borrowernumber=? AND itemnumber=? and accounttype='L'");
+    $sth1->execute($borrowernumber,$itemnumber);
+    my $existing_charge_hashref=$sth1->fetchrow_hashref();
 
-        # first make sure the borrower hasn't already been charged for this item
-        my $sth1=$dbh->prepare("SELECT * from accountlines
-        WHERE borrowernumber=? AND itemnumber=? and accounttype='L'");
-        $sth1->execute($issues->{'borrowernumber'},$itemnumber);
-        my $existing_charge_hashref=$sth1->fetchrow_hashref();
-
-        # OK, they haven't
-        unless ($existing_charge_hashref) {
-            # This item is on issue ... add replacement cost to the borrower's record and mark it returned
-            #  Note that we add this to the account even if there's no replacement price, allowing some other
-            #  process (or person) to update it, since we don't handle any defaults for replacement prices.
-            my $accountno = getnextacctno($issues->{'borrowernumber'});
-            my $sth2=$dbh->prepare("INSERT INTO accountlines
-            (borrowernumber,accountno,date,amount,description,accounttype,amountoutstanding,itemnumber)
-            VALUES (?,?,now(),?,?,'L',?,?)");
-            $sth2->execute($issues->{'borrowernumber'},$accountno,$issues->{'replacementprice'},
-            "Lost Item $issues->{'title'} $issues->{'barcode'}",
-            $issues->{'replacementprice'},$itemnumber);
-            $sth2->finish;
-        # FIXME: Log this ?
-        }
-        #FIXME : Should probably have a way to distinguish this from an item that really was returned.
-        #warn " $issues->{'borrowernumber'}  /  $itemnumber ";
-        C4::Circulation::MarkIssueReturned($issues->{borrowernumber},$itemnumber);
-	#  Shouldn't MarkIssueReturned do this?
-        C4::Items::ModItem({ onloan => undef }, undef, $itemnumber);
+    # OK, they haven't
+    unless ($existing_charge_hashref) {
+        # This item is on issue ... add replacement cost to the borrower's record and mark it returned
+        #  Note that we add this to the account even if there's no replacement price, allowing some other
+        #  process (or person) to update it, since we don't handle any defaults for replacement prices.
+        my $accountno = getnextacctno($borrowernumber);
+        my $sth2=$dbh->prepare("INSERT INTO accountlines
+        (borrowernumber,accountno,date,amount,description,accounttype,amountoutstanding,itemnumber)
+        VALUES (?,?,now(),?,?,'L',?,?)");
+        $sth2->execute($borrowernumber,$accountno,$amount,
+        $description,$amount,$itemnumber);
+        $sth2->finish;
+    # FIXME: Log this ?
     }
-    $sth->finish;
 }
 
 =head2 manualinvoice
@@ -369,7 +340,6 @@ sub manualinvoice {
     my $dbh      = C4::Context->dbh;
     my $notifyid = 0;
     my $insert;
-    $itemnum =~ s/ //g;
     my $accountno  = getnextacctno($borrowernumber);
     my $amountleft = $amount;
 
@@ -413,12 +383,12 @@ sub manualinvoice {
         $notifyid = 1;
     }
 
-    if ( $itemnum ne '' ) {
-        $desc .= " " . $itemnum;
+    if ( $itemnum ) {
+        $desc .= ' ' . $itemnum;
         my $sth = $dbh->prepare(
-            "INSERT INTO  accountlines
+            'INSERT INTO  accountlines
                         (borrowernumber, accountno, date, amount, description, accounttype, amountoutstanding, itemnumber,notify_id, note, manager_id)
-        VALUES (?, ?, now(), ?,?, ?,?,?,?,?,?)");
+        VALUES (?, ?, now(), ?,?, ?,?,?,?,?,?)');
      $sth->execute($borrowernumber, $accountno, $amount, $desc, $type, $amountleft, $itemnum,$notifyid, $note, $manager_id) || return $sth->errstr;
   } else {
     my $sth=$dbh->prepare("INSERT INTO  accountlines
@@ -685,6 +655,106 @@ sub ReversePayment {
     $sth->execute( $borrowernumber, $accountno );
   }
 }
+
+=head2 recordpayment_selectaccts
+
+  recordpayment_selectaccts($borrowernumber, $payment,$accts);
+
+Record payment by a patron. C<$borrowernumber> is the patron's
+borrower number. C<$payment> is a floating-point number, giving the
+amount that was paid. C<$accts> is an array ref to a list of
+accountnos which the payment can be recorded against
+
+Amounts owed are paid off oldest first. That is, if the patron has a
+$1 fine from Feb. 1, another $1 fine from Mar. 1, and makes a payment
+of $1.50, then the oldest fine will be paid off in full, and $0.50
+will be credited to the next one.
+
+=cut
+
+sub recordpayment_selectaccts {
+    my ( $borrowernumber, $amount, $accts ) = @_;
+
+    my $dbh        = C4::Context->dbh;
+    my $newamtos   = 0;
+    my $accdata    = q{};
+    my $branch     = C4::Context->userenv->{branch};
+    my $amountleft = $amount;
+    my $sql = 'SELECT * FROM accountlines WHERE (borrowernumber = ?) ' .
+    'AND (amountoutstanding<>0) ';
+    if (@{$accts} ) {
+        $sql .= ' AND accountno IN ( ' .  join ',', @{$accts};
+        $sql .= ' ) ';
+    }
+    $sql .= ' ORDER BY date';
+    # begin transaction
+    my $nextaccntno = getnextacctno($borrowernumber);
+
+    # get lines with outstanding amounts to offset
+    my $rows = $dbh->selectall_arrayref($sql, { Slice => {} }, $borrowernumber);
+
+    # offset transactions
+    my $sth     = $dbh->prepare('UPDATE accountlines SET amountoutstanding= ? ' .
+        'WHERE (borrowernumber = ?) AND (accountno=?)');
+    for my $accdata ( @{$rows} ) {
+        if ($amountleft == 0) {
+            last;
+        }
+        if ( $accdata->{amountoutstanding} < $amountleft ) {
+            $newamtos = 0;
+            $amountleft -= $accdata->{amountoutstanding};
+        }
+        else {
+            $newamtos   = $accdata->{amountoutstanding} - $amountleft;
+            $amountleft = 0;
+        }
+        my $thisacct = $accdata->{accountno};
+        $sth->execute( $newamtos, $borrowernumber, $thisacct );
+    }
+
+    # create new line
+    $sql = 'INSERT INTO accountlines ' .
+    '(borrowernumber, accountno,date,amount,description,accounttype,amountoutstanding) ' .
+    q|VALUES (?,?,now(),?,'Payment,thanks','Pay',?)|;
+    $dbh->do($sql,{},$borrowernumber, $nextaccntno, 0 - $amount, 0 - $amountleft );
+    UpdateStats( $branch, 'payment', $amount, '', '', '', $borrowernumber, $nextaccntno );
+    return;
+}
+
+# makepayment needs to be fixed to handle partials till then this separate subroutine
+# fills in
+sub makepartialpayment {
+    my ( $borrowernumber, $accountno, $amount, $user, $branch ) = @_;
+    if (!$amount || $amount < 0) {
+        return;
+    }
+    my $dbh = C4::Context->dbh;
+
+    my $nextaccntno = getnextacctno($borrowernumber);
+    my $newamtos    = 0;
+
+    my $data = $dbh->selectrow_hashref(
+        'SELECT * FROM accountlines WHERE  borrowernumber=? AND accountno=?',undef,$borrowernumber,$accountno);
+    my $new_outstanding = $data->{amountoutstanding} - $amount;
+
+    my $update = 'UPDATE  accountlines SET amountoutstanding = ?  WHERE   borrowernumber = ? '
+    . ' AND   accountno = ?';
+    $dbh->do( $update, undef, $new_outstanding, $borrowernumber, $accountno);
+
+    # create new line
+    my $insert = 'INSERT INTO accountlines (borrowernumber, accountno, date, amount, '
+    .  'description, accounttype, amountoutstanding) '
+    . ' VALUES (?, ?, now(), ?, ?, ?, 0)';
+
+    $dbh->do(  $insert, undef, $borrowernumber, $nextaccntno, $amount,
+        "Payment, thanks - $user", 'Pay');
+
+    UpdateStats( $user, 'payment', $amount, '', '', '', $borrowernumber, $accountno );
+
+    return;
+}
+
+
 
 END { }    # module clean-up code here (global destructor)
 

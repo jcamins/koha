@@ -92,19 +92,22 @@ sub error_add_attribute_type_form {
     $template->param(description => $input->param('description'));
 
     if ($input->param('repeatable')) {
-        $template->param(repeatable_checked => 'checked="checked"');
+        $template->param(repeatable_checked => 1);
     }
     if ($input->param('unique_id')) {
-        $template->param(unique_id_checked => 'checked="checked"');
+        $template->param(unique_id_checked => 1);
     }
     if ($input->param('password_allowed')) {
-        $template->param(password_allowed_checked => 'checked="checked"');
+        $template->param(password_allowed_checked => 1);
     }
     if ($input->param('opac_display')) {
-        $template->param(opac_display_checked => 'checked="checked"');
+        $template->param(opac_display_checked => 1);
     }
     if ($input->param('staff_searchable')) {
-        $template->param(staff_searchable_checked => 'checked="checked"');
+        $template->param(staff_searchable_checked => 1);
+    }
+    if ($input->param('display_checkout')) {
+        $template->param(display_checkout_checked => 'checked="checked"');
     }
 
     $template->param(
@@ -147,6 +150,8 @@ sub add_update_attribute_type {
     $attr_type->authorised_value_category($authorised_value_category);
     my $password_allowed = $input->param('password_allowed');
     $attr_type->password_allowed($password_allowed);
+    my $display_checkout = $input->param('display_checkout');
+    $attr_type->display_checkout($display_checkout);
 
     if ($op eq 'edit') {
         $template->param(edited_attribute_type => $attr_type->code());
@@ -206,23 +211,25 @@ sub edit_attribute_type_form {
     $template->param(description => $attr_type->description());
 
     if ($attr_type->repeatable()) {
-        $template->param(repeatable_checked => 'checked="checked"');
+        $template->param(repeatable_checked => 1);
     }
-    $template->param(repeatable_disabled => 'disabled="disabled"');
+    $template->param(repeatable_disabled => 1);
     if ($attr_type->unique_id()) {
-        $template->param(unique_id_checked => 'checked="checked"');
+        $template->param(unique_id_checked => 1);
     }
-    $template->param(unique_id_disabled => 'disabled="disabled"');
+    $template->param(unique_id_disabled => 1);
     if ($attr_type->password_allowed()) {
-        $template->param(password_allowed_checked => 'checked="checked"');
+        $template->param(password_allowed_checked => 1);
     }
     if ($attr_type->opac_display()) {
-        $template->param(opac_display_checked => 'checked="checked"');
+        $template->param(opac_display_checked => 1);
     }
     if ($attr_type->staff_searchable()) {
-        $template->param(staff_searchable_checked => 'checked="checked"');
+        $template->param(staff_searchable_checked => 1);
     }
-
+    if ($attr_type->display_checkout()) {
+        $template->param(display_checkout_checked => 'checked="checked"');
+    }
     authorised_value_category_list($template, $attr_type->authorised_value_category());
 
     $template->param(
