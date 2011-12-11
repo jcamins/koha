@@ -67,11 +67,24 @@ koha (3.6.1-1) squeeze; urgency=high
 
  -- Robin Sheat <robin@catalyst.net.nz>  Fri, 02 Dec 2011 15:31:47 +1300
 
+koha (3.6.1-cpspecial) squeeze-dev; urgency=low
+
+  * Debian package for C & P based on 3.6.1 with C & P customizations
+
+ -- Jared Camins-Esakov <jcamins@cpbibliography.com>  Sun, 11 Dec 2011 18:53:00 -0400
+
 koha (3.6.0-1) squeeze; urgency=low
 
   * New major upstream release (3.06.00)
 
  -- Robin Sheat <robin@catalyst.net.nz>  Wed, 26 Oct 2011 15:56:46 +1300
+
+koha (3.5-1~git20111101094810.2435608c) squeeze-dev; urgency=low
+
+  * Debian package for C & P based on Master as of November 1, 2011 with C & P
+    customizations
+
+ -- Jared Camins-Esakov <jcamins@cpbibliography.com>  Tue, 01 Nov 2011 09:48:10 -0400
 
 koha (3.4.5-1) squeeze; urgency=low
 
