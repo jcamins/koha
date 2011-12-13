@@ -2108,6 +2108,10 @@ div.pager input.pagedisplay {
 	font-weight: bold;
 	text-align : center;
 }
+
 div.pager p {
 	margin: 0;
+}
+.localimage {
+    padding: .3em;
 }
