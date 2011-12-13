@@ -2112,6 +2112,9 @@ div.pager input.pagedisplay {
 div.pager p {
 	margin: 0;
 }
-.localimage {
-    padding: .3em;
+
+a.localimage img {
+	border : 1px solid #0000CC;
+	margin : 0 .5em;
+	padding : .3em;
 }
