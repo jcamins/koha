@@ -4712,7 +4712,7 @@ if ( C4::Context->preference("CPVersion") < TransformToNum($CPversion) ) {
 }
 
 $CPversion = "3.06.05.002";
-if ( C4::Context->preference("Version") < TransformToNum($CPversion) ) {
+if ( C4::Context->preference("CPVersion") < TransformToNum($CPversion) ) {
     $dbh->do("ALTER TABLE saved_sql
         ADD (
             cache_expiry INT NOT NULL DEFAULT 300,
@@ -4725,7 +4725,7 @@ saved_reports table.)\n";
 }
 
 $CPversion = "3.06.05.003";
-if ( C4::Context->preference("Version") < TransformToNum($CPversion) ) {
+if ( C4::Context->preference("CPVersion") < TransformToNum($CPversion) ) {
     $dbh->do("INSERT INTO systempreferences (variable,value,explanation,options,type) VALUES('SvcMaxReportRows','10','Maximum number of rows to return via the report web service.',NULL,'Integer');");
     print "Upgrade to $CPversion done (Added SvcMaxReportRows syspref)\n";
     SetCPVersion($CPversion);
@@ -4735,6 +4735,13 @@ $DBversion = "3.06.06.000";
 if (C4::Context->preference("Version") < TransformToNum($DBversion)) {
     print "Upgrade to $DBversion done (Incrementing version for 3.6.6 release. See release notes for details.) \n";
     SetVersion ($DBversion);
+}
+
+$CPversion = "3.06.06.001";
+if (C4::Context->preference("CPVersion") < TransformToNum($CPversion)) {
+    $dbh->do("INSERT INTO systempreferences (variable,value,explanation,options,type) VALUES('OpacItemLocation','callnum','Show the shelving location of items in the opac','callnum|ccode|location','Choice');");
+    print "Upgrade to $CPversion done (Add OpacItemLocation syspref)\n";
+    SetCPVersion ($CPversion);
 }
 
 =head1 FUNCTIONS

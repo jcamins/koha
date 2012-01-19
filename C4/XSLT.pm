@@ -134,7 +134,7 @@ sub XSLTParse4Display {
                               OPACBaseURL TraceCompleteSubfields UseICU
                               UseAuthoritiesForTracings TraceSubjectSubdivisions
                               Display856uAsImage OPACDisplay856uAsImage 
-                              UseControlNumber
+                              UseControlNumber OPACItemLocation
                               AlternateHoldingsField AlternateHoldingsSeparator / )
     {
         my $sp = C4::Context->preference( $syspref );
@@ -183,12 +183,19 @@ sub buildKohaItemsNamespace {
     my ($biblionumber, $hidden_items) = @_;
 
     my @items = C4::Items::GetItemsInfo($biblionumber);
+
     if ($hidden_items && @$hidden_items) {
         my %hi = map {$_ => 1} @$hidden_items;
         @items = grep { !$hi{$_->{itemnumber}} } @items;
     }
+
+    my $shelflocations = GetKohaAuthorisedValues('items.location',GetFrameworkCode($biblionumber), 'opac');
+    my $ccodes         = GetKohaAuthorisedValues('items.ccode',GetFrameworkCode($biblionumber), 'opac');
+
     my $branches = GetBranches();
     my $itemtypes = GetItemTypes();
+    my $location = "";
+    my $ccode = "";
     my $xml = '';
     for my $item (@items) {
         my $status;
@@ -227,11 +234,16 @@ sub buildKohaItemsNamespace {
             $status = "available";
         }
         my $homebranch = $item->{homebranch}? xml_escape($branches->{$item->{homebranch}}->{'branchname'}):'';
-	    my $itemcallnumber = xml_escape($item->{itemcallnumber});
+        $location = xml_escape($shelflocations->{$item->{location}});
+        $ccode = xml_escape($ccodes->{$item->{ccode}});
+
+        my $itemcallnumber = xml_escape($item->{itemcallnumber});
         $xml.= "<item><homebranch>$homebranch</homebranch>".
-		"<status>$status</status>".
-		"<itemcallnumber>".$itemcallnumber."</itemcallnumber>"
-        . "</item>";
+               "<location>$location</location>".
+               "<ccode>$ccode</ccode>".
+               "<status>$status</status>".
+               "<itemcallnumber>".$itemcallnumber."</itemcallnumber>".
+               "</item>";
 
     }
     $xml = "<items xmlns=\"http://www.koha-community.org/items\">".$xml."</items>";
