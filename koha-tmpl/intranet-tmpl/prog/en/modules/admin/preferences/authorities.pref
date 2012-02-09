@@ -65,3 +65,10 @@ Authorities:
                   yes: Do
                   no: "Do not"
             - keep existing links to authority records for headings where the linker is unable to find a match.
+        -
+            - pref: CatalogModuleRelink
+              default: no
+              choices:
+                  yes: Do
+                  no: "Do not"
+            - automatically relink headings that have previously been linked when saving records in the cataloging module.

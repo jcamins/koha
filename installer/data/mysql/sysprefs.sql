@@ -336,3 +336,4 @@ INSERT INTO systempreferences (variable,value,explanation,options,type) VALUES('
 INSERT INTO systempreferences (variable,value,explanation,options,type) VALUES('LinkerOptions','','A pipe-separated list of options for the linker.','','free');
 INSERT INTO systempreferences (variable,value,explanation,options,type) VALUES('LinkerRelink',1,'If ON the authority linker will relink headings that have previously been linked every time it runs.',NULL,'YesNo');
 INSERT INTO systempreferences (variable,value,explanation,options,type) VALUES('LinkerKeepStale',0,'If ON the authority linker will keep existing authority links for headings where it is unable to find a match.',NULL,'YesNo');
+INSERT INTO systempreferences (variable,value,explanation,options,type) VALUES('CatalogModuleRelink',0,'If OFF the linker will never replace the authids that are set in the cataloging module.',NULL,'YesNo');

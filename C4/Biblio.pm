@@ -487,13 +487,14 @@ sub BiblioAutoLink {
     my $linker = $linker_module->new(
         { 'options' => C4::Context->preference("LinkerOptions") } );
     my ( $headings_changed, undef ) =
-      LinkBibHeadingsToAuthorities( $linker, $record, $frameworkcode );
+      LinkBibHeadingsToAuthorities( $linker, $record, $frameworkcode, C4::Context->preference("CatalogModuleRelink") || '' );
+    # By default we probably don't want to relink things when cataloging
     return $headings_changed;
 }
 
 =head2 LinkBibHeadingsToAuthorities
 
-  my $num_headings_changed, %results = LinkBibHeadingsToAuthorities($linker, $marc, $frameworkcode);
+  my $num_headings_changed, %results = LinkBibHeadingsToAuthorities($linker, $marc, $frameworkcode, [$allowrelink]);
 
 Links bib headings to authority records by checking
 each authority-controlled field in the C<MARC::Record>
@@ -501,9 +502,9 @@ object C<$marc>, looking for a matching authority record,
 and setting the linking subfield $9 to the ID of that
 authority record.  
 
-If no matching authority exists, or if multiple
-authorities match, no $9 will be added, and any 
-existing one inthe field will be deleted.
+If $allowrelink is false, existing authids will never be
+replaced, regardless of the values of LinkerKeepStale and
+LinkerRelink.
 
 Returns the number of heading links changed in the
 MARC record.
@@ -514,9 +515,11 @@ sub LinkBibHeadingsToAuthorities {
     my $linker        = shift;
     my $bib           = shift;
     my $frameworkcode = shift;
+    my $allowrelink = shift;
     my %results;
     require C4::AuthoritiesMarc;
 
+    $allowrelink = 1 unless defined $allowrelink;
     my $num_headings_changed = 0;
     foreach my $field ( $bib->fields() ) {
         my $heading = C4::Heading->new_from_bib_field( $field, $frameworkcode );
@@ -525,7 +528,7 @@ sub LinkBibHeadingsToAuthorities {
         # check existing $9
         my $current_link = $field->subfield('9');
 
-        if ( defined $current_link && !C4::Context->preference('LinkerRelink') )
+        if ( defined $current_link && (!$allowrelink || !C4::Context->preference('LinkerRelink')) )
         {
             $results{'linked'}->{ $heading->display_form() }++;
             next;
@@ -543,7 +546,7 @@ sub LinkBibHeadingsToAuthorities {
         }
         else {
             if ( defined $current_link
-                && C4::Context->preference('LinkerKeepStale') )
+                && (!$allowrelink || C4::Context->preference('LinkerKeepStale')) )
             {
                 $results{'fuzzy'}->{ $heading->display_form() }++;
             }
