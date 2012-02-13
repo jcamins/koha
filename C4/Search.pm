@@ -823,6 +823,7 @@ sub getIndexes{
                     # biblio indexes
                     'ab',
                     'Abstract',
+                    'action-agent',
                     'acqdate',
                     'allrecords',
                     'an',

@@ -384,6 +384,10 @@ my $expanded_facet = $params->{'expand'};
 my ($error,$query,$simple_query,$query_cgi,$query_desc,$limit,$limit_cgi,$limit_desc,$stopwords_removed,$query_type);
 
 my @results;
+if ($ENV{'MEMBERLIMIT'} && !(C4::Context->userenv->{flags} & 1)) {
+    my $userid = GetMember(borrowernumber => $borrowernumber)->{'userid'};
+    push @limits, "action-agent:$userid";
+}
 
 ## I. BUILD THE QUERY
 my $lang = C4::Templates::getlanguage($cgi, 'opac');
