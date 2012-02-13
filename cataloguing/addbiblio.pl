@@ -845,7 +845,7 @@ if ( $op eq "addbiblio" ) {
     $record = TransformHtmlToMarc( $input );
     # check for a duplicate
     my ( $duplicatebiblionumber, $duplicatetitle );
-    if ( !$is_a_modif ) {
+    if ( !$is_a_modif && !($ENV{'MEMBERLIMIT'} && !(C4::Context->userenv->{flags} & 1))) {
         ( $duplicatebiblionumber, $duplicatetitle ) = FindDuplicate($record);
     }
     my $confirm_not_duplicate = $input->param('confirm_not_duplicate');

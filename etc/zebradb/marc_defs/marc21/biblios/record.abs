@@ -165,6 +165,7 @@ melm 526$d      arp,arp:n
 #melm 541$d     Date-of-acquisition,Date-of-acquisition:s
 melm 561        Note-provenance:w
 melm 563        Note-binding:w
+melm 583$k      action-agent:w,action-agent:p
 melm 590        Note:w,Note:p
 
 melm 600$a      Name-and-title,Name,Personal-name,Subject-name-personal,Subject,Subject:p
