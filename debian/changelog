@@ -46,6 +46,16 @@ koha (3.6.4-1) squeeze; urgency=low
 
  -- Robin Sheat <robin@catalyst.net.nz>  Wed, 07 Mar 2012 18:06:04 +1300
 
+koha (3.6.3-cpspecial) squeeze-dev; urgency=low
+
+  * Debian package for C & P based on 3.6.3, with additional customizations:
+  * Local cover images
+  * Authority matching improvements (bug 7284)
+  * Member isolation features
+  * C & P OPAC skin
+
+ -- Jared Camins-Esakov <jcamins@cpbibliography.com>  Mon, 13 Feb 2012 14:42:44 -0500
+
 koha (3.6.3-1) squeeze; urgency=low
 
   * New upstream release (3.06.03)
@@ -58,6 +68,12 @@ koha (3.6.2-1) squeeze; urgency=low
 
  -- Robin Sheat <robin@catalyst.net.nz>  Wed, 11 Jan 2012 17:08:55 +1300
 
+koha (3.6.1-cpspecial) squeeze-dev; urgency=low
+
+  * Debian package for C & P based on 3.6.1 with C & P customizations
+
+ -- Jared Camins-Esakov <jcamins@cpbibliography.com>  Sun, 11 Dec 2011 18:53:00 -0400
+
 koha (3.6.1-1) squeeze; urgency=high
 
   * New upstream release (3.06.01)
@@ -66,12 +82,6 @@ koha (3.6.1-1) squeeze; urgency=high
     http://bugs.koha-community.org/bugzilla3/show_bug.cgi?id=6629
 
  -- Robin Sheat <robin@catalyst.net.nz>  Fri, 02 Dec 2011 15:31:47 +1300
-
-koha (3.6.1-cpspecial) squeeze-dev; urgency=low
-
-  * Debian package for C & P based on 3.6.1 with C & P customizations
-
- -- Jared Camins-Esakov <jcamins@cpbibliography.com>  Sun, 11 Dec 2011 18:53:00 -0400
 
 koha (3.6.0-1) squeeze; urgency=low
 
