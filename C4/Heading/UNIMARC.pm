@@ -60,6 +60,7 @@ my %subdivisions = (
 my $bib_heading_fields;
 
 BEGIN {
+if (0) {
     my $dbh = C4::Context->dbh;
     my $sth = $dbh->prepare(
         "SELECT tagfield, authtypecode
@@ -74,6 +75,7 @@ BEGIN {
             subfields => 'abcdefghjklmnopqrstvxyz',
         };
     }
+}
 }
 
 =head1 METHODS
