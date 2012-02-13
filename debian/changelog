@@ -1,3 +1,13 @@
+koha (3.6.3-cpspecial) squeeze-dev; urgency=low
+
+  * Debian package for C & P based on 3.6.3, with additional customizations:
+  * Local cover images
+  * Authority matching improvements (bug 7284)
+  * Member isolation features
+  * C & P OPAC skin
+
+ -- Jared Camins-Esakov <jcamins@cpbibliography.com>  Mon, 13 Feb 2012 14:42:44 -0500
+
 koha (3.6.1-cpspecial) squeeze-dev; urgency=low
 
   * Debian package for C & P based on 3.6.1 with C & P customizations
