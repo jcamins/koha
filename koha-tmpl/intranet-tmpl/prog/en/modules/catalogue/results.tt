@@ -194,13 +194,13 @@ YAHOO.util.Event.onContentReady("searchheader", function () {
             placeHold();
         }
         var HoldForButtonMenu = [
-            { text: "Place hold", onclick: { fn: holdFor }},
-            { text: "Place hold for [% holdfor_firstname %] [% holdfor_surname %] ([% holdfor_cardnumber %])", onclick: { fn: holdForPatron }},
-            { text: "Forget [% holdfor_firstname %] [% holdfor_surname %] ([% holdfor_cardnumber %])", onclick: { fn: forgetPatron }}];
+            { text: _("Place hold"), onclick: { fn: holdFor }},
+            { text: _("Place hold for") + " [% holdfor_firstname %] [% holdfor_surname %] ([% holdfor_cardnumber %])", onclick: { fn: holdForPatron }},
+            { text: _("Forget") + " [% holdfor_firstname %] [% holdfor_surname %] ([% holdfor_cardnumber %])", onclick: { fn: forgetPatron }}];
 
         var HoldForButton = new YAHOO.widget.Button({
                 type: "split",
-                label: "Place hold",
+                label: _("Place hold"),
                 name: "holdfor",
                 menu: HoldForButtonMenu,
                 container: "placeholdc",
@@ -404,7 +404,7 @@ YAHOO.util.Event.onContentReady("searchheader", function () {
                         [% END %]
                         [% IF ( facets_loo.expandable ) %]
                             <li class="showmore">
-                                <a href="/cgi-bin/koha/catalogue/search.pl?q=[% facets_loo.searchdesc %]&amp;expand=[% facets_loo.expand %]#[% facets_loo.type_id %]">
+                                <a href="/cgi-bin/koha/catalogue/search.pl?q=[% facets_loo.searchdesc %][% IF ( offset ) %]&amp;offset=[% offset %][% END %]&amp;expand=[% facets_loo.expand %]#[% facets_loo.type_id %]">
                                     Show More
                                 </a>
                             </li>
@@ -459,7 +459,7 @@ YAHOO.util.Event.onContentReady("searchheader", function () {
 				[% INCLUDE 'biblio-default-view.inc' %]
                                             <b>[% IF ( SEARCH_RESULT.title ) %][% SEARCH_RESULT.title |html %][% ELSE %]No title[% END %]</b>
                                             </a>
-                                        [% FOREACH subtitl IN SEARCH_RESULT.subtitle %] , [% subtitl.subfield %] [% END %]
+                                        [% FOREACH subtitl IN SEARCH_RESULT.subtitle %], [% subtitl.subfield %][% END %]
 										[% IF ( SEARCH_RESULT.volume ) %],[% SEARCH_RESULT.volume %][% END %] [% IF ( SEARCH_RESULT.volumeddesc ) %], [% SEARCH_RESULT.volumeddesc %][% END %]
                                 </p>
                                 [% IF ( SEARCH_RESULT.summary ) %]
@@ -493,7 +493,7 @@ YAHOO.util.Event.onContentReady("searchheader", function () {
                                         [% IF ( SEARCH_RESULT.publishercode ) %][% SEARCH_RESULT.publishercode %][% END %] [% IF ( SEARCH_RESULT.publicationyear ) %] [% SEARCH_RESULT.publicationyear %] [% ELSIF ( SEARCH_RESULT.copyrightdate ) %] [% SEARCH_RESULT.copyrightdate %][% END %]</span>
 										[% IF ( SEARCH_RESULT.edition ) %]<span class="results_edition">Edition: [% SEARCH_RESULT.edition %]</span>[% END %]
                                         <span class="results_physicaldesc">[% IF ( SEARCH_RESULT.pages ) %]: [% SEARCH_RESULT.pages %][% END %]
-                                        [% IF ( SEARCH_RESULT.size ) %] ; [% SEARCH_RESULT.size %][% END %]</span> [% IF ( SEARCH_RESULT.normalized_isbn ) %]<span class="results_isbn">ISBN: [% SEARCH_RESULT.normalized_isbn %]</span>[% END %]
+                                        [% IF ( SEARCH_RESULT.size ) %] ; [% SEARCH_RESULT.size %][% END %]</span> [% IF ( SEARCH_RESULT.isbn ) %]<span class="results_isbn">ISBN: [% SEARCH_RESULT.isbn | replace('\s\|', ', ')%]</span>[% END %]
                                         <span class="results_itemtype">[% SEARCH_RESULT.description %]</span>
                                         [% IF ( SEARCH_RESULT.timestamp ) %] <i>(modified on [% SEARCH_RESULT.timestamp %])</i>[% END %]
                                         [% IF ( SEARCH_RESULT.cn_class ) %][<a href="/cgi-bin/koha/catalogue/search.pl?idx=callnum&amp;q=[% SEARCH_RESULT.cn_class |url %]">[% SEARCH_RESULT.cn_class %]</a>][% END %]
@@ -513,7 +513,7 @@ YAHOO.util.Event.onContentReady("searchheader", function () {
                                   <span class="noholdstext">No holds allowed</span>
                               [% ELSE %]
                                   <a id="reserve_[% SEARCH_RESULT.biblionumber %]" href="/cgi-bin/koha/reserve/request.pl?biblionumber=[% SEARCH_RESULT.biblionumber %]">Holds</a>
-                                  [% IF ( holdfor ) %] <span class="holdforlink">| <a href="/cgi-bin/koha/reserve/request.pl?biblionumber=[% SEARCH_RESULT.biblionumber %]&amp;findborrower=[% holdfor_cardnumber %]">Hold for [% holdfor_firstname %] [% holdfor_surname %] ([% holdfor_cardnumber %])</a></span>[% END %]
+                                  [% IF ( holdfor ) %] <span class="holdforlink">| <a href="/cgi-bin/koha/reserve/request.pl?biblionumber=[% SEARCH_RESULT.biblionumber %]&amp;findborrower=[% holdfor_cardnumber %]">Place hold for [% holdfor_firstname %] [% holdfor_surname %] ([% holdfor_cardnumber %])</a></span>[% END %]
                               [% END %]
                           [% IF ( CAN_user_editcatalogue_edit_catalogue ) %]
                           | <a href="/cgi-bin/koha/cataloguing/addbiblio.pl?biblionumber=[% SEARCH_RESULT.biblionumber %]">Edit record</a>

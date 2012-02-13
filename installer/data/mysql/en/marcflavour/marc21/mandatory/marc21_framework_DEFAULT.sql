@@ -104,7 +104,7 @@ INSERT INTO `marc_tag_structure` (`tagfield`, `liblibrarian`, `libopac`, `repeat
 
 INSERT INTO `marc_subfield_structure` (`tagfield`, `tagsubfield`, `liblibrarian`, `libopac`, `repeatable`, `mandatory`, `kohafield`, `tab`, `authorised_value`, `authtypecode`, `value_builder`, `isurl`, `hidden`, `frameworkcode`, `seealso`, `link`, `defaultvalue`) VALUES
 		('952', '0', 'Withdrawn status', 'Withdrawn status', 0, 0, 'items.wthdrawn', 10, 'WITHDRAWN', '', '', 0, 0, '', '', '', NULL),
-		('952', '1', 'Lost status', 'Lost status', 0, 0, 'items.itemlost', 10, 'LOST', '', '', 0, 0, '', '', '', NULL),
+		('952', '1', 'Lost status', 'Lost status', 0, 0, 'items.itemlost', 10, 'LOST', '', '', 0, -5, '', '', '', NULL),
 		('952', '2', 'Source of classification or shelving scheme', 'Source of classification or shelving scheme', 0, 0, 'items.cn_source', 10, 'cn_source', '', '', NULL, 0, '', '', '', NULL),
 		('952', '3', 'Materials specified (bound volume or other part)', 'Materials specified (bound volume or other part)', 0, 0, 'items.materials', 10, '', '', '', NULL, -1, '', '', '', NULL),
 		('952', '4', 'Damaged status', 'Damaged status', 0, 0, 'items.damaged', 10, 'DAMAGED', '', '', NULL, 0, '', '', '', NULL),
@@ -347,6 +347,7 @@ INSERT INTO `marc_tag_structure` (`tagfield`, `liblibrarian`, `libopac`, `repeat
 		('541', 'IMMEDIATE SOURCE OF ACQUISITION NOTE', 'IMMEDIATE SOURCE OF ACQUISITION NOTE', 1, 0, NULL, ''),
 		('543', 'SOLICITATION INFORMATION NOTE (AM) [OBSOLETE]', 'SOLICITATION INFORMATION NOTE (AM) [OBSOLETE]', 1, 0, NULL, ''),
 		('544', 'LOCATION OF OTHER ARCHIVAL MATERIALS NOTE', 'LOCATION OF OTHER ARCHIVAL MATERIALS NOTE', 1, 0, NULL, ''),
+        ('545', 'BIOGRAPHICAL OR HISTORICAL DATA', 'BIOGRAPHICAL OR HISTORICAL DATA', 1, 0, NULL, ''),
 		('546', 'LANGUAGE NOTE', 'LANGUAGE NOTE', 1, 0, NULL, ''),
 		('547', 'FORMER TITLE COMPLEXITY NOTE', 'FORMER TITLE COMPLEXITY NOTE', 1, 0, NULL, ''),
 		('550', 'ISSUING BODY NOTE', 'ISSUING BODY NOTE', 1, 0, NULL, ''),

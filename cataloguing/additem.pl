@@ -481,7 +481,17 @@ if ($op eq "additem") {
             $nextop="additem";
         } 
         else {
-            print $input->redirect("/cgi-bin/koha/catalogue/moredetail.pl?biblionumber=$biblionumber");
+            my $defaultview = C4::Context->preference('IntranetBiblioDefaultView');
+            my $views = { C4::Search::enabled_staff_search_views };
+            if ($defaultview eq 'isbd' && $views->{can_view_ISBD}) {
+                print $input->redirect("/cgi-bin/koha/catalogue/ISBDdetail.pl?biblionumber=$biblionumber");
+            } elsif  ($defaultview eq 'marc' && $views->{can_view_MARC}) {
+                print $input->redirect("/cgi-bin/koha/catalogue/MARCdetail.pl?biblionumber=$biblionumber");
+            } elsif  ($defaultview eq 'labeled_marc' && $views->{can_view_labeledMARC}) {
+                print $input->redirect("/cgi-bin/koha/catalogue/labeledMARCdetail.pl?biblionumber=$biblionumber");
+            } else {
+                print $input->redirect("/cgi-bin/koha/catalogue/detail.pl?biblionumber=$biblionumber");
+            }
             exit;
         }
 	}
@@ -546,25 +556,26 @@ my @fields = $temp->fields();
 
 
 my @hostitemnumbers;
-my $analyticfield = '773';
-if ($marcflavour  eq 'MARC21' || $marcflavour eq 'NORMARC') {
-    $analyticfield = '773';
-} elsif ($marcflavour eq 'UNIMARC') {
-    $analyticfield = '461';
-}
-foreach my $hostfield ($temp->field($analyticfield)){
-    if ($hostfield->subfield('0')){
-        my $hostrecord = GetMarcBiblio($hostfield->subfield('0'), 1);
-        my ($itemfield, undef) = GetMarcFromKohaField( 'items.itemnumber', GetFrameworkCode($hostfield->subfield('0')) );
-        foreach my $hostitem ($hostrecord->field($itemfield)){
-            if ($hostitem->subfield('9') eq $hostfield->subfield('9')){
-                push (@fields, $hostitem);
-                push (@hostitemnumbers, $hostfield->subfield('9'));
+if ( C4::Context->preference('EasyAnalyticalRecords') ) {
+    my $analyticfield = '773';
+    if ($marcflavour  eq 'MARC21' || $marcflavour eq 'NORMARC') {
+        $analyticfield = '773';
+    } elsif ($marcflavour eq 'UNIMARC') {
+        $analyticfield = '461';
+    }
+    foreach my $hostfield ($temp->field($analyticfield)){
+	if ($hostfield->subfield('0')){
+            my $hostrecord = GetMarcBiblio($hostfield->subfield('0'), 1);
+	    my ($itemfield, undef) = GetMarcFromKohaField( 'items.itemnumber', GetFrameworkCode($hostfield->subfield('0')) );
+	    foreach my $hostitem ($hostrecord->field($itemfield)){
+		if ($hostitem->subfield('9') eq $hostfield->subfield('9')){
+		    push (@fields, $hostitem);
+                    push (@hostitemnumbers, $hostfield->subfield('9'));
+                }
             }
         }
     }
 }
-
 
 
 foreach my $field (@fields) {
@@ -597,18 +608,21 @@ foreach my $field (@fields) {
             }
         }
         $this_row{itemnumber} = $subfieldvalue if ($field->tag() eq $itemtagfield && $subfieldcode eq $itemtagsubfield);
-	foreach my $hostitemnumber (@hostitemnumbers){
+
+	if ( C4::Context->preference('EasyAnalyticalRecords') ) {
+	    foreach my $hostitemnumber (@hostitemnumbers){
 		if ($this_row{itemnumber} eq $hostitemnumber){
 			$this_row{hostitemflag} = 1;
 			$this_row{hostbiblionumber}= GetBiblionumberFromItemnumber($hostitemnumber);
 			last;
 		}
-	}
+	    }
 
-#	my $countanalytics=GetAnalyticsCount($this_row{itemnumber});
-#        if ($countanalytics > 0){
+#	    my $countanalytics=GetAnalyticsCount($this_row{itemnumber});
+#           if ($countanalytics > 0){
 #                $this_row{countanalytics} = $countanalytics;
-#        }
+#           }
+	}
 
     }
     if (%this_row) {
@@ -651,10 +665,7 @@ my $onlymine = C4::Context->preference('IndependantBranches') &&
                C4::Context->userenv                           && 
                C4::Context->userenv->{flags}!=1               && 
                C4::Context->userenv->{branch};
-my $branch = C4::Context->userenv->{branch};
-if ($frameworkcode eq 'FA'){
-    $branch = $input->param('branch');
-}    
+my $branch = $input->param('branch') || C4::Context->userenv->{branch};
 my $branches = GetBranchesLoop($branch,$onlymine);  # build once ahead of time, instead of multiple times later.
 
 # We generate form, from actuel record
@@ -671,8 +682,6 @@ if($itemrecord){
             next if subfield_is_koha_internal_p($subfieldtag);
             next if ($tagslib->{$tag}->{$subfieldtag}->{'tab'} ne "10");
 
-            $subfieldlib->{hidden} = 1
-              if $tagslib->{$tag}->{$subfieldtag}->{authorised_value} eq 'LOST';
             my $subfield_data = generate_subfield_form($tag, $subfieldtag, $value, $tagslib, $subfieldlib, $branches, $today_iso, $biblionumber, $temp, \@loop_data, $i);        
 
             push @fields, "$tag$subfieldtag";

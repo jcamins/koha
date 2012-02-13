@@ -285,6 +285,7 @@ if ($barcode) {
         unless($issueconfirmed){
             #  Get the item title for more information
             my $getmessageiteminfo  = GetBiblioFromItemNumber(undef,$barcode);
+	    $template->{VARS}->{'additional_materials'} = $getmessageiteminfo->{'materials'};
             $template->param( itemhomebranch => $getmessageiteminfo->{'homebranch'} );
 
             # pass needsconfirmation to template if issuing is possible and user hasn't yet confirmed.
@@ -430,7 +431,7 @@ sub build_issue_data {
             $it->{'borrowernumber'},$it->{'itemnumber'}
         );
         $it->{"renew_error_${can_renew_error}"} = 1 if defined $can_renew_error;
-        my ( $restype, $reserves ) = CheckReserves( $it->{'itemnumber'} );
+        my ( $restype, $reserves, undef ) = CheckReserves( $it->{'itemnumber'} );
         $it->{'can_renew'} = $can_renew;
         $it->{'can_confirm'} = !$can_renew && !$restype;
         $it->{'renew_error'} = $restype;
@@ -499,7 +500,7 @@ if ($borrowerslist) {
     {
         push @values, $_->{'borrowernumber'};
         $labels{ $_->{'borrowernumber'} } =
-"$_->{'surname'}, $_->{'firstname'} ... ($_->{'cardnumber'} - $_->{'categorycode'}) ...  $_->{'address'} ";
+"$_->{'surname'}, $_->{'firstname'} ... ($_->{'cardnumber'} - $_->{'categorycode'} - $_->{'branchcode'}) ...  $_->{'address'} ";
     }
     $CGIselectborrower = CGI::scrolling_list(
         -name     => 'borrowernumber',

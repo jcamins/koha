@@ -2,9 +2,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-11-28 19:51+0200\n"
-"PO-Revision-Date: 2011-11-23 13:52+0200\n"
-"Last-Translator: bargioni <bargioni@pusc.it>\n"
+"POT-Creation-Date: 2012-01-26 08:06+0200\n"
+"PO-Revision-Date: 2012-01-18 22:55+0200\n"
+"Last-Translator: Zeno <tajoli@cilea.it>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: it\n"
 "MIME-Version: 1.0\n"
@@ -336,8 +336,12 @@ msgid "authorities.pref#dontmerge# Don't"
 msgstr "Non attivare"
 
 # Authorities
-msgid "authorities.pref#dontmerge# automatically update attached biblios when changing an authority record. If this is off, please ask your administrator to enable the merge_authorities.pl cronjob."
-msgstr "l'aggiornamento automatico dei record bibliografici quando il record di authority collegato viene modificato. Se questa preferenza viene messa a 'Non attivare', allora chiedi al gestore di Koha di mettere in cron lo script merge_authorities.pl."
+# Authorities
+msgid "authorities.pref#dontmerge# automatically update attached biblios when changing an authority record. If this is off, please ask your administrator to enable the merge_authority.pl cronjob."
+msgstr ""
+"Modifca in automatico i record bibliografici collegati quando cambi un "
+"record di authority. Se non e' attivo, chiedi al tuo gestore di configurare "
+"lo script di cron merge_authority.pl"
 
 # Cataloging
 msgid "cataloguing.pref"
@@ -560,11 +564,8 @@ msgid "cataloguing.pref#hide_marc# Don't display"
 msgstr "Non mostrare"
 
 # Cataloging > Display
-# Cataloging > Display
 msgid "cataloguing.pref#hide_marc# MARC tag numbers, subfield codes and indicators in MARC views."
-msgstr ""
-"nelle visualizzazioni MARC i numeri di tag, i codici di sottocampo e gli "
-"indicatori."
+msgstr "nelle visualizzazioni MARC i numeri di tag, i codici di sottocampo e gli indicatori."
 
 # Cataloging > Record Structure
 msgid "cataloguing.pref#item-level_itypes# Use the item type of the"
@@ -587,14 +588,8 @@ msgid "cataloguing.pref#itemcallnumber# Map the MARC subfield"
 msgstr "Definisci il sottocampo MARC"
 
 # Cataloging > Record Structure
-# Cataloging > Record Structure
 msgid "cataloguing.pref#itemcallnumber# to an item's callnumber. (This can contain multiple subfields to look in; for instance <code>082ab</code> would look in 082 subfields a and b.)<br />Examples: <strong>Dewey</strong>: <code>082ab</code> or <code>092ab</code>; <strong>LOC</strong>: <code>050ab</code> or <code>090ab</code>; <strong>from the item record</strong>: <code>852hi</code>"
-msgstr ""
-"che serve a costruire la collocazione di una copia. Puoi inserire diversi "
-"sottocampi, per esempio <code>082ab</code> porterà  ad usare i sottocampi a "
-"e b di 082. Esempi: <strong>Dewey</strong>: <code>082ab</code> o "
-"<code>092ab</code>; <strong>LOC</strong>: <code>050ab</code> o "
-"<code>090ab</code>; <strong>dal record di copia</strong>: <code>852hi</code>"
+msgstr "che serve a costruire la collocazione di una copia. Puoi inserire diversi sottocampi, per esempio <code>082ab</code> porterà  ad usare i sottocampi a e b di 082. Esempi: <strong>Dewey</strong>: <code>082ab</code> o <code>092ab</code>; <strong>LOC</strong>: <code>050ab</code> o <code>090ab</code>; <strong>dal record di copia</strong>: <code>852hi</code>"
 
 # Cataloging > Record Structure
 msgid "cataloguing.pref#marcflavour# Interpret and store MARC records in the"
@@ -2941,27 +2936,38 @@ msgid "patrons.pref#AutoEmailOpacUser# Send"
 msgstr "Spedisci"
 
 # Patrons
-msgid "patrons.pref#AutoEmailOpacUser# alternate"
-msgstr "alternativo (ll secondo)"
+# Patrons
+msgid "patrons.pref#AutoEmailOpacUser# an email to newly created patrons with their account details."
+msgstr "un'email ai nuovi utenti con i dettagli del loro account"
 
 # Patrons
-msgid "patrons.pref#AutoEmailOpacUser# an email to newly created patrons with their account details at their"
-msgstr "un messaggio di posta ai nuovi utenti con i dettagli dell'account appena creato"
+# Patrons
+msgid "patrons.pref#AutoEmailPrimaryAddress# Use"
+msgstr "Usa"
 
 # Patrons
-msgid "patrons.pref#AutoEmailOpacUser# email address."
-msgstr "all'indirizzo di posta"
+# Patrons
+msgid "patrons.pref#AutoEmailPrimaryAddress# alternate"
+msgstr "alternativo"
 
 # Patrons
-msgid "patrons.pref#AutoEmailOpacUser# first valid"
+# Patrons
+msgid "patrons.pref#AutoEmailPrimaryAddress# first valid"
 msgstr "il primo valido"
 
 # Patrons
-msgid "patrons.pref#AutoEmailOpacUser# home"
+# Patrons
+msgid "patrons.pref#AutoEmailPrimaryAddress# home"
 msgstr "di casa"
 
 # Patrons
-msgid "patrons.pref#AutoEmailOpacUser# work"
+# Patrons
+msgid "patrons.pref#AutoEmailPrimaryAddress# patron email address for sending out emails."
+msgstr "come indirizzo email a cui mandare la posta elettronica per gli utenti"
+
+# Patrons
+# Patrons
+msgid "patrons.pref#AutoEmailPrimaryAddress# work"
 msgstr "di lavoro"
 
 # Patrons

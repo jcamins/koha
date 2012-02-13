@@ -41,6 +41,12 @@ sub _prefformat {
     return $prefformat;
 }
 
+sub reset_prefformat {  # subroutine to clear the prefformat, called when we change it
+    if (defined $prefformat){
+	$prefformat = C4::Context->preference('dateformat');
+    }
+}
+
 our %format_map = (
     iso    => 'yyyy-mm-dd',           # plus " HH:MM:SS"
     metric => 'dd/mm/yyyy',           # plus " HH:MM:SS"
@@ -167,7 +173,7 @@ sub init ($;$$) {
     $self->{'dateformat'} = $dformat = ( scalar(@_) >= 2 ) ? $_[1] : _prefformat();
     ( $format_map{$dformat} ) or croak "Invalid date format '$dformat' from " . ( ( scalar(@_) >= 2 ) ? 'argument' : 'system preferences' );
     $self->{'dmy_arrayref'} = [ ( (@_) ? $self->dmy_map(shift) : localtime ) ];
-    if ($debug > 1) { warn "(during init) \@\$self->{'dmy_arrayref'}: " . join( ' ', @{ $self->{'dmy_arrayref'} } ) . "\n"; }
+    if ($debug && $debug > 1) { warn "(during init) \@\$self->{'dmy_arrayref'}: " . join( ' ', @{ $self->{'dmy_arrayref'} } ) . "\n"; }
     return $self;
 }
 

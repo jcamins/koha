@@ -305,7 +305,7 @@ if (@branchcodes) {
     @branches = grep { $seen{$_} } @overduebranches;
     
     
-    if (@overduebranches) {
+    if (@branches) {
 
     	my $branch_word = scalar @branches > 1 ? 'branches' : 'branch';
 	$verbose and warn "$branch_word @branches have overdue rules\n";
@@ -410,7 +410,7 @@ END_SQL
             my $mindays = $overdue_rules->{"delay$i"};    # the notice will be sent after mindays days (grace period)
             my $maxdays = (
                   $overdue_rules->{ "delay" . ( $i + 1 ) }
-                ? $overdue_rules->{ "delay" . ( $i + 1 ) }
+                ? $overdue_rules->{ "delay" . ( $i + 1 ) } - 1
                 : ($MAX)
             );                                            # issues being more than maxdays late are managed somewhere else. (borrower probably suspended)
 
@@ -426,7 +426,7 @@ END_SQL
             # <date> <itemcount> <firstname> <lastname> <address1> <address2> <address3> <city> <postcode>
 
             my $borrower_sql = <<'END_SQL';
-SELECT COUNT(*), issues.borrowernumber, firstname, surname, address, address2, city, zipcode, country, email, MIN(date_due) as longest_issue
+SELECT distinct(issues.borrowernumber), firstname, surname, address, address2, city, zipcode, country, email
 FROM   issues,borrowers,categories
 WHERE  issues.borrowernumber=borrowers.borrowernumber
 AND    borrowers.categorycode=categories.categorycode
@@ -440,13 +440,12 @@ END_SQL
                 $borrower_sql .= ' AND borrowers.categorycode=? ';
                 push @borrower_parameters, $overdue_rules->{categorycode};
             }
-            $borrower_sql .= '  AND categories.overduenoticerequired=1
-                                GROUP BY issues.borrowernumber ';
+            $borrower_sql .= '  AND categories.overduenoticerequired=1 ';
             if($triggered) {
-                $borrower_sql .= ' HAVING TO_DAYS(NOW())-TO_DAYS(longest_issue) = ?';
+                $borrower_sql .= ' AND TO_DAYS(NOW())-TO_DAYS(date_due) = ?';
                 push @borrower_parameters, $mindays;
             } else {
-                $borrower_sql .= ' HAVING TO_DAYS(NOW())-TO_DAYS(longest_issue) BETWEEN ? and ? ' ;
+                $borrower_sql .= ' AND TO_DAYS(NOW())-TO_DAYS(date_due) BETWEEN ? and ? ' ;
                 push @borrower_parameters, $mindays, $maxdays;
             }
 
@@ -455,11 +454,11 @@ END_SQL
             $sth->execute(@borrower_parameters);
             $verbose and warn $borrower_sql . "\n $branchcode | " . $overdue_rules->{'categorycode'} . "\n ($mindays, $maxdays)\nreturns " . $sth->rows . " rows";
 
-            while ( my ($itemcount, $borrowernumber, $firstname, $lastname,
-                    $address1, $address2, $city, $postcode, $country, $email,
-                    $longest_issue ) = $sth->fetchrow )
+            while ( my ( $borrowernumber, $firstname, $lastname,
+                    $address1, $address2, $city, $postcode, $country, $email
+                    ) = $sth->fetchrow )
             {
-                $verbose and warn "borrower $firstname, $lastname ($borrowernumber) has $itemcount items triggering level $i.";
+                $verbose and warn "borrower $firstname, $lastname ($borrowernumber) has items triggering level $i.";
     
                 my $letter = C4::Letters::getletter( 'circulation', $overdue_rules->{"letter$i"} );
 
@@ -685,6 +684,7 @@ sub parse_letter { # FIXME: this code should probably be moved to C4::Letters:pa
             $params->{'letter'} = C4::Letters::parseletter( $params->{'letter'}, 'biblio',      $item->{'biblionumber'} );
             $params->{'letter'} = C4::Letters::parseletter( $params->{'letter'}, 'biblioitems', $item->{'biblionumber'} );
             $params->{'letter'} = C4::Letters::parseletter( $params->{'letter'}, 'items', $item->{'itemnumber'} );
+            $params->{'letter'} = C4::Letters::parseletter( $params->{'letter'}, 'issues', $item->{'itemnumber'} );
             $params->{'letter'}->{'content'} =~ s/(<item>.*<\/item>)/$1\n$item_format/ if scalar(@{$params->{'items'}} > 0);
 
         }

@@ -499,7 +499,7 @@ July 7 2010	General IRC meeting http://wiki.koha-community.org/wiki/General_IRC_
 June 25 2010	Koha 3.2 Beta released http://koha-community.org/koha-3-2-beta-released/
 July 13 2010	License meeting http://wiki.koha-community.org/wiki/License_Upgrade_Vote_IRC_Meeting,_13_July_2010
 August 11 2010	General IRC meeting http://wiki.koha-community.org/wiki/General_IRC_Meeting,_11_August_2010
-August 31 2010 Stéphane Delaune becomes the 117th committer to have a patch accepted
+August 31 2010	Stéphane Delaune becomes the 116th committer to have a patch accepted
 September 1 2010	General IRC meeting http://wiki.koha-community.org/wiki/General_IRC_Meeting,_1_September_2010
 September 29 2010	Eric Olsen becomes the 116th committer to have a patch accepted
 October 6 2010	General IRC meeting http://wiki.koha-community.org/wiki/General_IRC_Meeting,_6_October_2010
@@ -585,8 +585,11 @@ October 31 2011 4th KohaCon in Mumbaï, India
 November 9 2011 Koha 3.4.6 released
 November 21 2011 Plea for help from Horowhenua Library Trust (Koha TM in NZ)
 November 29 2011 Koha 3.6.1 released
-December 6 2011 Martin Renvoize becomes the 160th developer to have a patch pushed
 December 6 2011 Martin Renvoize becomes the 161th developer to have a patch pushed
 December 6 2011 Adrien Saurat becomes the 162th developer to have a patch pushed
 December 6 2011 Albert Oller becomes the 163th developer to have a patch pushed
+December 7 2011	Jon Aker becomes the 164th developer to have a patch pushed
+December 13 2011	Fabio Tiana becomes the 165th developer to have a patch pushed
+December 15 2011	Duncan Tyler becomes the 166th developer to have a patch pushed
+December 15 2011	Marc Balmer becomes the 167th developer to have a patch pushed
 

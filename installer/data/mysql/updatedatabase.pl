@@ -4556,6 +4556,46 @@ if (C4::Context->preference("Version") < TransformToNum($DBversion)) {
     SetVersion ($DBversion);
 }
 
+$DBversion = "3.06.02.000";
+if (C4::Context->preference("Version") < TransformToNum($DBversion)) {
+    print "Upgrade to $DBversion done (Incrementing version for 3.6.2 release. See release notes for details.) \n";
+    SetVersion ($DBversion);
+}
+
+$DBversion = "3.06.02.001";
+if (C4::Context->preference("Version") < TransformToNum($DBversion)) {
+    $dbh->do("ALTER TABLE  `suggestions` ADD  `patronreason` TEXT NULL AFTER  `reason`");
+    print "Upgrade to $DBversion done (Add column to suggestions table to store patrons' reasons for submitting a suggestion. )\n";
+    SetVersion($DBversion);
+}
+
+$DBversion = "3.06.02.002";
+if (C4::Context->preference("Version") < TransformToNum($DBversion)) {
+    $dbh->do("ALTER TABLE items MODIFY materials text;");
+    print "Upgrade to $DBversion done alter items.material from varchar(10) to text \n";
+    SetVersion($DBversion);
+}
+
+$DBversion = '3.06.02.003';
+if (C4::Context->preference("Version") < TransformToNum($DBversion)) {
+    if (C4::Context->preference("marcflavour") eq 'MARC21') {
+        if (C4::Context->preference("opaclanguages") eq "de") {
+            $dbh->do("INSERT INTO `marc_tag_structure` (`tagfield`, `liblibrarian`, `libopac`, `repeatable`, `mandatory`, `authorised_value`, `frameworkcode`) VALUES ('545', 'Fußnote zu biografischen oder historischen Daten', 'Fußnote zu biografischen oder historischen Daten', 1, 0, NULL, '');");
+        } else {
+            $dbh->do("INSERT INTO `marc_tag_structure` (`tagfield`, `liblibrarian`, `libopac`, `repeatable`, `mandatory`, `authorised_value`, `frameworkcode`) VALUES ('545', 'BIOGRAPHICAL OR HISTORICAL DATA', 'BIOGRAPHICAL OR HISTORICAL DATA', 1, 0, NULL, '');");
+        }
+    }
+    print "Upgrade to $DBversion done (add MARC21 field 545 to framework)\n";
+    SetVersion ($DBversion);
+}
+
+$DBversion = "3.06.03.000";
+if (C4::Context->preference("Version") < TransformToNum($DBversion)) {
+    print "Upgrade to $DBversion done (Incrementing version for 3.6.3 release. See release notes for details.) \n";
+    SetVersion ($DBversion);
+}
+
+
 =head1 FUNCTIONS
 
 =head2 DropAllForeignKeys($table)
@@ -4598,6 +4638,10 @@ sub TransformToNum {
     my $version = shift;
     # remove the 3 last . to have a Perl number
     $version =~ s/(.*\..*)\.(.*)\.(.*)/$1$2$3/;
+    # three X's at the end indicate that you are testing patch with dbrev
+    # change it into 999
+    # prevents error on a < comparison between strings (should be: lt)
+    $version =~ s/XXX$/999/;
     return $version;
 }
 
@@ -4608,7 +4652,9 @@ set the DBversion in the systempreferences
 =cut
 
 sub SetVersion {
-    my $kohaversion = TransformToNum(shift);
+    return if $_[0]=~ /XXX$/;
+      #you are testing a patch with a db revision; do not change version
+    my $kohaversion = TransformToNum($_[0]);
     if (C4::Context->preference('Version')) {
       my $finish=$dbh->prepare("UPDATE systempreferences SET value=? WHERE variable='Version'");
       $finish->execute($kohaversion);

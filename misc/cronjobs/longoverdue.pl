@@ -35,11 +35,12 @@ BEGIN {
 }
 use C4::Context;
 use C4::Items;
+use C4::Circulation qw/LostItem/;
 use Getopt::Long;
 
 my  $lost;  #  key=lost value,  value=num days.
 my ($charge, $verbose, $confirm, $quiet);
-my $endrange = 366;  # FIXME hardcoded - don't deal with anything overdue by more than this num days.
+my $endrange = 366;
 
 GetOptions( 
     'lost=s%'    => \$lost,
@@ -47,6 +48,7 @@ GetOptions(
     'confirm'    => \$confirm,
     'verbose'    => \$verbose,
     'quiet'      => \$quiet,
+    'maxdays=s'  => \$endrange
 );
 
 my $usage = << 'ENDUSAGE';
@@ -67,6 +69,11 @@ This script takes the following parameters :
 
     --confirm           confirm.  without this option, the script will report the number of affected items and
                         return without modifying any records.
+
+    --quiet             suppress summary output.
+
+    --maxdays           Specifies the end of the range of overdue days to deal with (defaults to 366).  This
+                        value is universal to all lost num days overdue passed.
 
   examples :
   $PERL5LIB/misc/cronjobs/longoverdue.pl --lost 30=1
