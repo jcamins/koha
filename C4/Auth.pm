@@ -502,7 +502,6 @@ sub get_template_and_user {
 
         $template->param(OpacPublic => '1') if ($user || C4::Context->preference("OpacPublic"));
     }
-	$template->param(listloop=>[{shelfname=>"Freelist", shelfnumber=>110}]);
     return ( $template, $borrowernumber, $cookie, $flags);
 }
 
@@ -692,7 +691,8 @@ sub checkauth {
             $userid   = $session->param('id');
 			$sessiontype = $session->param('sessiontype');
         }
-        if ( ($query->param('koha_login_context')) && ($query->param('userid') ne $session->param('id')) ) {
+        if ( ( ($query->param('koha_login_context')) && ($query->param('userid') ne $session->param('id')) )
+          || ( $cas && $query->param('ticket') ) ) {
             #if a user enters an id ne to the id in the current session, we need to log them in...
             #first we need to clear the anonymous session...
             $debug and warn "query id = " . $query->param('userid') . " but session id = " . $session->param('id');
@@ -755,7 +755,7 @@ sub checkauth {
        	C4::Context->_new_userenv($sessionID);
         $cookie = $query->cookie(CGISESSID => $sessionID);
 	    $userid    = $query->param('userid');
-    	    if ($cas || $userid) {
+            if (($cas && $query->param('ticket')) || $userid) {
         	my $password = $query->param('password');
 		my ($return, $cardnumber);
 		if ($cas && $query->param('ticket')) {
@@ -1121,7 +1121,7 @@ sub check_api_auth {
     unless ($query->param('userid')) {
         $sessionID = $query->cookie("CGISESSID");
     }
-    if ($sessionID && not $cas) {
+    if ($sessionID && not ($cas && $query->param('PT')) ) {
         my $session = get_session($sessionID);
         C4::Context->_new_userenv($sessionID);
         if ($session) {

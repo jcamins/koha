@@ -2133,6 +2133,9 @@ div.pager input.pagedisplay {
 	font-weight: bold;
 	text-align : center;
 }
+div.pager p {
+	margin: 0;
+}
 
 a.localimage img {
 	border : 1px solid #0000CC;
