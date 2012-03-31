@@ -1,3 +1,9 @@
+koha (3.6.4-cpspecial) squeeze-dev; urgency=low
+
+  * Debian package for C & P based on 3.6.4
+
+ -- Jared Camins-Esakov <jcamins@cpbibliography.com>  Fri, 30 Mar 2012 20:00:43 -0400
+
 koha (3.6.3-cpspecial) squeeze-dev; urgency=low
 
   * Debian package for C & P based on 3.6.3, with additional customizations:
