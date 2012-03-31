@@ -72,7 +72,8 @@ if ($query) {
     my @operands = $query;
     my (@operators, @indexes, @sort_by, @limits) = ();
     if ($ENV{'MEMBERLIMIT'} && !(C4::Context->userenv->{flags} & 1)) {
-        my $userid = GetMember(borrowernumber => $borrowernumber)->{'userid'};
+        my $userid = C4::Context->userenv->{'userid'};
+
         push @limits, "action-agent:$userid";
     }
     my ( $builterror,$builtquery,$simple_query,$query_cgi,$query_desc,$limit,$limit_cgi,$limit_desc,$stopwords_removed,$query_type) = buildQuery(undef,\@operands);
