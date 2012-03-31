@@ -10,6 +10,12 @@ koha (3.8.0-1) squeeze; urgency=low
 
  -- Robin Sheat <robin@catalyst.net.nz>  Sat, 28 Apr 2012 12:39:17 +1200
 
+koha (3.6.4-cpspecial) squeeze-dev; urgency=low
+
+  * Debian package for C & P based on 3.6.4
+
+ -- Jared Camins-Esakov <jcamins@cpbibliography.com>  Fri, 30 Mar 2012 20:00:43 -0400
+
 koha (3.6.4-1) squeeze; urgency=low
 
   * New upstream release (3.06.04)
