@@ -69,6 +69,14 @@
 
 <p>Note that entering nothing at run time won't probably work as you expect. It will be considered as "value empty" not as "ignore this parameter". For example entering nothing for : "title=&lt;&lt;Enter title&gt;&gt;" will display results with title='' (no title). If you want to have to have something not mandatory, use "title like &lt;&lt;Enter title&gt;&gt;" and enter a % at run time instead of nothing</p>
 
+<p><strong>What are duration and visibility?</strong></p>
+<p>The duration field may be visible or not, don't worry if you don't see it. If you see it, it says how long a report run is kept in Koha and, any subsequent re-run will in fact display the result run the 1st time</p>
+<p>The visibility field specify if your report is accessible <strong>without authentication</strong> from the OPAC. Reports can be retrieved from the following URLs:
+<ul><li> opac: http://localhost/cgi-bin/koha/svc/report?id=1</li>
+<li>intranet: http://localhost:8080/cgi-bin/koha/svc/report?id=1</li>
+</ul>
+<p>(replace localhost and localhost:8080 with the appropriate URLs)</p>
+
 <p>Sample :</p>
 
 <ul><li>SELECT surname,firstname FROM borrowers WHERE branchcode=&lt;&lt;Enter patrons library|branches&gt;&gt; AND surname like &lt;&lt;Enter filter for patron surname (% if none)&gt;&gt;</li></ul>
