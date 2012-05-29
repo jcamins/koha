@@ -1,10 +1,10 @@
-koha (3.6.4-cpspecial) squeeze-dev; urgency=low
+koha (3.6.4-cpspecial) cpspecial; urgency=low
 
   * Debian package for C & P based on 3.6.4
 
  -- Jared Camins-Esakov <jcamins@cpbibliography.com>  Fri, 30 Mar 2012 20:00:43 -0400
 
-koha (3.6.3-cpspecial) squeeze-dev; urgency=low
+koha (3.6.3-cpspecial) cpspecial; urgency=low
 
   * Debian package for C & P based on 3.6.3, with additional customizations:
   * Local cover images
@@ -14,21 +14,21 @@ koha (3.6.3-cpspecial) squeeze-dev; urgency=low
 
  -- Jared Camins-Esakov <jcamins@cpbibliography.com>  Mon, 13 Feb 2012 14:42:44 -0500
 
-koha (3.6.1-cpspecial) squeeze-dev; urgency=low
+koha (3.6.1-cpspecial) cpspecial; urgency=low
 
   * Debian package for C & P based on 3.6.1 with C & P customizations
 
  -- Jared Camins-Esakov <jcamins@cpbibliography.com>  Sun, 11 Dec 2011 18:53:00 -0400
 
 
-koha (3.5-1~git20111101094810.2435608c) squeeze-dev; urgency=low
+koha (3.5-1~git20111101094810.2435608c) cpspecial; urgency=low
 
   * Debian package for C & P based on Master as of November 1, 2011 with C & P
     customizations
 
  -- Jared Camins-Esakov <jcamins@cpbibliography.com>  Tue, 01 Nov 2011 09:48:10 -0400
 
-koha (3.5-1~git20110712202625.986be376) squeeze-dev; urgency=low
+koha (3.5-1~git20110712202625.986be376) cpspecial; urgency=low
 
   * Initial package for C & P Bibliography
 
