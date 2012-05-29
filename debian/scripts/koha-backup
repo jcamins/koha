@@ -17,7 +17,8 @@
 # with Koha; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-
+use strict;
+use warnings;
 use Config::Simple;
 use File::Path;
 use Getopt::Long;
@@ -41,6 +42,7 @@ my $name;
 my $filename;
 my $incremental;
 my $verbose;
+my $help;
 
 GetOptions (
     'incremental|i' => \$incremental,
@@ -78,10 +80,10 @@ foreach (@ARGV) {
     my $gz = new IO::Compress::Gzip "$filename.gz", { -Level => Z_BEST_COMPRESSION };
 
     if ($mode eq 'full') {
-        open(FULL, "mysqldump --user=$mysqluser --pass=$mysqlpass --disable-keys --single-transaction --quick --master-data=2 $name |") or die "Couldn't open pipe from mysqldump for $name.\n";
+        open(my $fh, '-|', "mysqldump --user=$mysqluser --pass=$mysqlpass --disable-keys --single-transaction --quick --master-data=2 $name") or die "Couldn't open pipe from mysqldump for $name.\n";
 
         eval {
-            while (<FULL>) {
+            while (<$fh>) {
                 $gz->print($_);
                 if ( m/-- CHANGE MASTER TO MASTER_LOG_FILE='([^']*)', MASTER_LOG_POS=([0-9]*);/ ) {
                     $backupcfg->param('logfile', $1);
@@ -92,7 +94,7 @@ foreach (@ARGV) {
 
         die "Error writing full backup for $name.\n" if ($@);
 
-        eval { close (FULL) };
+        eval { close ($fh) };
 
         if ($checkpoint) {
             $backupcfg->param('base', $filename);
@@ -104,11 +106,11 @@ foreach (@ARGV) {
         my $position = $backupcfg->param('position');
         my $base = $backupcfg->param('base');
 
-        open(INC, "mysqlbinlog --to-last-log --read-from-remote-server --user=$mysqluser --pass=$mysqlpass --database=$name --start-position=$position $logfile |") or die "Unable to open pipe from mysqlbinlog for $name.\n";
+        open(my $fh, '-|', "mysqlbinlog --to-last-log --read-from-remote-server --user=$mysqluser --pass=$mysqlpass --database=$name --start-position=$position $logfile") or die "Unable to open pipe from mysqlbinlog for $name.\n";
         
         $gz->print("# Based on full backup in $base (logfile: $logfile, position: $position)\n");
         eval {
-            while (<INC>) {
+            while (<$fh>) {
                 s/\/\*!\*\///; # remove empty comments
                 if ( m/^#/ || m/^$/ ) {
                     # no-op, strip comments
@@ -116,7 +118,8 @@ foreach (@ARGV) {
                     $gz->print($_) ;
                 }
             }
-        }
+        };
+        eval { close ($fh) };
     }
     $gz->close();
     chown getpwnam("$name-koha"), getgrnam("$name-koha"), "$filename.gz";
