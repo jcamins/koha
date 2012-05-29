@@ -1,3 +1,9 @@
+koha (3.6.5-cpspecial) cpspecial; urgency=low
+
+  * Debian package for C & P based on 3.6.5
+
+ -- Jared Camins-Esakov <jcamins@cpbibliography.com>  Tue, 29 May 2012 11:56:10 -0400
+
 koha (3.6.4-cpspecial) cpspecial; urgency=low
 
   * Debian package for C & P based on 3.6.4
