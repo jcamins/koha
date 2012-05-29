@@ -59,8 +59,17 @@ my %subdivisions = (
 
 my $bib_heading_fields;
 
-BEGIN {
-if (0) {
+=head1 METHODS
+
+=head2 new
+
+  my $marc_handler = C4::Heading::UNIMARC->new();
+
+=cut
+
+sub new {
+    my $class = shift;
+
     my $dbh = C4::Context->dbh;
     my $sth = $dbh->prepare(
         "SELECT tagfield, authtypecode
@@ -75,19 +84,7 @@ if (0) {
             subfields => 'abcdefghjklmnopqrstvxyz',
         };
     }
-}
-}
 
-=head1 METHODS
-
-=head2 new
-
-  my $marc_handler = C4::Heading::UNIMARC->new();
-
-=cut
-
-sub new {
-    my $class = shift;
     return bless {}, $class;
 }
 

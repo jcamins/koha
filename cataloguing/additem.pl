@@ -145,7 +145,7 @@ sub generate_subfield_form {
             }
         }
         
-        if ($frameworkcode eq 'FA' && $subfieldlib->{kohafield} eq 'items.barcode'){
+        if ($frameworkcode eq 'FA' && $subfieldlib->{kohafield} eq 'items.barcode' && !$value){
 	    my $input = new CGI;
 	    $value = $input->param('barcode');
 	}
@@ -307,8 +307,6 @@ my ($template, $loggedinuser, $cookie)
 
 
 my $today_iso = C4::Dates->today('iso');
-$template->param(today_iso => $today_iso);
-
 my $tagslib = &GetMarcStructure(1,$frameworkcode);
 my $record = GetMarcBiblio($biblionumber);
 my $oldrecord = TransformMarcToKoha($dbh,$record);

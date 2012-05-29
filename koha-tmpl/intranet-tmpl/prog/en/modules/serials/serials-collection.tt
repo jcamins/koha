@@ -48,7 +48,7 @@ $(document).ready(function() {
 //]]>
 </script>
 </head>
-<body class="yui-skin-sam">
+<body id="ser_serials-collection" class="yui-skin-sam ser">
 [% INCLUDE 'header.inc' %]
 [% INCLUDE 'serials-search.inc' %]
 
@@ -228,7 +228,7 @@ $(document).ready(function() {
                     [% serial.branchcode %]
                 </td>
 		<td>
-		   <a href="" onclick="print_slip([% serial.subscriptionid |html %], '[% serial.serialseq |html %]'); return false" >Print list</a>
+		   <a href="" onclick="print_slip([% serial.subscriptionid |html %], '[% serial.serialseq |html %] ([% serial.planneddate %])'); return false" >Print list</a>
 		</td>
             [% IF ( CAN_user_serials_receive_serials ) %]
                 <td>

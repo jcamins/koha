@@ -29,15 +29,22 @@ function placeHold () {
         alert(MSG_NO_RECORD_SELECTED);
         return false;
     }
-    var bibs = "";
-    var badBibs = false;
-    $(checkedItems).each(function() {
-        var bib = $(this).val();
-        bibs += bib + "/";
-    });
 
-    var newloc = "/cgi-bin/koha/reserve/request.pl?biblionumbers=" + bibs;
-    if ($(checkedItems).size() > 1) { newloc += "&multi_hold=1"; }
+    var newloc;
+
+    if ($(checkedItems).size() > 1) {
+        var bibs = "";
+        $(checkedItems).each(function() {
+            var bib = $(this).val();
+            bibs += bib + "/";
+        });
+
+        newloc = "/cgi-bin/koha/reserve/request.pl?biblionumbers=" + bibs + "&multi_hold=1";
+    } else {
+        var bib = checkedItems[0].value;
+        newloc = "/cgi-bin/koha/reserve/request.pl?biblionumber=" + bib;
+    }
+
     window.opener.location = newloc;
     window.close();
 }
@@ -72,7 +79,7 @@ function placeHold () {
 	</script>
 	[% END %]
 </head>
-[% IF ( print_basket ) %]<body id="basket" onload="print();history.back();">[% ELSE %]<body id="basket">[% END %]
+[% IF ( print_basket ) %]<body id="cart_basket" class="cart" onload="print();history.back();">[% ELSE %]<body id="cart_basket" class="cart">[% END %]
 
 <div id="doc" class="yui-t7">
 <div class="container">

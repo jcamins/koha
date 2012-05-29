@@ -22,7 +22,6 @@ use warnings;
 use MARC::Record;
 use MARC::Field;
 use C4::Context;
-use C4::AuthoritiesMarc;
 use Module::Load;
 use Carp;
 
@@ -202,10 +201,11 @@ sub _search {
     #        push @operator, 'is';
     #        push @value, $self->{'thesaurus'};
     #    }
-    return SearchAuthorities(
+    require C4::AuthoritiesMarc;
+    return C4::AuthoritiesMarc::SearchAuthorities(
         \@marclist, \@and_or, \@excluding, \@operator,
         \@value,    0,        20,          $self->{'auth_type'},
-        '',         $skipmetadata
+        'AuthidAsc',         $skipmetadata
     );
 }
 

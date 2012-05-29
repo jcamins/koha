@@ -4607,6 +4607,76 @@ if (C4::Context->preference("Version") < TransformToNum($DBversion)) {
     SetVersion ($DBversion);
 }
 
+$DBversion = "3.06.04.001";
+if (C4::Context->preference("Version") < TransformToNum($DBversion)) {
+    $dbh->do(
+    "INSERT INTO systempreferences (variable,value,explanation,options,type) VALUES('LinkerModule','Default','Chooses which linker module to use (see documentation).','Default|FirstMatchLastMatch','Choice');"
+    );
+    $dbh->do(
+    "INSERT INTO systempreferences (variable,value,explanation,options,type) VALUES('LinkerOptions','','A pipe-separated list of options for the linker.','','free');"
+    );
+    $dbh->do(
+    "INSERT INTO systempreferences (variable,value,explanation,options,type) VALUES('LinkerRelink',1,'If ON the authority linker will relink headings that have previously been linked every time it runs.',NULL,'YesNo');"
+    );
+    $dbh->do(
+    "INSERT INTO systempreferences (variable,value,explanation,options,type) VALUES('LinkerKeepStale',0,'If ON the authority linker will keep existing authority links for headings where it is unable to find a match.',NULL,'YesNo');"
+    );
+    $dbh->do(
+    "INSERT INTO systempreferences (variable,value,explanation,options,type) VALUES('AutoCreateAuthorities',0,'Automatically create authorities that do not exist when cataloging records.',NULL,'YesNo');"
+    );
+    $dbh->do(
+    "INSERT INTO systempreferences (variable,value,explanation,options,type) VALUES('CatalogModuleRelink',0,'If OFF the linker will never replace the authids that are set in the cataloging module.',NULL,'YesNo');"
+    );
+    print "Upgrade to $DBversion done (Enhancement 7284, improved authority matching, see http://wiki.koha-community.org/wiki/Bug7284_authority_matching_improvement wiki page for configuration update needed)\n";
+    SetVersion($DBversion);
+}
+
+$DBversion = "3.06.04.002";
+if ( C4::Context->preference("Version") < TransformToNum($DBversion) ) {
+    $dbh->do("DELETE FROM reviews WHERE biblionumber NOT IN (SELECT biblionumber from biblio)");
+    $dbh->do("UPDATE reviews SET borrowernumber = NULL WHERE borrowernumber NOT IN (SELECT borrowernumber FROM borrowers)");
+    $dbh->do("ALTER TABLE reviews ADD CONSTRAINT reviews_ibfk_2 FOREIGN KEY (`biblionumber`) REFERENCES `biblio` (`biblionumber`) ON DELETE CASCADE ON UPDATE CASCADE");
+    $dbh->do("ALTER TABLE reviews ADD CONSTRAINT reviews_ibfk_1 FOREIGN KEY (borrowernumber) REFERENCES borrowers (borrowernumber ) ON UPDATE CASCADE ON DELETE SET NULL");
+    print "Upgrade to $DBversion done (Bug 7493 - Add constraint linking OPAC comment biblionumber to biblio, OPAC comment borrowernumber to borrowers.)\n";
+    SetVersion($DBversion);
+}
+
+$DBversion = "3.06.04.003";
+if (C4::Context->preference("Version") < TransformToNum($DBversion)) {
+    $dbh->do("INSERT INTO systempreferences (variable,value,explanation,options,type) VALUES ('UseICU', '1', 'Tell Koha if ICU indexing is in use for Zebra or not.','1','YesNo')");
+    print "Upgrade to $DBversion done (Add syspref to tell Koha if ICU indexing is in use for Zebra or not.)\n";
+    SetVersion ($DBversion);
+}
+
+$DBversion = "3.06.04.004";
+if ( C4::Context->preference("Version") < TransformToNum($DBversion) ) {
+    $dbh->do("INSERT INTO systempreferences (variable,value,explanation,options,type) VALUES('OpacBrowseResults','1','Disable/enable browsing and paging search results from the OPAC detail page.',NULL,'YesNo')");
+    print "Upgrade to $DBversion done (Add system preference OpacBrowseResults ))\n";
+    SetVersion($DBversion);
+}
+
+$DBversion = "3.06.04.005";
+if ( C4::Context->preference("Version") < TransformToNum($DBversion) ) {
+    $dbh->do("UPDATE borrowers SET debarred=NULL WHERE debarred='0000-00-00';");
+    print "Setting NULL to debarred where 0000-00-00 is stored (bug 7272)";
+    SetVersion($DBversion);
+}
+
+
+$DBversion = "3.06.04.006";
+if ( C4::Context->preference("Version") < TransformToNum($DBversion) ) {
+    $dbh->do("CREATE INDEX items_location ON items(location)");
+    $dbh->do("CREATE INDEX items_ccode ON items(ccode)");
+    print "Upgrade to $DBversion done (items_location and items_ccode indexes added for ShelfBrowser)";
+    SetVersion($DBversion);
+}
+
+$DBversion = "3.06.05.000";
+if (C4::Context->preference("Version") < TransformToNum($DBversion)) {
+    print "Upgrade to $DBversion done (Incrementing version for 3.6.5 release. See release notes for details.) \n";
+    SetVersion ($DBversion);
+}
+
 =head1 FUNCTIONS
 
 =head2 DropAllForeignKeys($table)

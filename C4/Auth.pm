@@ -402,7 +402,7 @@ sub get_template_and_user {
         $LibraryNameTitle =~ s/<(?:\/?)(?:br|p)\s*(?:\/?)>/ /sgi;
         $LibraryNameTitle =~ s/<(?:[^<>'"]|'(?:[^']*)'|"(?:[^"]*)")*>//sg;
         # clean up the busc param in the session if the page is not opac-detail
-        if ($in->{'template_name'} =~ /opac-(.+)\.(?:tt|tmpl)$/ && $1 !~ /^(?:MARC|ISBD)?detail$/) {
+        if (C4::Context->preference("OpacBrowseResults") && $in->{'template_name'} =~ /opac-(.+)\.(?:tt|tmpl)$/ && $1 !~ /^(?:MARC|ISBD)?detail$/) {
             my $sessionSearch = get_session($sessionID || $in->{'query'}->cookie("CGISESSID"));
             $sessionSearch->clear(["busc"]) if ($sessionSearch->param("busc"));
         }
@@ -1440,7 +1440,7 @@ sub checkpw {
 
     my ( $dbh, $userid, $password, $query ) = @_;
     if ($ldap) {
-        $debug and print "## checkpw - checking LDAP\n";
+        $debug and print STDERR "## checkpw - checking LDAP\n";
         my ($retval,$retcard,$retuserid) = checkpw_ldap(@_);    # EXTERNAL AUTH
         ($retval) and return ($retval,$retcard,$retuserid);
     }

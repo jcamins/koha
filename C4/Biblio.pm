@@ -39,6 +39,7 @@ use C4::Linker;
 require C4::Heading;
 require C4::Serials;
 require C4::Items;
+use C4::Linker;
 
 use vars qw($VERSION @ISA @EXPORT);
 
@@ -518,6 +519,7 @@ sub LinkBibHeadingsToAuthorities {
     my $frameworkcode = shift;
     my $allowrelink = shift;
     my %results;
+    require C4::Heading;
     require C4::AuthoritiesMarc;
 
     $allowrelink = 1 unless defined $allowrelink;
@@ -1647,7 +1649,7 @@ sub GetMarcSubjects {
 
             # ignore $9
             my @this_link_loop = @link_loop;
-            push @subfields_loop, { code => $code, value => $value, link_loop => \@this_link_loop, separator => $separator } unless ( $subject_subfield->[0] eq 9 );
+            push @subfields_loop, { code => $code, value => $value, link_loop => \@this_link_loop, separator => $separator } unless ( $subject_subfield->[0] eq 9 || $subject_subfield->[0] eq '0' );
             $counter++;
         }
 
@@ -1731,7 +1733,7 @@ sub GetMarcAuthors {
                 link_loop => \@this_link_loop,
                 separator => $separator
               }
-              unless ( $authors_subfield->[0] eq '9' );
+              unless ( $authors_subfield->[0] eq '9' || $authors_subfield->[0] eq '0');
             $count_auth++;
         }
         push @marcauthors, { MARCAUTHOR_SUBFIELDS_LOOP => \@subfields_loop };
@@ -1981,6 +1983,7 @@ sub PrepHostMarcField {
     my ($hostbiblionumber,$hostitemnumber, $marcflavour) = @_;
     $marcflavour ||="MARC21";
     
+    require C4::Items;
     my $hostrecord = GetMarcBiblio($hostbiblionumber);
 	my $item = C4::Items::GetItem($hostitemnumber);
 	

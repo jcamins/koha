@@ -279,13 +279,16 @@ sub SearchAuthorities {
         }
         ## Adding order
         #$query=' @or  @attr 7=2 @attr 1=Heading 0 @or  @attr 7=1 @attr 1=Heading 1'.$query if ($sortby eq "HeadingDsc");
-        my $orderstring= ($sortby eq "HeadingAsc"?
-                           '@attr 7=1 @attr 1=Heading 0'
-                         :
-                           $sortby eq "HeadingDsc"?      
-                            '@attr 7=2 @attr 1=Heading 0'
-                           :''
-                        );            
+        my $orderstring;
+        if ($sortby eq 'HeadingAsc') {
+            $orderstring = '@attr 7=1 @attr 1=Heading 0';
+        } elsif ($sortby eq 'HeadingDsc') {
+            $orderstring = '@attr 7=2 @attr 1=Heading 0';
+        } elsif ($sortby eq 'AuthidAsc') {
+            $orderstring = '@attr 7=1 @attr 1=Local-Number 0';
+        } elsif ($sortby eq 'AuthidDsc') {
+            $orderstring = '@attr 7=2 @attr 1=Local-Number 0';
+        }
         $query=($query?$query:"\@attr 1=_ALLRECORDS \@attr 2=103 ''");
         $query="\@or $orderstring $query" if $orderstring;
 
@@ -1312,7 +1315,11 @@ sub merge {
             my $rec;
             $rec=$oResult->record($z);
             my $marcdata = $rec->raw();
-            push @reccache, $marcdata;
+            my $marcrecordzebra= MARC::Record->new_from_xml($marcdata,"utf8",C4::Context->preference("marcflavour"));
+            my ( $biblionumbertagfield, $biblionumbertagsubfield ) = &GetMarcFromKohaField( "biblio.biblionumber", '' );
+            my $i = $marcrecordzebra->subfield($biblionumbertagfield, $biblionumbertagsubfield);
+            my $marcrecorddb=GetMarcBiblio($i);
+            push @reccache, $marcrecorddb;
             $z++;
         }
         $oResult->destroy();
@@ -1338,7 +1345,6 @@ sub merge {
     # May be used as a template for a bulkedit field  
     foreach my $marcrecord(@reccache){
         my $update;           
-        $marcrecord= MARC::Record->new_from_xml($marcrecord,"utf8",C4::Context->preference("marcflavour")) unless(C4::Context->preference('NoZebra'));
         foreach my $tagfield (@tags_using_authtype){
 #             warn "tagfield : $tagfield ";
             foreach my $field ($marcrecord->field($tagfield)){

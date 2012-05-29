@@ -468,46 +468,39 @@ sub getRecords {
                 if ( !$scan && $servers[ $i - 1 ] =~ /biblioserver/ ) {
 
                     my $jmax = $size>$facets_maxrecs? $facets_maxrecs: $size;
-
-                    for ( my $k = 0 ; $k <= @$facets ; $k++ ) {
-                        ($facets->[$k]) or next;
-                        my @fcodes = @{$facets->[$k]->{'tags'}};
-                        my $sfcode = $facets->[$k]->{'subfield'};
-
+                    for my $facet ( @$facets ) {
 		                for ( my $j = 0 ; $j < $jmax ; $j++ ) {
 		                    my $render_record = $results[ $i - 1 ]->record($j)->render();
                             my @used_datas = ();
-
-                            foreach my $fcode (@fcodes) {
-
+                            foreach my $tag ( @{$facet->{tags}} ) {
                                 # avoid first line
-                                my $field_pattern = '\n'.$fcode.' ([^\n]+)';
+                                my $tag_num = substr($tag, 0, 3);
+                                my $letters = substr($tag, 3);
+                                my $field_pattern = '\n' . $tag_num . ' ([^\n]+)';
                                 my @field_tokens = ( $render_record =~ /$field_pattern/g ) ;
-
                                 foreach my $field_token (@field_tokens) {
-                                    my $subfield_pattern = '\$'.$sfcode.' ([^\$]+)';
-                                    my @subfield_values = ( $field_token =~ /$subfield_pattern/g );
-
-                                    foreach my $subfield_value (@subfield_values) {
-
-                                        my $data = $subfield_value;
-                                        $data =~ s/^\s+//; # trim left
-                                        $data =~ s/\s+$//; # trim right
-
-                                        unless ( $data ~~ @used_datas ) {
-                                            $facets_counter->{ $facets->[$k]->{'link_value'} }->{$data}++;
-                                            push @used_datas, $data;
+                                    my @subf = ( $field_token =~ /\$([a-zA-Z0-9]) ([^\$]+)/g );
+                                    my @values;
+                                    for (my $i = 0; $i < @subf; $i += 2) {
+                                        if ( $letters =~ $subf[$i] ) {
+                                             my $value = $subf[$i+1];
+                                             $value =~ s/^ *//;
+                                             $value =~ s/ *$//;
+                                             push @values, $value;
                                         }
-                                    } # subfields
+                                    }
+                                    my $data = join($facet->{sep}, @values);
+                                    unless ( $data ~~ @used_datas ) {
+                                        $facets_counter->{ $facet->{idx} }->{$data}++;
+                                        push @used_datas, $data;
+                                    }
                                 } # fields
                             } # field codes
                         } # records
-
-                        $facets_info->{ $facets->[$k]->{'link_value'} }->{'label_value'} = $facets->[$k]->{'label_value'};
-                        $facets_info->{ $facets->[$k]->{'link_value'} }->{'expanded'} = $facets->[$k]->{'expanded'};
+                        $facets_info->{ $facet->{idx} }->{label_value} = $facet->{label};
+                        $facets_info->{ $facet->{idx} }->{expanded} = $facet->{expanded};
                     } # facets
                 }
-                # End PROGILONE
             }
 
             # warn "connection ", $i-1, ": $size hits";
@@ -738,6 +731,13 @@ sub _build_stemmed_operand {
 
 # FIXME: the locale should be set based on the user's language and/or search choice
     #warn "$lang";
+    # Make sure we only use the first two letters from the language code
+    $lang = lc(substr($lang, 0, 2));
+    # The language codes for the two variants of Norwegian will now be "nb" and "nn",
+    # none of which Lingua::Stem::Snowball can use, so we need to "translate" them
+    if ($lang eq 'nb' || $lang eq 'nn') {
+      $lang = 'no';
+    }
     my $stemmer = Lingua::Stem::Snowball->new( lang => $lang,
                                                encoding => "UTF-8" );
 
@@ -1627,6 +1627,7 @@ sub searchResults {
             foreach my $code ( keys %subfieldstosearch ) {
                 $item->{$code} = $field->subfield( $subfieldstosearch{$code} );
             }
+            $item->{description} = $itemtypes{ $item->{itype} }{description};
 
 	        # Hidden items
             if ($is_opac) {
@@ -1657,6 +1658,7 @@ sub searchResults {
 				$onloan_items->{$key}->{branchname} = $item->{branchname};
 				$onloan_items->{$key}->{location} = $shelflocations->{ $item->{location} };
 				$onloan_items->{$key}->{itemcallnumber} = $item->{itemcallnumber};
+				$onloan_items->{$key}->{description} = $item->{description};
 				$onloan_items->{$key}->{imageurl} = getitemtypeimagelocation( $search_context, $itemtypes{ $item->{itype} }->{imageurl} );
                 # if something's checked out and lost, mark it as 'long overdue'
                 if ( $item->{itemlost} ) {
@@ -1741,6 +1743,7 @@ sub searchResults {
 					$other_items->{$key}->{notforloan} = GetAuthorisedValueDesc('','',$item->{notforloan},'','',$notforloan_authorised_value) if $notforloan_authorised_value;
 					$other_items->{$key}->{count}++ if $item->{$hbranch};
 					$other_items->{$key}->{location} = $shelflocations->{ $item->{location} };
+					$other_items->{$key}->{description} = $item->{description};
 					$other_items->{$key}->{imageurl} = getitemtypeimagelocation( $search_context, $itemtypes{ $item->{itype} }->{imageurl} );
                 }
                 # item is available
@@ -1748,7 +1751,7 @@ sub searchResults {
                     $can_place_holds = 1;
                     $available_count++;
 					$available_items->{$prefix}->{count}++ if $item->{$hbranch};
-					foreach (qw(branchname itemcallnumber hideatopac)) {
+					foreach (qw(branchname itemcallnumber hideatopac description)) {
                     	$available_items->{$prefix}->{$_} = $item->{$_};
 					}
 					$available_items->{$prefix}->{location} = $shelflocations->{ $item->{location} };
