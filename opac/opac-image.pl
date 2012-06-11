@@ -55,8 +55,6 @@ imagenumber, a random image is selected.
 
 =cut
 
-error() unless C4::Context->preference("OPACLocalCoverImages");
-
 if (defined $data->param('imagenumber')) {
     $imagenumber = $data->param('imagenumber');
 } elsif (defined $data->param('biblionumber')) {
