@@ -99,11 +99,3 @@
     [% IF ( virtualshelves || intranetbookbag ) %]
         <script type="text/javascript" language="javascript" src="[% themelang %]/js/basket.js"></script>
     [% END %]
-[% IF LocalCoverImages %]
-<script type="text/javascript" language="javascript" src="[% themelang %]/js/localcovers.js"></script>
-<script type="text/javascript" language="javascript">
-//<![CDATA[
-var NO_LOCAL_JACKET = _("No cover image available");
-//]]>
-</script>
-[% END %]

@@ -624,10 +624,6 @@ for (my $i=0;$i<@servers;$i++) {
                 OPACItemsResultsDisplay => (C4::Context->preference("OPACItemsResultsDisplay") eq "itemdetails"?1:0),
                 suppress_result_number => $hide,
                             );
-	    if (C4::Context->preference("OPACLocalCoverImages")){
-		$template->param(OPACLocalCoverImages => 1);
-		$template->param(OPACLocalCoverImagesPriority => C4::Context->preference("OPACLocalCoverImagesPriority"));
-	    }
             ## Build the page numbers on the bottom of the page
             my @page_numbers;
             # total number of pages there will be
