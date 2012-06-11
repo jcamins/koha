@@ -93,8 +93,7 @@ if ($imagenumber) {
         }
         print $data->header(
             -type            => $imagedata->{'mimetype'},
-            -'Cache-Control' => 'no-store',
-            -expires         => 'now',
+            -expires         => '+10m',
             -Content_Length  => length($image)
         ), $image;
         exit;
