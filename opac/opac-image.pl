@@ -93,8 +93,7 @@ if ($imagenumber) {
         }
         print $data->header(
             -type            => $imagedata->{'mimetype'},
-            -'Cache-Control' => 'no-store',
-            -expires         => 'now',
+            -expires         => '+10m',
             -Content_Length  => length($image)
         ), $image;
         exit;
@@ -111,7 +110,7 @@ else {
 error();
 
 sub error {
-    print $data->header( -status => '404', -expires => 'now' );
+    print $data->header( -status => '404', -expires => '+1m' );
     exit;
 }
 
