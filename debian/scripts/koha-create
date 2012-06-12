@@ -279,6 +279,7 @@ set_memcached()
 }
 
 # Set defaults and read config file, if it exists.
+WITH_S3='no'
 DOMAIN=""
 OPACPORT="80"
 OPACPREFIX=""
@@ -316,7 +317,7 @@ fi
 
 [ $# -ge 1 ] && [ $# -le 16 ] || ( usage ; die "Error: wrong parameters" )
 
-TEMP=`getopt -o chrpm:l:d:f:b:a: -l create-db,request-db,populate-db,use-db,use-memcached,help,marcflavor:,auth-idx:,biblio-idx:,zebralang:,defaultsql:,configfile:,passwdfile:,database:,adminuser:,memcached-servers:,memcached-prefix:, \
+TEMP=`getopt -o chrpm:l:d:f:b:a: -l create-db,request-db,populate-db,use-db,use-memcached,help,with-s3,marcflavor:,auth-idx:,biblio-idx:,zebralang:,defaultsql:,configfile:,passwdfile:,database:,adminuser:,memcached-servers:,memcached-prefix:, \
      -n "$0" -- "$@"`
 
 # Note the quotes around `$TEMP': they are essential!
@@ -349,6 +350,8 @@ while true ; do
             CLO_MEMCACHED_SERVERS="$2" ; shift 2 ;;
         --memcached-prefix)
             CLO_MEMCACHED_PREFIX="$2" ; shift 2;;
+        --with-s3)
+            WITH_S3='yes' ; shift ;;
         -m|--marcflavor)
             CLO_ZEBRA_MARC_FORMAT="$2" ; shift 2 ;;
         -l|--zebralang)
@@ -506,7 +509,10 @@ then
     then
         die "Group $username already exists."
     fi
-    addgroup --quiet koha
+    if ! getent group koha > /dev/null
+    then
+        addgroup --quiet koha
+    fi
     adduser --no-create-home --disabled-login \
         --gecos "Koha instance $username" \
         --home "/var/lib/koha/$name" \
@@ -588,7 +594,10 @@ eof
         echo "Thanks."
     fi
 
-    s3cmd --config=/etc/koha/s3cfg mb "s3://$name.cpbibliography"
+    if "x$WITH_S3" -e 'xyes'
+    then
+        s3cmd --config=/etc/koha/s3cfg mb "s3://$name.cpbibliography"
+    fi
 fi
 
 
