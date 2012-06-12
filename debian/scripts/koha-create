@@ -76,6 +76,7 @@ getinstancemysqldatabase() {
 }
 
 # Set defaults and read config file, if it exists.
+WITH_S3='no'
 DOMAIN=""
 OPACPORT="80"
 OPACPREFIX=""
@@ -95,7 +96,7 @@ fi
 
 [ $# -ge 2 ] && [ $# -le 16 ] || die $usage
 
-TEMP=`getopt -o crpm:l:d:f:b:a: -l create-db,request-db,populate-db,use-db,marcflavor:,zebralang:,defaultsql:,configfile:,passwdfile:,database:,adminuser: \
+TEMP=`getopt -o crpm:l:d:f:b:a: -l create-db,request-db,populate-db,use-db,with-s3,marcflavor:,zebralang:,defaultsql:,configfile:,passwdfile:,database:,adminuser: \
      -n "$0" -- "$@"`
 
 # Note the quotes around `$TEMP': they are essential!
@@ -113,6 +114,7 @@ while true ; do
 		-r|--request-db) op=request ; shift ;;
 		-p|--populate-db) op=populate ; shift ;;
         -u|--use-db) op=use ; shift ;;
+        --with-s3) WITH_S3='yes' ; shift ;;
 		-m|--marcflavor) CLO_ZEBRA_MARC_FORMAT="$2" ; shift 2 ;;
 		-l|--zebralang) CLO_ZEBRA_LANGUAGE="$2" ; shift 2 ;;
 		-d|--defaultsql) CLO_DEFAULTSQL="$2" ; shift 2 ;;
@@ -212,7 +214,10 @@ then
     then
         die "Group $username already exists."
     fi
-    addgroup --quiet koha
+    if ! getent group koha > /dev/null
+    then
+        addgroup --quiet koha
+    fi
     adduser --no-create-home --disabled-login \
         --gecos "Koha instance $username" \
         --home "/var/lib/koha/$name" \
@@ -292,7 +297,10 @@ eof
         echo "Thanks."
     fi
 
-    s3cmd --config=/etc/koha/s3cfg mb "s3://$name.cpbibliography"
+    if "x$WITH_S3" -e 'xyes'
+    then
+        s3cmd --config=/etc/koha/s3cfg mb "s3://$name.cpbibliography"
+    fi
 fi
 
 
