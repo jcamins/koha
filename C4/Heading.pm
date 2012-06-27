@@ -86,6 +86,44 @@ sub new_from_bib_field {
     return $self;
 }
 
+=head2 new_from_auth_field
+
+  my $heading = C4::Heading->new_from_auth_field($field[, $marc_flavour]);
+
+Given a C<MARC::Field> object containing a heading from an
+authority record, create a C<C4::Heading> object.
+
+The optional second parameter is the MARC flavour (i.e., MARC21
+or UNIMARC); if this parameter is not supplied, it is
+taken from the Koha application context.
+
+If the MARC field supplied is not a valid heading, undef
+is returned.
+
+=cut
+
+sub new_from_auth_field {
+    my $class         = shift;
+    my $field         = shift;
+    my $marcflavour   = @_ ? shift : C4::Context->preference('marcflavour');
+
+    my $marc_handler = _marc_format_handler($marcflavour);
+
+    my $tag = $field->tag();
+    return unless $marc_handler->valid_auth_heading_tag( $tag );
+    my $self = {};
+
+    $self->{'field'} = $field;
+    (
+        $self->{'auth_type'},   $self->{'thesaurus'},
+        $self->{'search_form'}, $self->{'display_form'},
+        $self->{'match_type'}
+    ) = $marc_handler->parse_heading($field);
+
+    bless $self, $class;
+    return $self;
+}
+
 =head2 auth_type
 
   my $auth_type = $heading->auth_type();

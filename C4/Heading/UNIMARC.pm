@@ -97,6 +97,13 @@ sub valid_bib_heading_tag {
     return $bib_heading_fields->{$tag};
 }
 
+
+# FIXME: this is not the right way to determine if we have an authorized access point
+sub valid_auth_heading_tag {
+    my ( $self, $tag ) = @_;
+    return ($tag =~ m/^2..$/);
+}
+
 =head2 parse_heading
 
 =cut

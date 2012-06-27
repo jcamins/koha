@@ -114,6 +114,33 @@ my $bib_heading_fields = {
       { auth_type => 'UNIF_TITLE', subfields => 'adfghklmnoprst', series => 1 },
 };
 
+my $auth_heading_fields = {
+    '100' => {
+        auth_type  => 'PERSO_NAME',
+        subfields  => 'abcdfghjklmnopqrst',
+        main_entry => 1
+    },
+    '110' => {
+        auth_type  => 'CORPO_NAME',
+        subfields  => 'abcdfghklmnoprst',
+        main_entry => 1
+    },
+    '111' => {
+        auth_type  => 'MEETI_NAME',
+        subfields  => 'acdfghjklnpqst',
+        main_entry => 1
+    },
+    '130' => {
+        auth_type  => 'UNIF_TITLE',
+        subfields  => 'adfghklmnoprst',
+        main_entry => 1
+    },
+    '148' => { auth_type => 'CHRON_TERM', subfields => 'avxyz',  subject => 1 },
+    '150' => { auth_type => 'TOPIC_TERM', subfields => 'abvxyz', subject => 1 },
+    '151' => { auth_type => 'GEOGR_NAME', subfields => 'avxyz',  subject => 1 },
+    '155' => { auth_type => 'GENRE/FORM', subfields => 'avxyz',  subject => 1 },
+};
+
 =head2 subdivisions
 
 =cut
@@ -148,6 +175,24 @@ sub valid_bib_heading_tag {
     my $frameworkcode = shift;
 
     if ( exists $bib_heading_fields->{$tag} ) {
+        return 1;
+    }
+    else {
+        return 0;
+    }
+
+}
+
+=head2 valid_auth_heading_tag
+
+=cut
+
+sub valid_auth_heading_tag {
+    my $self          = shift;
+    my $tag           = shift;
+    my $frameworkcode = shift;
+
+    if ( exists $auth_heading_fields->{$tag} ) {
         return 1;
     }
     else {
@@ -237,7 +282,7 @@ sub _get_search_heading {
         my $code_re = quotemeta $code;
         my $value   = $subfields[$i]->[1];
         $value =~ s/[-,.:=;!%\/]$//;
-        next unless $subfields =~ qr/$code_re/;
+        next unless defined $subfields && $subfields =~ qr/$code_re/;
         if ($first) {
             $first   = 0;
             $heading = $value;
@@ -273,7 +318,7 @@ sub _get_display_heading {
         my $code    = $subfields[$i]->[0];
         my $code_re = quotemeta $code;
         my $value   = $subfields[$i]->[1];
-        next unless $subfields =~ qr/$code_re/;
+        next unless defined $subfields && $subfields =~ qr/$code_re/;
         if ($first) {
             $first   = 0;
             $heading = $value;
