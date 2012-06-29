@@ -29,6 +29,7 @@ use C4::Output;
 use C4::Dates qw/format_date/;
 use C4::Debug;
 use C4::Branch; # XXX subfield_is_koha_internal_p
+use Koha::Cache;
 
 =head1 NAME
 
@@ -41,7 +42,7 @@ Script to control the guided report creation
 =cut
 
 my $input = new CGI;
-my $usecache = C4::Context->ismemcached;
+my $usecache = Koha::Cache->is_cache_active;
 
 my $phase = $input->param('phase');
 my $flagsrequired;

@@ -165,7 +165,6 @@ canned reports and writing custom SQL reports.</p>
   <th>Creation date</th>
   <th>Public</th>
   [% IF (usecache) %] <th>Cache expiry (seconds)</th> [% END %]
-  <th>Saved results</th>
   <th>Saved SQL</th>
   <th>&nbsp;</th>
   <th>&nbsp;</th>
@@ -189,7 +188,6 @@ canned reports and writing custom SQL reports.</p>
 <td>No</td>
 [% END %]
 [% IF (usecache) %] <td>[% savedreport.cache_expiry %]</td> [% END %]
-<td>[% IF ( savedreport.date_run ) %]<a href="/cgi-bin/koha/reports/guided_reports.pl?phase=retrieve%20results&amp;id=[% savedreport.id %]">[% savedreport.date_run %]</a>[% END %]
 </td>
     <td>
         <a href="/cgi-bin/koha/reports/guided_reports.pl?reports=[% savedreport.id %]&amp;phase=Show%20SQL">Show</a> 
