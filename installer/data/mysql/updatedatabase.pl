@@ -4682,8 +4682,8 @@ if (C4::Context->preference("Version") < TransformToNum($DBversion)) {
     SetVersion ($DBversion);
 }
 
-$DBversion = "3.06.05.001";
-if ( C4::Context->preference("Version") < TransformToNum($DBversion) ) {
+my $CPversion = "3.06.05.001";
+if ( C4::Context->preference("CPVersion") < TransformToNum($CPversion) ) {
     $dbh->do(
         q|CREATE TABLE `biblioimages` (
           `imagenumber` int(11) NOT NULL AUTO_INCREMENT,
@@ -4707,28 +4707,28 @@ if ( C4::Context->preference("Version") < TransformToNum($DBversion) ) {
     $dbh->do(
         q|INSERT INTO permissions (module_bit, code, description) VALUES (13, 'upload_local_cover_images', 'Upload local cover images')|
     );
-    print "Upgrade done (Added support for local cover images)\n";
-    SetVersion($DBversion);
+    print "Upgrade to $CPversion done (Added support for local cover images)\n";
+    SetCPVersion($CPversion);
 }
 
-$DBversion = "3.06.05.002";
-if ( C4::Context->preference("Version") < TransformToNum($DBversion) ) {
+$CPversion = "3.06.05.002";
+if ( C4::Context->preference("Version") < TransformToNum($CPversion) ) {
     $dbh->do("ALTER TABLE saved_sql
         ADD (
             cache_expiry INT NOT NULL DEFAULT 300,
             public BOOLEAN NOT NULL DEFAULT FALSE
         );
     ");
-    print "Upgrade to $DBversion done (Added cache_expiry and public fields in
+    print "Upgrade to $CPversion done (Added cache_expiry and public fields in
 saved_reports table.)\n";
-    SetVersion($DBversion);
+    SetCPVersion($CPversion);
 }
 
-$DBversion = "3.06.05.003";
-if ( C4::Context->preference("Version") < TransformToNum($DBversion) ) {
+$CPversion = "3.06.05.003";
+if ( C4::Context->preference("Version") < TransformToNum($CPversion) ) {
     $dbh->do("INSERT INTO systempreferences (variable,value,explanation,options,type) VALUES('SvcMaxReportRows','10','Maximum number of rows to return via the report web service.',NULL,'Integer');");
-    print "Upgrade to $DBversion done (Added SvcMaxReportRows syspref)\n";
-    SetVersion($DBversion);
+    print "Upgrade to $CPversion done (Added SvcMaxReportRows syspref)\n";
+    SetCPVersion($CPversion);
 }
 
 $DBversion = "3.06.06.000";
@@ -4801,6 +4801,25 @@ sub SetVersion {
       $finish->execute($kohaversion);
     } else {
       my $finish=$dbh->prepare("INSERT into systempreferences (variable,value,explanation) values ('Version',?,'The Koha database version. WARNING: Do not change this value manually, it is maintained by the webinstaller')");
+      $finish->execute($kohaversion);
+    }
+}
+
+=head2 SetCPVersion
+
+set the C & P-specific version in the systempreferences
+
+=cut
+
+sub SetCPVersion {
+    return if $_[0]=~ /XXX$/;
+      #you are testing a patch with a db revision; do not change version
+    my $kohaversion = TransformToNum($_[0]);
+    if (C4::Context->preference('CPVersion')) {
+      my $finish=$dbh->prepare("UPDATE systempreferences SET value=? WHERE variable='CPVersion'");
+      $finish->execute($kohaversion);
+    } else {
+      my $finish=$dbh->prepare("INSERT into systempreferences (variable,value,explanation) values ('CPVersion',?,'The C & P-specific Koha database version. WARNING: Do not change this value manually, it is maintained by the webinstaller')");
       $finish->execute($kohaversion);
     }
 }
