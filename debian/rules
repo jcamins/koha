@@ -97,6 +97,7 @@ override_dh_auto_install:
         $(TMP)/usr/share/koha/opac/htdocs/opac-tmpl/ccsr/en/includes/doc-head-close.inc
 	sed -i -e 's:url(.*/reset-fonts-grids.css.*):url(reset-fonts-grids.css):' \
 		   -e 's:url(.*/skin.css.*):url(skin.css):' \
+		$(TMP)/usr/share/koha/opac/htdocs/opac-tmpl/prog/en/css/*.css \
 		$(TMP)/usr/share/koha/intranet/htdocs/intranet-tmpl/prog/en/css/staff-global*.css
 	mkdir -p $(TMP)/debian/tmp_docbook
 	xt/verify-debian-docbook.t
