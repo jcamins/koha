@@ -57,7 +57,8 @@ done
 
 for name in $(koha-list --enabled | grep -Fxv demo)
 do
-    koha-dump "$name" > /dev/null
+    koha-dump "$name"
+    koha-backup-s3 "$name"
 
     # Remove old dump files.
     # FIXME: This could probably be replaced by one line of perl.
