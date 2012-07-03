@@ -30,12 +30,11 @@ die() {
 }
 
 
-[ "$#" = 1 ] || die "Usage: $0 instancename"
+[ "$#" = 1 ] || die "No instance specified"
 name="$1"
 kohaconfig="/etc/koha/sites/$name/koha-conf.xml"
 date="$(date +%Y-%m-%d)"
 
-koha-dump "$name"
+#koha-dump "$name"
 
-s3cmd --config=/etc/koha/s3cfg --acl-private put "/var/spool/koha/$name/$name-$date.tar.gz" "/var/spool/koha/$name/$name-$date.sql.gz" "s3://$name.cpbibliography"
-
+s3cmd --config=/etc/koha/s3cfg --acl-private put "/var/spool/koha/$name/$name-$date.tar.gz" "/var/spool/koha/$name/$name-$date.sql.gz" "s3://$name.cpbibliography/daily/"
