@@ -1,3 +1,10 @@
+koha (3.6.6-cpspecial) cpspecial; urgency=low
+
+  * Debian package for C & P based on 3.6.6
+  * Additional changes to Debian management scripts
+
+ -- Jared Camins-Esakov <jcamins@cpbibliography.com>  Tue, 03 Jul 2012 13:34:50 -0400
+
 koha (3.6.5.1-cpspecial) cpspecial; urgency=low
 
   * Debian package for C & P based on 3.6.5
