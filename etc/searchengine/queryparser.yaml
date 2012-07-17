@@ -658,6 +658,8 @@ field_mappings:
       bib1_mapping:
         biblioserver:
           1: 9
+        authorityserver:
+          1: LC-card-number
       enabled: 1
       index: lc-card-number
       aliases:
@@ -834,6 +836,15 @@ field_mappings:
       aliases:
         - popularity
       label: Popularity
+    previous-only:
+      bib1_mapping:
+        authorityserver:
+          1: Previous-heading-see-from
+      enabled: 1
+      index: previous-only
+      aliases:
+        - prev-see-from
+      label: Previous-heading-see-from
     price:
       bib1_mapping:
         biblioserver:

@@ -1122,12 +1122,180 @@ definition file (probably something like {biblio,authority}-koha-indexdefs.xml) 
       <xslo:value-of select="normalize-space($raw_heading)"/>
     </z:index>
   </xslo:template>
+  <xslo:template mode="index_heading_conditional" match="marc:datafield[@tag='400']">
+    <xslo:if test="substring(marc:subfield[@code='w']/text(), 3, 1)='e'">
+      <z:index name="Previous-heading-see-from:p">
+        <xslo:variable name="raw_heading">
+          <xslo:for-each select="marc:subfield">
+            <xslo:if test="contains('abcdefghjklmnopqrstvxyz', @code)" name="Previous-heading-see-from:p">
+              <xslo:if test="position() &gt; 1">
+                <xslo:choose>
+                  <xslo:when test="contains('vxyz', @code)">
+                    <xslo:text>--</xslo:text>
+                  </xslo:when>
+                  <xslo:otherwise>
+                    <xslo:value-of select="substring(' ', 1, 1)"/>
+                  </xslo:otherwise>
+                </xslo:choose>
+              </xslo:if>
+              <xslo:value-of select="."/>
+            </xslo:if>
+          </xslo:for-each>
+        </xslo:variable>
+        <xslo:value-of select="normalize-space($raw_heading)"/>
+      </z:index>
+    </xslo:if>
+  </xslo:template>
+  <xslo:template mode="index_heading_conditional" match="marc:datafield[@tag='410']">
+    <xslo:if test="substring(marc:subfield[@code='w']/text(), 3, 1)='e'">
+      <z:index name="Previous-heading-see-from:p">
+        <xslo:variable name="raw_heading">
+          <xslo:for-each select="marc:subfield">
+            <xslo:if test="contains('abcdefghklmnoprstvxyz', @code)" name="Previous-heading-see-from:p">
+              <xslo:if test="position() &gt; 1">
+                <xslo:choose>
+                  <xslo:when test="contains('vxyz', @code)">
+                    <xslo:text>--</xslo:text>
+                  </xslo:when>
+                  <xslo:otherwise>
+                    <xslo:value-of select="substring(' ', 1, 1)"/>
+                  </xslo:otherwise>
+                </xslo:choose>
+              </xslo:if>
+              <xslo:value-of select="."/>
+            </xslo:if>
+          </xslo:for-each>
+        </xslo:variable>
+        <xslo:value-of select="normalize-space($raw_heading)"/>
+      </z:index>
+    </xslo:if>
+  </xslo:template>
+  <xslo:template mode="index_heading_conditional" match="marc:datafield[@tag='411']">
+    <xslo:if test="substring(marc:subfield[@code='w']/text(), 3, 1)='e'">
+      <z:index name="Previous-heading-see-from:p">
+        <xslo:variable name="raw_heading">
+          <xslo:for-each select="marc:subfield">
+            <xslo:if test="contains('acdefghjklnpqstvxyz', @code)" name="Previous-heading-see-from:p">
+              <xslo:if test="position() &gt; 1">
+                <xslo:choose>
+                  <xslo:when test="contains('vxyz', @code)">
+                    <xslo:text>--</xslo:text>
+                  </xslo:when>
+                  <xslo:otherwise>
+                    <xslo:value-of select="substring(' ', 1, 1)"/>
+                  </xslo:otherwise>
+                </xslo:choose>
+              </xslo:if>
+              <xslo:value-of select="."/>
+            </xslo:if>
+          </xslo:for-each>
+        </xslo:variable>
+        <xslo:value-of select="normalize-space($raw_heading)"/>
+      </z:index>
+    </xslo:if>
+  </xslo:template>
+  <xslo:template mode="index_heading_conditional" match="marc:datafield[@tag='430']">
+    <xslo:if test="substring(marc:subfield[@code='w']/text(), 3, 1)='e'">
+      <z:index name="Previous-heading-see-from:p">
+        <xslo:variable name="raw_heading">
+          <xslo:for-each select="marc:subfield">
+            <xslo:if test="contains('adfghklmnoprstvxyz', @code)" name="Previous-heading-see-from:p">
+              <xslo:if test="position() &gt; 1">
+                <xslo:choose>
+                  <xslo:when test="contains('vxyz', @code)">
+                    <xslo:text>--</xslo:text>
+                  </xslo:when>
+                  <xslo:otherwise>
+                    <xslo:value-of select="substring(' ', 1, 1)"/>
+                  </xslo:otherwise>
+                </xslo:choose>
+              </xslo:if>
+              <xslo:value-of select="."/>
+            </xslo:if>
+          </xslo:for-each>
+        </xslo:variable>
+        <xslo:value-of select="normalize-space($raw_heading)"/>
+      </z:index>
+    </xslo:if>
+  </xslo:template>
+  <xslo:template mode="index_heading_conditional" match="marc:datafield[@tag='448']">
+    <xslo:if test="substring(marc:subfield[@code='w']/text(), 3, 1)='e'">
+      <z:index name="Previous-heading-see-from:p">
+        <xslo:variable name="raw_heading">
+          <xslo:for-each select="marc:subfield">
+            <xslo:if test="contains('avxyz', @code)" name="Previous-heading-see-from:p">
+              <xslo:if test="position() &gt; 1">
+                <xslo:choose>
+                  <xslo:when test="contains('vxyz', @code)">
+                    <xslo:text>--</xslo:text>
+                  </xslo:when>
+                  <xslo:otherwise>
+                    <xslo:value-of select="substring(' ', 1, 1)"/>
+                  </xslo:otherwise>
+                </xslo:choose>
+              </xslo:if>
+              <xslo:value-of select="."/>
+            </xslo:if>
+          </xslo:for-each>
+        </xslo:variable>
+        <xslo:value-of select="normalize-space($raw_heading)"/>
+      </z:index>
+    </xslo:if>
+  </xslo:template>
   <xslo:template mode="index_heading_conditional" match="marc:datafield[@tag='450']">
-    <xslo:if test="substring(marc:subfield[@code='w']/text(), 2, 1)">
+    <xslo:if test="substring(marc:subfield[@code='w']/text(), 3, 1)='e'">
       <z:index name="Previous-heading-see-from:p">
         <xslo:variable name="raw_heading">
           <xslo:for-each select="marc:subfield">
             <xslo:if test="contains('abvxyz', @code)" name="Previous-heading-see-from:p">
+              <xslo:if test="position() &gt; 1">
+                <xslo:choose>
+                  <xslo:when test="contains('vxyz', @code)">
+                    <xslo:text>--</xslo:text>
+                  </xslo:when>
+                  <xslo:otherwise>
+                    <xslo:value-of select="substring(' ', 1, 1)"/>
+                  </xslo:otherwise>
+                </xslo:choose>
+              </xslo:if>
+              <xslo:value-of select="."/>
+            </xslo:if>
+          </xslo:for-each>
+        </xslo:variable>
+        <xslo:value-of select="normalize-space($raw_heading)"/>
+      </z:index>
+    </xslo:if>
+  </xslo:template>
+  <xslo:template mode="index_heading_conditional" match="marc:datafield[@tag='451']">
+    <xslo:if test="substring(marc:subfield[@code='w']/text(), 3, 1)='e'">
+      <z:index name="Previous-heading-see-from:p">
+        <xslo:variable name="raw_heading">
+          <xslo:for-each select="marc:subfield">
+            <xslo:if test="contains('avxyz', @code)" name="Previous-heading-see-from:p">
+              <xslo:if test="position() &gt; 1">
+                <xslo:choose>
+                  <xslo:when test="contains('vxyz', @code)">
+                    <xslo:text>--</xslo:text>
+                  </xslo:when>
+                  <xslo:otherwise>
+                    <xslo:value-of select="substring(' ', 1, 1)"/>
+                  </xslo:otherwise>
+                </xslo:choose>
+              </xslo:if>
+              <xslo:value-of select="."/>
+            </xslo:if>
+          </xslo:for-each>
+        </xslo:variable>
+        <xslo:value-of select="normalize-space($raw_heading)"/>
+      </z:index>
+    </xslo:if>
+  </xslo:template>
+  <xslo:template mode="index_heading_conditional" match="marc:datafield[@tag='455']">
+    <xslo:if test="substring(marc:subfield[@code='w']/text(), 3, 1)='e'">
+      <z:index name="Previous-heading-see-from:p">
+        <xslo:variable name="raw_heading">
+          <xslo:for-each select="marc:subfield">
+            <xslo:if test="contains('avxyz', @code)" name="Previous-heading-see-from:p">
               <xslo:if test="position() &gt; 1">
                 <xslo:choose>
                   <xslo:when test="contains('vxyz', @code)">
