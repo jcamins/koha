@@ -60,7 +60,6 @@ authority-zebra-indexdefs.xsl`
     <kohaidx:target_index>Record-source:p</kohaidx:target_index>
   </kohaidx:index_subfields>
 
-  
   <!-- Personal name headings -->
   <kohaidx:index_subfields tag="100" subfields="abcdefghjklmnopqrstvxyz">
     <kohaidx:target_index>Personal-name:w</kohaidx:target_index>
@@ -101,6 +100,9 @@ authority-zebra-indexdefs.xsl`
     <kohaidx:target_index>Match-heading-see-from:p</kohaidx:target_index>
     <kohaidx:target_index>Match-heading-see-from:s</kohaidx:target_index>
   </kohaidx:index_match_heading>
+  <kohaidx:index_heading_conditional tag="400" test="substring(marc:subfield[@code='w']/text(), 3, 1)='e'" subfields="abcdefghjklmnopqrstvxyz" subdivisions="vxyz">
+    <kohaidx:target_index>Previous-heading-see-from:p</kohaidx:target_index>
+  </kohaidx:index_heading_conditional>
   
   <kohaidx:index_heading tag="500" subfields="abcdefghjklmnopqrstvxyz" subdivisions="vxyz">
     <kohaidx:target_index>Personal-name-see-also-from:w</kohaidx:target_index>
@@ -154,6 +156,9 @@ authority-zebra-indexdefs.xsl`
     <kohaidx:target_index>Match-heading-see-from:p</kohaidx:target_index>
     <kohaidx:target_index>Match-heading-see-from:s</kohaidx:target_index>
   </kohaidx:index_match_heading>
+  <kohaidx:index_heading_conditional tag="410" test="substring(marc:subfield[@code='w']/text(), 3, 1)='e'" subfields="abcdefghklmnoprstvxyz" subdivisions="vxyz">
+    <kohaidx:target_index>Previous-heading-see-from:p</kohaidx:target_index>
+  </kohaidx:index_heading_conditional>
   
   <kohaidx:index_heading tag="510" subfields="abcdefghklmnoprstvxyz" subdivisions="vxyz">
     <kohaidx:target_index>Corporate-name-see-also-from:w</kohaidx:target_index>
@@ -207,6 +212,9 @@ authority-zebra-indexdefs.xsl`
     <kohaidx:target_index>Match-heading-see-from:p</kohaidx:target_index>
     <kohaidx:target_index>Match-heading-see-from:s</kohaidx:target_index>
   </kohaidx:index_match_heading>
+  <kohaidx:index_heading_conditional tag="411" test="substring(marc:subfield[@code='w']/text(), 3, 1)='e'" subfields="acdefghjklnpqstvxyz" subdivisions="vxyz">
+    <kohaidx:target_index>Previous-heading-see-from:p</kohaidx:target_index>
+  </kohaidx:index_heading_conditional>
   
   <kohaidx:index_heading tag="511" subfields="acdefghjklnpqstvxyz" subdivisions="vxyz">
     <kohaidx:target_index>Meeting-name-see-also-from:w</kohaidx:target_index>
@@ -260,6 +268,9 @@ authority-zebra-indexdefs.xsl`
     <kohaidx:target_index>Match-heading-see-from:p</kohaidx:target_index>
     <kohaidx:target_index>Match-heading-see-from:s</kohaidx:target_index>
   </kohaidx:index_match_heading>
+  <kohaidx:index_heading_conditional tag="430" test="substring(marc:subfield[@code='w']/text(), 3, 1)='e'" subfields="adfghklmnoprstvxyz" subdivisions="vxyz">
+    <kohaidx:target_index>Previous-heading-see-from:p</kohaidx:target_index>
+  </kohaidx:index_heading_conditional>
   
   <kohaidx:index_heading tag="530" subfields="adfghklmnoprstvxyz" subdivisions="vxyz">
     <kohaidx:target_index>Title-uniform-see-also-from:w</kohaidx:target_index>
@@ -313,6 +324,9 @@ authority-zebra-indexdefs.xsl`
     <kohaidx:target_index>Match-heading-see-from:p</kohaidx:target_index>
     <kohaidx:target_index>Match-heading-see-from:s</kohaidx:target_index>
   </kohaidx:index_match_heading>
+  <kohaidx:index_heading_conditional tag="448" test="substring(marc:subfield[@code='w']/text(), 3, 1)='e'" subfields="avxyz" subdivisions="vxyz">
+    <kohaidx:target_index>Previous-heading-see-from:p</kohaidx:target_index>
+  </kohaidx:index_heading_conditional>
   
   <kohaidx:index_heading tag="548" subfields="avxyz" subdivisions="vxyz">
     <kohaidx:target_index>Chronological-term-see-also-from:w</kohaidx:target_index>
@@ -361,15 +375,15 @@ authority-zebra-indexdefs.xsl`
     <kohaidx:target_index>See-from:p</kohaidx:target_index>
     <kohaidx:target_index>See-from:s</kohaidx:target_index>
   </kohaidx:index_heading>
-  <kohaidx:index_heading_conditional tag="450" test="substring(marc:subfield[@code='w']/text(), 2, 1)" subfields="abvxyz" subdivisions="vxyz">
-    <kohaidx:target_index>Previous-heading-see-from:p</kohaidx:target_index>
-  </kohaidx:index_heading_conditional>
   <kohaidx:index_match_heading tag="450" subfields="abvxyz" subdivisions="vxyz">
     <kohaidx:target_index>Match:w</kohaidx:target_index>
     <kohaidx:target_index>Match:p</kohaidx:target_index>
     <kohaidx:target_index>Match-heading-see-from:p</kohaidx:target_index>
     <kohaidx:target_index>Match-heading-see-from:s</kohaidx:target_index>
   </kohaidx:index_match_heading>
+  <kohaidx:index_heading_conditional tag="450" test="substring(marc:subfield[@code='w']/text(), 3, 1)='e'" subfields="abvxyz" subdivisions="vxyz">
+    <kohaidx:target_index>Previous-heading-see-from:p</kohaidx:target_index>
+  </kohaidx:index_heading_conditional>
   
   <kohaidx:index_heading tag="550" subfields="abvxyz" subdivisions="vxyz">
     <kohaidx:target_index>Subject-topical-see-also-from:w</kohaidx:target_index>
@@ -423,6 +437,9 @@ authority-zebra-indexdefs.xsl`
     <kohaidx:target_index>Match-heading-see-from:p</kohaidx:target_index>
     <kohaidx:target_index>Match-heading-see-from:s</kohaidx:target_index>
   </kohaidx:index_match_heading>
+  <kohaidx:index_heading_conditional tag="451" test="substring(marc:subfield[@code='w']/text(), 3, 1)='e'" subfields="avxyz" subdivisions="vxyz">
+    <kohaidx:target_index>Previous-heading-see-from:p</kohaidx:target_index>
+  </kohaidx:index_heading_conditional>
   
   <kohaidx:index_heading tag="551" subfields="avxyz" subdivisions="vxyz">
     <kohaidx:target_index>Name-geographic-see-also-from:w</kohaidx:target_index>
@@ -476,6 +493,9 @@ authority-zebra-indexdefs.xsl`
     <kohaidx:target_index>Match-heading-see-from:p</kohaidx:target_index>
     <kohaidx:target_index>Match-heading-see-from:s</kohaidx:target_index>
   </kohaidx:index_match_heading>
+  <kohaidx:index_heading_conditional tag="455" test="substring(marc:subfield[@code='w']/text(), 3, 1)='e'" subfields="avxyz" subdivisions="vxyz">
+    <kohaidx:target_index>Previous-heading-see-from:p</kohaidx:target_index>
+  </kohaidx:index_heading_conditional>
   
   <kohaidx:index_heading tag="555" subfields="avxyz" subdivisions="vxyz">
     <kohaidx:target_index>Term-genre-form-see-also-from:w</kohaidx:target_index>

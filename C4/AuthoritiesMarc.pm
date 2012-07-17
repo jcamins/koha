@@ -161,6 +161,9 @@ sub SearchAuthorities {
             elsif ( @$tags[$i] eq "thesaurus" ) {
                 $attr = " \@attr 1=Subject-heading-thesaurus ";
             }
+            elsif ( @$tags[$i] eq "previous-only" ) {
+                $attr = " \@attr 1=Previous-heading-see-from ";
+            }
             else { # Assume any if no index was specified
                 $attr = " \@attr 1=Any ";
             }
