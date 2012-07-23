@@ -252,7 +252,7 @@
                 <td>[% loop_order.ecost %]</td>
                 <td>[% loop_order.ordertotal %]</td>
 				<td>
-				    <a href="orderreceive.pl?ordernumber=[% loop_order.ordernumber %]&amp;datereceived=[% loop_order.invoicedatereceived %]&amp;invoice=[% loop_order.invoice %]&amp;gst=[% loop_order.gst %]&amp;freight=[% loop_order.freight %]&amp;supplierid=[% loop_order.supplierid %]">Receive</a>
+                              <a href="orderreceive.pl?ordernumber=[% loop_order.ordernumber %]&amp;datereceived=[% invoicedatereceived %]&amp;invoice=[% invoice %]&amp;gst=[% loop_order.gst %]&amp;freight=[% loop_order.freight %]&amp;supplierid=[% loop_order.supplierid %]">Receive</a>
 				    
 				</td>
 				<td>
@@ -292,7 +292,7 @@
 		[% IF ( number.highlight ) %]
 		<span class="current">[% number.number %]</span>
 		[% ELSE %]
-		<a href="parcel.pl?type=intra&amp;supplierid=[% supplierid %]&amp;startfrom=[% number.startfrom %][% IF ( number.datereceived ) %]&amp;datereceived=[% number.datereceived %][% END %][% IF ( number.invoice ) %]&amp;invoice=[% number.invoice %][% END %][% IF ( number.resultsperpage ) %]&amp;resultsperpage=[% number.resultsperpage %][% END %]#resultnumber">[% number.number %]</a>
+                <a href="parcel.pl?type=intra&amp;supplierid=[% supplierid %]&amp;startfrom=[% number.startfrom %][% IF ( datereceived ) %]&amp;datereceived=[% datereceived %][% END %][% IF ( invoice ) %]&amp;invoice=[% invoice %][% END %][% IF ( resultsperpage ) %]&amp;resultsperpage=[% resultsperpage %][% END %]#resultnumber">[% number.number %]</a>
 		[% END %]
 	[% END %]
 	[% IF ( displaynext ) %]
