@@ -1383,7 +1383,7 @@ Then we should add some new parameter : bibliotargettag, authtargettag
 
 sub merge {
     my ($mergefrom,$MARCfrom,$mergeto,$MARCto) = @_;
-    my ($counteditedbiblio,$countunmodifiedbiblio,$counterrors)=(0,0,0);        
+    my @editedbiblios;
     my $dbh=C4::Context->dbh;
     my $authtypecodefrom = GetAuthTypeCode($mergefrom);
     my $authtypecodeto = GetAuthTypeCode($mergeto);
@@ -1397,12 +1397,12 @@ sub merge {
     my ($auth_tag_to_report_from) = $sth->fetchrow;
     $sth->execute($authtypecodeto);
     my ($auth_tag_to_report_to) = $sth->fetchrow;
-    
+
     my @record_to;
     @record_to = $MARCto->field($auth_tag_to_report_to)->subfields() if $MARCto->field($auth_tag_to_report_to);
     my @record_from;
     @record_from = $MARCfrom->field($auth_tag_to_report_from)->subfields() if $MARCfrom->field($auth_tag_to_report_from);
-    
+
     my @reccache;
     # search all biblio tags using this authority.
     #Getting marcbiblios impacted by the change.
@@ -1439,42 +1439,42 @@ sub merge {
     while (my ($tagfield) = $sth->fetchrow) {
         push @tags_using_authtype,$tagfield ;
     }
-    my $tag_to=0;  
-    if ($authtypecodeto ne $authtypecodefrom){  
+    my $tag_to=0;
+    if ($authtypecodeto ne $authtypecodefrom){
         # If many tags, take the first
-        $sth->execute($authtypecodeto);    
+        $sth->execute($authtypecodeto);
         $tag_to=$sth->fetchrow;
-        #warn $tag_to;    
-    }  
+    }
     # BulkEdit marc records
-    # May be used as a template for a bulkedit field  
+    # May be used as a template for a bulkedit field
     foreach my $marcrecord(@reccache){
-        my $update;           
+        my $update;
         foreach my $tagfield (@tags_using_authtype){
-#             warn "tagfield : $tagfield ";
             foreach my $field ($marcrecord->field($tagfield)){
                 # biblio is linked to authority with $9 subfield containing authid
                 my $auth_number=$field->subfield("9");
-                my $tag=$field->tag();          
+                my $tag=$field->tag();
                 if ($auth_number==$mergefrom) {
-                my $field_to=MARC::Field->new(($tag_to?$tag_to:$tag),$field->indicator(1),$field->indicator(2),"9"=>$mergeto);
-		my $exclude='9';
-                foreach my $subfield (grep {$_->[0] ne '9'} @record_to) {
-                    $field_to->add_subfields($subfield->[0] =>$subfield->[1]);
-		    $exclude.= $subfield->[0];
-                }
-		$exclude='['.$exclude.']';
-#		add subfields in $field not included in @record_to
-		my @restore= grep {$_->[0]!~/$exclude/} $field->subfields();
-                foreach my $subfield (@restore) {
-                   $field_to->add_subfields($subfield->[0] =>$subfield->[1]);
-		}
-                $marcrecord->delete_field($field);
-                $marcrecord->insert_grouped_field($field_to);            
-                $update=1;
+                    my $field_to = MARC::Field->new(($tag_to?$tag_to:$tag),
+                        $field->indicator(1),$field->indicator(2),"9"=>$mergeto);
+                    my $exclude='9';
+                    foreach my $subfield (grep {$_->[0] ne '9'} @record_to) {
+                        $field_to->add_subfields($subfield->[0] =>$subfield->[1]);
+                        $exclude.= $subfield->[0];
+                    }
+                    $exclude='['.$exclude.']';
+                    #add subfields in $field not included in @record_to
+                    my @restore= grep {$_->[0]!~/$exclude/} $field->subfields();
+                    foreach my $subfield (@restore) {
+                       $field_to->add_subfields($subfield->[0] =>$subfield->[1]);
+                    }
+                    $marcrecord->delete_field($field);
+                    $marcrecord->insert_grouped_field($field_to);
+                    $update=1;
                 }
             }#for each tag
         }#foreach tagfield
+
         my ($bibliotag,$bibliosubf) = GetMarcFromKohaField("biblio.biblionumber","") ;
         my $biblionumber;
         if ($bibliotag<10){
@@ -1489,60 +1489,12 @@ sub merge {
         }
         if ($update==1){
             &ModBiblio($marcrecord,$biblionumber,GetFrameworkCode($biblionumber)) ;
-            $counteditedbiblio++;
-            warn $counteditedbiblio if (($counteditedbiblio % 10) and $ENV{DEBUG});
-        }    
+            push @editedbiblios, $biblionumber;
+        }
     }#foreach $marc
-    return $counteditedbiblio;  
-  # now, find every other authority linked with this authority
-  # now, find every other authority linked with this authority
-#   my $oConnection=C4::Context->Zconn("authorityserver");
-#   my $query;
-# # att 9210               Auth-Internal-authtype
-# # att 9220               Auth-Internal-LN
-# # ccl.properties to add for authorities
-#   $query= "= ".$mergefrom;
-#   my $oResult = $oConnection->search(new ZOOM::Query::CCL2RPN( $query, $oConnection ));
-#   my $count=$oResult->size() if  ($oResult);
-#   my @reccache;
-#   my $z=0;
-#   while ( $z<$count ) {
-#   my $rec;
-#           $rec=$oResult->record($z);
-#       my $marcdata = $rec->raw();
-#   push @reccache, $marcdata;
-#   $z++;
-#   }
-#   $oResult->destroy();
-#   foreach my $marc(@reccache){
-#     my $update;
-#     my $marcrecord;
-#     $marcrecord = MARC::File::USMARC::decode($marc);
-#     foreach my $tagfield (@tags_using_authtype){
-#       $tagfield=substr($tagfield,0,3);
-#       my @tags = $marcrecord->field($tagfield);
-#       foreach my $tag (@tags){
-#         my $tagsubs=$tag->subfield("9");
-#     #warn "$tagfield:$tagsubs:$mergefrom";
-#         if ($tagsubs== $mergefrom) {
-#           $tag->update("9" =>$mergeto);
-#           foreach my $subfield (@record_to) {
-#     #        warn "$subfield,$subfield->[0],$subfield->[1]";
-#             $tag->update($subfield->[0] =>$subfield->[1]);
-#           }#for $subfield
-#         }
-#         $marcrecord->delete_field($tag);
-#         $marcrecord->add_fields($tag);
-#         $update=1;
-#       }#for each tag
-#     }#foreach tagfield
-#     my $authoritynumber = TransformMarcToKoha($dbh,$marcrecord,"") ;
-#     if ($update==1){
-#       &ModAuthority($marcrecord,$authoritynumber,GetAuthTypeCode($authoritynumber)) ;
-#     }
-# 
-#   }#foreach $marc
-}#sub
+
+    return @editedbiblios;
+}
 
 =head2 get_auth_type_location
 
