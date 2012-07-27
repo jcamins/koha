@@ -10,8 +10,7 @@ use File::Path;
 use C4::Biblio;
 use C4::AuthoritiesMarc;
 use C4::Items;
-use Koha::RecordProcessor;
-use XML::LibXML;
+use C4::ZebraIndex;
 
 # script that checks zebradir structure & create directories & mandatory files if needed
 #
@@ -172,12 +171,7 @@ if ( $verbose_logging ) {
 }
 if ($keep_export) {
     print "NOTHING cleaned : the export $directory has been kept.\n";
-    print "You can re-run this script with the -s ";
-    if ($use_tempdir) {
-        print " and -d $directory parameters";
-    } else {
-        print "parameter";
-    }
+    print "You can re-run this script with the -s and -d $directory parameters";
     print "\n";
     print "if you just want to rebuild zebra after changing the record.abs\n";
     print "or another zebra config file\n";
@@ -212,68 +206,66 @@ sub check_zebra_dirs {
 sub index_records {
     my ($record_type, $directory, $skip_export, $skip_index, $process_zebraqueue, $as_xml, $noxml, $nosanitize, $do_not_clear_zebraqueue, $verbose_logging, $zebraidx_log_opt, $server_dir) = @_;
 
-    my $num_records_exported = 0;
-    my $records_deleted;
     my $need_reset = check_zebra_dirs($server_dir);
     if ($need_reset) {
         print "$0: found broken zebra server directories: forcing a rebuild\n";
         $reset = 1;
     }
-    if ($skip_export && $verbose_logging) {
+
+    if ( $verbose_logging ) {
         print "====================\n";
-        print "SKIPPING $record_type export\n";
+        print "REINDEXING zebra\n";
         print "====================\n";
-    } else {
-        if ( $verbose_logging ) {
-            print "====================\n";
-            print "exporting $record_type\n";
-            print "====================\n";
-        }
-        mkdir "$directory" unless (-d $directory);
-        mkdir "$directory/$record_type" unless (-d "$directory/$record_type");
-        if ($process_zebraqueue) {
-            my $entries = select_zebraqueue_records($record_type, 'deleted');
-            mkdir "$directory/del_$record_type" unless (-d "$directory/del_$record_type");
-            $records_deleted = generate_deleted_marc_records($record_type, $entries, "$directory/del_$record_type", $as_xml);
-            mark_zebraqueue_batch_done($entries);
-            $entries = select_zebraqueue_records($record_type, 'updated');
-            mkdir "$directory/upd_$record_type" unless (-d "$directory/upd_$record_type");
-            $num_records_exported = export_marc_records_from_list($record_type,
-                                                                  $entries, "$directory/upd_$record_type", $as_xml, $noxml, $records_deleted);
-            mark_zebraqueue_batch_done($entries);
-        } else {
-            my $sth = select_all_records($record_type);
-            $num_records_exported = export_marc_records_from_sth($record_type, $sth, "$directory/$record_type", $as_xml, $noxml, $nosanitize);
-            unless ($do_not_clear_zebraqueue) {
-                mark_all_zebraqueue_done($record_type);
-            }
-        }
     }
 
-    #
-    # and reindexing everything
-    #
-    if ($skip_index) {
-        if ($verbose_logging) {
-            print "====================\n";
-            print "SKIPPING $record_type indexing\n";
-            print "====================\n";
-        }
+    my $record_fmt = ($as_xml) ? 'marcxml' : 'iso2709' ;
+    if ($process_zebraqueue) {
+        # Process 'deleted' records
+        my $entries = select_zebraqueue_records( $record_type, 'deleted' );
+        my @entries_to_delete = map { $_->{biblio_auth_id} } @$entries;
+
+        C4::ZebraIndex::DeleteRecordIndex($record_type, \@entries_to_delete, {
+            as_xml => $as_xml, noshadow => $noshadow, record_format => $record_fmt,
+            zebraidx_log_opt => $zebraidx_log_opt, verbose => $verbose_logging,
+            skip_export => $skip_export, skip_index => $skip_index,
+            keep_export => $keep_export, directory => $directory
+        });
+
+        mark_zebraqueue_batch_done($entries);
+
+        # Process 'updated' records'
+        $entries = select_zebraqueue_records( $record_type, 'updated' );
+        my @entries_to_update = map {
+            my $id = $_->{biblio_auth_id};
+            # do not try to update deleted records
+            (0 == grep { $id == $_ } @entries_to_delete) ? $id : ()
+        } @$entries;
+
+        C4::ZebraIndex::IndexRecord($record_type, \@entries_to_update, {
+            as_xml => $as_xml, noxml => $noxml, reset_index => $reset,
+            noshadow => $noshadow, record_format => $record_fmt,
+            zebraidx_log_opt => $zebraidx_log_opt, verbose => $verbose_logging,
+            skip_export => $skip_export, skip_index => $skip_index,
+            keep_export => $keep_export, directory => $directory
+        });
+
+        mark_zebraqueue_batch_done($entries);
     } else {
-        if ( $verbose_logging ) {
-            print "====================\n";
-            print "REINDEXING zebra\n";
-            print "====================\n";
-        }
-        my $record_fmt = ($as_xml) ? 'marcxml' : 'iso2709' ;
-        if ($process_zebraqueue) {
-            do_indexing($record_type, 'adelete', "$directory/del_$record_type", $reset, $noshadow, $record_fmt, $zebraidx_log_opt)
-                if %$records_deleted;
-            do_indexing($record_type, 'update', "$directory/upd_$record_type", $reset, $noshadow, $record_fmt, $zebraidx_log_opt)
-                if $num_records_exported;
-        } else {
-            do_indexing($record_type, 'update', "$directory/$record_type", $reset, $noshadow, $record_fmt, $zebraidx_log_opt)
-                if ($num_records_exported or $skip_export);
+        my $sth = select_all_records($record_type);
+        my $entries = $sth->fetchall_arrayref([]);
+        my @entries_to_update = map { $_->[0] } @$entries;
+
+        C4::ZebraIndex::IndexRecord($record_type, \@entries_to_update, {
+            as_xml => $as_xml, noxml => $noxml, reset_index => $reset,
+            noshadow => $noshadow, record_format => $record_fmt,
+            zebraidx_log_opt => $zebraidx_log_opt, nosanitize => $nosanitize,
+            verbose => $verbose_logging, skip_export => $skip_export,
+            skip_index => $skip_index, keep_export => $keep_export,
+            directory => $directory
+        });
+
+        unless ($do_not_clear_zebraqueue) {
+            mark_all_zebraqueue_done($record_type);
         }
     }
 }
@@ -343,341 +335,6 @@ sub select_all_biblios {
     return $sth;
 }
 
-sub include_xml_wrapper {
-    my $as_xml = shift;
-    my $record_type = shift;
-
-    return 0 unless $as_xml;
-    return 1 if $record_type eq 'biblio' and $bib_index_mode eq 'dom';
-    return 1 if $record_type eq 'authority' and $auth_index_mode eq 'dom';
-    return 0;
-
-}
-
-sub export_marc_records_from_sth {
-    my ($record_type, $sth, $directory, $as_xml, $noxml, $nosanitize) = @_;
-
-    my $num_exported = 0;
-    open my $fh, '>:encoding(UTF-8) ', "$directory/exported_records" or die $!;
-    if (include_xml_wrapper($as_xml, $record_type)) {
-        # include XML declaration and root element
-        print {$fh} '<?xml version="1.0" encoding="UTF-8"?><collection>';
-    }
-    my $i = 0;
-    my ( $itemtag, $itemsubfield ) = GetMarcFromKohaField("items.itemnumber",'');
-    while (my ($record_number) = $sth->fetchrow_array) {
-        print "." if ( $verbose_logging );
-        print "\r$i" unless ($i++ %100 or !$verbose_logging);
-        if ( $nosanitize ) {
-            my $marcxml = $record_type eq 'biblio'
-                          ? GetXmlBiblio( $record_number )
-                          : GetAuthorityXML( $record_number );
-            if ($record_type eq 'biblio'){
-                my @items = GetItemsInfo($record_number);
-                if (@items){
-                    my $record = MARC::Record->new;
-                    $record->encoding('UTF-8');
-                    my @itemsrecord;
-                    foreach my $item (@items){
-                        my $record = Item2Marc($item, $record_number);
-                        push @itemsrecord, $record->field($itemtag);
-                    }
-                    $record->insert_fields_ordered(@itemsrecord);
-                    my $itemsxml = $record->as_xml_record();
-                    $marcxml =
-                        substr($marcxml, 0, length($marcxml)-10) .
-                        substr($itemsxml, index($itemsxml, "</leader>\n", 0) + 10);
-                }
-            }
-            # extra test to ensure that result is valid XML; otherwise
-            # Zebra won't parse it in DOM mode
-            eval {
-                my $doc = $tester->parse_string($marcxml);
-            };
-            if ($@) {
-                warn "Error exporting record $record_number ($record_type): $@\n";
-                next;
-            }
-            if ( $marcxml ) {
-                $marcxml =~ s!<\?xml version="1.0" encoding="UTF-8"\?>\n!!;
-                print {$fh} $marcxml;
-                $num_exported++;
-            }
-            next;
-        }
-        my ($marc) = get_corrected_marc_record($record_type, $record_number, $noxml);
-        if (defined $marc) {
-            eval {
-                my $rec;
-                if ($as_xml) {
-                    $rec = $marc->as_xml_record(C4::Context->preference('marcflavour'));
-                    eval {
-                        my $doc = $tester->parse_string($rec);
-                    };
-                    if ($@) {
-                        die "invalid XML: $@";
-                    }
-                    $rec =~ s!<\?xml version="1.0" encoding="UTF-8"\?>\n!!;
-                } else {
-                    $rec = $marc->as_usmarc();
-                }
-                print {$fh} $rec;
-                $num_exported++;
-            };
-            if ($@) {
-                warn "Error exporting record $record_number ($record_type) ".($noxml ? "not XML" : "XML");
-                warn "... specific error is $@" if $verbose_logging;
-            }
-        }
-    }
-    print "\nRecords exported: $num_exported\n" if ( $verbose_logging );
-    print {$fh} '</collection>' if (include_xml_wrapper($as_xml, $record_type));
-    close $fh;
-    return $num_exported;
-}
-
-sub export_marc_records_from_list {
-    my ($record_type, $entries, $directory, $as_xml, $noxml, $records_deleted) = @_;
-
-    my $num_exported = 0;
-    open my $fh, '>:encoding(UTF-8)', "$directory/exported_records" or die $!;
-    if (include_xml_wrapper($as_xml, $record_type)) {
-        # include XML declaration and root element
-        print {$fh} '<?xml version="1.0" encoding="UTF-8"?><collection>';
-    }
-    my $i = 0;
-
-    # Skip any deleted records. We check for this anyway, but this reduces error spam
-    my %found = %$records_deleted;
-    foreach my $record_number ( map { $_->{biblio_auth_number} }
-                                grep { !$found{ $_->{biblio_auth_number} }++ }
-                                @$entries ) {
-        print "." if ( $verbose_logging );
-        print "\r$i" unless ($i++ %100 or !$verbose_logging);
-        my ($marc) = get_corrected_marc_record($record_type, $record_number, $noxml);
-        if (defined $marc) {
-            eval {
-                my $rec;
-                if ($as_xml) {
-                    $rec = $marc->as_xml_record(C4::Context->preference('marcflavour'));
-                    $rec =~ s!<\?xml version="1.0" encoding="UTF-8"\?>\n!!;
-                } else {
-                    $rec = $marc->as_usmarc();
-                }
-                print {$fh} $rec;
-                $num_exported++;
-            };
-            if ($@) {
-              warn "Error exporting record $record_number ($record_type) ".($noxml ? "not XML" : "XML");
-            }
-        }
-    }
-    print "\nRecords exported: $num_exported\n" if ( $verbose_logging );
-    print {$fh} '</collection>' if (include_xml_wrapper($as_xml, $record_type));
-    close $fh;
-    return $num_exported;
-}
-
-sub generate_deleted_marc_records {
-    my ($record_type, $entries, $directory, $as_xml) = @_;
-
-    my $records_deleted = {};
-    open my $fh, '>:encoding(UTF-8)', "$directory/exported_records" or die $!;
-    if (include_xml_wrapper($as_xml, $record_type)) {
-        # include XML declaration and root element
-        print {$fh} '<?xml version="1.0" encoding="UTF-8"?><collection>';
-    }
-    my $i = 0;
-    foreach my $record_number (map { $_->{biblio_auth_number} } @$entries ) {
-        print "\r$i" unless ($i++ %100 or !$verbose_logging);
-        print "." if ( $verbose_logging );
-
-        my $marc = MARC::Record->new();
-        if ($record_type eq 'biblio') {
-            fix_biblio_ids($marc, $record_number, $record_number);
-        } else {
-            fix_authority_id($marc, $record_number);
-        }
-        if (C4::Context->preference("marcflavour") eq "UNIMARC") {
-            fix_unimarc_100($marc);
-        }
-
-        my $rec;
-        if ($as_xml) {
-            $rec = $marc->as_xml_record(C4::Context->preference('marcflavour'));
-            $rec =~ s!<\?xml version="1.0" encoding="UTF-8"\?>\n!!;
-        } else {
-            $rec = $marc->as_usmarc();
-        }
-        print {$fh} $rec;
-
-        $records_deleted->{$record_number} = 1;
-    }
-    print "\nRecords exported: $i\n" if ( $verbose_logging );
-    print {$fh} '</collection>' if (include_xml_wrapper($as_xml, $record_type));
-    close $fh;
-    return $records_deleted;
-
-
-}
-
-sub get_corrected_marc_record {
-    my ($record_type, $record_number, $noxml) = @_;
-
-    my $marc = get_raw_marc_record($record_type, $record_number, $noxml);
-
-    if (defined $marc) {
-        fix_leader($marc);
-        if ($record_type eq 'authority') {
-            fix_authority_id($marc, $record_number);
-        } elsif ($record_type eq 'biblio' && C4::Context->preference('IncludeSeeFromInSearches')) {
-            my $normalizer = Koha::RecordProcessor->new( { filters => 'EmbedSeeFromHeadings' } );
-            $marc = $normalizer->process($marc);
-        }
-        if (C4::Context->preference("marcflavour") eq "UNIMARC") {
-            fix_unimarc_100($marc);
-        }
-    }
-
-    return $marc;
-}
-
-sub get_raw_marc_record {
-    my ($record_type, $record_number, $noxml) = @_;
-
-    my $marc;
-    if ($record_type eq 'biblio') {
-        if ($noxml) {
-            my $fetch_sth = $dbh->prepare_cached("SELECT marc FROM biblioitems WHERE biblionumber = ?");
-            $fetch_sth->execute($record_number);
-            if (my ($blob) = $fetch_sth->fetchrow_array) {
-                $marc = MARC::Record->new_from_usmarc($blob);
-                unless ($marc) {
-                    warn "error creating MARC::Record from $blob";
-                }
-            }
-            # failure to find a bib is not a problem -
-            # a delete could have been done before
-            # trying to process a record update
-
-            $fetch_sth->finish();
-            return unless $marc;
-        } else {
-            eval { $marc = GetMarcBiblio($record_number, 1); };
-            if ($@ || !$marc) {
-                # here we do warn since catching an exception
-                # means that the bib was found but failed
-                # to be parsed
-                warn "error retrieving biblio $record_number";
-                return;
-            }
-        }
-    } else {
-        eval { $marc = GetAuthority($record_number); };
-        if ($@) {
-            warn "error retrieving authority $record_number";
-            return;
-        }
-    }
-    return $marc;
-}
-
-sub fix_leader {
-    # FIXME - this routine is suspect
-    # It blanks the Leader/00-05 and Leader/12-16 to
-    # force them to be recalculated correct when
-    # the $marc->as_usmarc() or $marc->as_xml() is called.
-    # But why is this necessary?  It would be a serious bug
-    # in MARC::Record (definitely) and MARC::File::XML (arguably)
-    # if they are emitting incorrect leader values.
-    my $marc = shift;
-
-    my $leader = $marc->leader;
-    substr($leader,  0, 5) = '     ';
-    substr($leader, 10, 7) = '22     ';
-    $marc->leader(substr($leader, 0, 24));
-}
-
-sub fix_biblio_ids {
-    # FIXME - it is essential to ensure that the biblionumber is present,
-    #         otherwise, Zebra will choke on the record.  However, this
-    #         logic belongs in the relevant C4::Biblio APIs.
-    my $marc = shift;
-    my $biblionumber = shift;
-    my $biblioitemnumber;
-    if (@_) {
-        $biblioitemnumber = shift;
-    } else {
-        my $sth = $dbh->prepare(
-            "SELECT biblioitemnumber FROM biblioitems WHERE biblionumber=?");
-        $sth->execute($biblionumber);
-        ($biblioitemnumber) = $sth->fetchrow_array;
-        $sth->finish;
-        unless ($biblioitemnumber) {
-            warn "failed to get biblioitemnumber for biblio $biblionumber";
-            return 0;
-        }
-    }
-
-    # FIXME - this is cheating on two levels
-    # 1. C4::Biblio::_koha_marc_update_bib_ids is meant to be an internal function
-    # 2. Making sure that the biblionumber and biblioitemnumber are correct and
-    #    present in the MARC::Record object ought to be part of GetMarcBiblio.
-    #
-    # On the other hand, this better for now than what rebuild_zebra.pl used to
-    # do, which was duplicate the code for inserting the biblionumber
-    # and biblioitemnumber
-    C4::Biblio::_koha_marc_update_bib_ids($marc, '', $biblionumber, $biblioitemnumber);
-
-    return 1;
-}
-
-sub fix_authority_id {
-    # FIXME - as with fix_biblio_ids, the authid must be present
-    #         for Zebra's sake.  However, this really belongs
-    #         in C4::AuthoritiesMarc.
-    my ($marc, $authid) = @_;
-    unless ($marc->field('001') and $marc->field('001')->data() eq $authid){
-        $marc->delete_field($marc->field('001'));
-        $marc->insert_fields_ordered(MARC::Field->new('001',$authid));
-    }
-}
-
-sub fix_unimarc_100 {
-    # FIXME - again, if this is necessary, it belongs in C4::AuthoritiesMarc.
-    my $marc = shift;
-
-    my $string;
-    if ( length($marc->subfield( 100, "a" )) == 36 ) {
-        $string = $marc->subfield( 100, "a" );
-        my $f100 = $marc->field(100);
-        $marc->delete_field($f100);
-    }
-    else {
-        $string = POSIX::strftime( "%Y%m%d", localtime );
-        $string =~ s/\-//g;
-        $string = sprintf( "%-*s", 35, $string );
-    }
-    substr( $string, 22, 6, "frey50" );
-    unless ( length($marc->subfield( 100, "a" )) == 36 ) {
-        $marc->delete_field($marc->field(100));
-        $marc->insert_grouped_field(MARC::Field->new( 100, "", "", "a" => $string ));
-    }
-}
-
-sub do_indexing {
-    my ($record_type, $op, $record_dir, $reset_index, $noshadow, $record_format, $zebraidx_log_opt) = @_;
-
-    my $zebra_server  = ($record_type eq 'biblio') ? 'biblioserver' : 'authorityserver';
-    my $zebra_db_name = ($record_type eq 'biblio') ? 'biblios' : 'authorities';
-    my $zebra_config  = C4::Context->zebraconfig($zebra_server)->{'config'};
-    my $zebra_db_dir  = C4::Context->zebraconfig($zebra_server)->{'directory'};
-
-    system("zebraidx -c $zebra_config $zebraidx_log_opt -g $record_format -d $zebra_db_name init") if $reset_index;
-    system("zebraidx -c $zebra_config $zebraidx_log_opt $noshadow -g $record_format -d $zebra_db_name $op $record_dir");
-    system("zebraidx -c $zebra_config $zebraidx_log_opt -g $record_format -d $zebra_db_name commit") unless $noshadow;
-
-}
 
 sub print_usage {
     print <<_USAGE_;
