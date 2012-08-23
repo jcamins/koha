@@ -616,7 +616,8 @@ sub BatchRevertBibRecords {
             $num_items_deleted += BatchRevertItems($rowref->{'import_record_id'}, $rowref->{'matched_biblionumber'});
             SetImportRecordStatus($rowref->{'import_record_id'}, 'reverted');
         }
-        my $sth2 = $dbh->prepare_cached("UPDATE import_biblios SET matched_biblionumber = NULL WHERE import_record_id = ?");
+        # remove matched_biblionumber only if there is no 'imported' item left
+        my $sth2 = $dbh->prepare_cached("UPDATE import_biblios SET matched_biblionumber = NULL WHERE import_record_id = ?  AND NOT EXISTS (SELECT * FROM import_items WHERE import_items.import_record_id=import_biblios.import_record_id and status='imported')" );
         $sth2->execute($rowref->{'import_record_id'});
     }
 
@@ -644,13 +645,18 @@ sub BatchRevertItems {
     $sth->bind_param(1, $import_record_id);
     $sth->execute();
     while (my $row = $sth->fetchrow_hashref()) {
-        DelItem($dbh, $biblionumber, $row->{'itemnumber'});
-        my $updsth = $dbh->prepare("UPDATE import_items SET status = ? WHERE import_items_id = ?");
-        $updsth->bind_param(1, 'reverted');
-        $updsth->bind_param(2, $row->{'import_items_id'});
-        $updsth->execute();
-        $updsth->finish();
-        $num_items_deleted++;
+        my $error = DelItemCheck($dbh, $biblionumber, $row->{'itemnumber'});
+        if ($error == 1){
+            my $updsth = $dbh->prepare("UPDATE import_items SET status = ? WHERE import_items_id = ?");
+            $updsth->bind_param(1, 'reverted');
+            $updsth->bind_param(2, $row->{'import_items_id'});
+            $updsth->execute();
+            $updsth->finish();
+            $num_items_deleted++;
+        }
+        else {
+            next;
+        }
     }
     $sth->finish();
     return $num_items_deleted;

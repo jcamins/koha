@@ -14,7 +14,7 @@ use English qw(-no_match_vars);
 
 my @all_koha_dirs = qw( acqui admin authorities basket C4 catalogue cataloguing circ debian errors
 labels members misc offline_circ opac patroncards reports reserve reviews rotating_collections
-serials sms suggestion t tags test tools virtualshelves);
+serials sms suggestion t tags test tools virtualshelves Koha);
 
 my @dirs = qw( acqui admin authorities basket catalogue cataloguing circ debian errors labels
     offline_circ reserve reviews rotating_collections serials sms virtualshelves );
