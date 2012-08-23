@@ -10,12 +10,28 @@ koha (3.8.0-1) squeeze; urgency=low
 
  -- Robin Sheat <robin@catalyst.net.nz>  Sat, 28 Apr 2012 12:39:17 +1200
 
+koha (3.6.8-cpspecial) cpspecial; urgency=low
+
+  * Debian package for C & P based on 3.6.8
+  * Correct the display of field 773
+  * Sort serials by date on OPAC
+
+ -- Jared Camins-Esakov <jcamins@cpbibliography.com>  Thu, 23 Aug 2012 17:34:28 -0400
+
+koha (3.6.7-cpspecial) cpspecial; urgency=low
+
+  * Debian package for C & P based on 3.6.7
+  * Make location display on OPAC results configurable
+
+ -- Jared Camins-Esakov <jcamins@cpbibliography.com>  Mon, 23 Jul 2012 17:31:54 -0400
+
 koha (3.6.6-cpspecial) cpspecial; urgency=low
 
   * Debian package for C & P based on 3.6.6
   * Additional changes to Debian management scripts
+  * debian/changelog
 
- -- Jared Camins-Esakov <jcamins@cpbibliography.com>  Tue, 03 Jul 2012 13:34:50 -0400
+ -- Jared Camins-Esakov <jcamins@cpbibliography.com>  Mon, 11 Jun 2012 18:12:22 -0400
 
 koha (3.6.5.1-cpspecial) cpspecial; urgency=low
 
