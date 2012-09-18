@@ -6138,6 +6138,13 @@ if (C4::Context->preference("Version") < TransformToNum($DBversion)) {
     SetVersion ($DBversion);
 }
 
+$DBversion = "3.10.02.003";
+if ( CheckVersion($DBversion) ) {
+    $dbh->do("INSERT INTO systempreferences (variable,value,explanation,options,type) VALUES('OpacItemLocation','callnum','Show the shelving location of items in the opac','callnum|ccode|location','Choice');");
+    print "Upgrade to $DBversion done (Bug 5079: Add OpacItemLocation syspref)\n";
+    SetVersion ($DBversion);
+}
+
 $DBversion = "3.10.03.000";
 if ( C4::Context->preference("Version") < TransformToNum($DBversion) ) {
     print "Upgrade to $DBversion done (3.10.3 release)\n";
