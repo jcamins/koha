@@ -295,9 +295,12 @@ sub init_qp {
 
     $QParser->add_search_filter( 'testfilter', \&test_filter_callback );
 
-    $QParser->add_bib1_field_map( 'biblio' => 'keyword' => '' => { '1' => '1035' } );
-    $QParser->add_bib1_field_map( 'biblio' => 'author' => 'personal' => { '1' => '1004' } );
+    $QParser->add_bib1_field_map( 'biblio' => 'keyword' => '' => { '1' => '1016' } );
+    $QParser->add_bib1_field_map( 'biblio' => 'author' => 'personal' => { '1' => '1003' } );
+    $QParser->add_bib1_field_map( 'biblio' => 'keyword' => 'alwaysmatch' => { '1' => '_ALLRECORDS', '2' => '103' } );
 
-    my $query = 'author|personal:smith keyword:"detective agency" fiction book';
-    die "$query = " . $QParser->target_syntax('biblio', $query);
+    my $query = 'author|personal:smith keyword:"detective agency" book fiction';
+    $query = 'keyword|alwaysmatch:whatever';
+    $QParser->parse($query);
+    die "$query = " . $QParser->target_syntax('biblio');
 }

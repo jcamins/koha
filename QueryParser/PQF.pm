@@ -1,3 +1,6 @@
+use strict;
+use warnings;
+
 package QueryParser::PQF;
 use base 'QueryParser';
 
@@ -50,17 +53,18 @@ use base 'QueryParser::query_plan';
 sub target_syntax {
     my ($self, $server) = @_;
     my $pqf = '';
-    my $infix_count = 0;
+    my $node_pqf;
+    my $node_count = 0;
 
     for my $node ( @{$self->query_nodes} ) {
 
         if (ref($node)) {
-            $pqf .= $node->target_syntax($server);
-        } else {
-            $infix_count++;
+            $node_pqf = $node->target_syntax($server);
+            $node_count++ if $node_pqf;
+            $pqf .= $node_pqf;
         }
     }
-    $pqf = ($self->joiner eq '|' ? ' @or ' : ' @and ') x $infix_count . $pqf;
+    $pqf = ($self->joiner eq '|' ? ' @or ' : ' @and ') x ($node_count - 1) . $pqf;
     return $pqf;
 }
 
@@ -94,30 +98,36 @@ use base 'QueryParser::query_plan::node';
 sub target_syntax {
     my ($self, $server) = @_;
     my $pqf = '';
-    my $infix_count = 0;
+    my $atom_content;
+    my $atom_count = 0;
     my $attributes = $self->plan->QueryParser->bib1_field_by_class($server, $self->classname, $self->fields->[0]);
     my $attr_string =  '';
     my $key;
     my $value;
 
     while (($key, $value) = each(%$attributes)) {
-        $attr_string .= $attr_string . ' @attr ' . $key . '=' . $value . ' ';
+        $attr_string .= ' @attr ' . $key . '=' . $value . ' ';
     }
 
     if (@{$self->phrases}) {
         foreach my $phrase (@{$self->phrases}) {
-            $pqf .= $attr_string . ($attributes{'4'} ? '' : ' @attr 4=1 ') . ' "' . $phrase . '" ';
+            if ($phrase) {
+                $pqf .= $attr_string . ($attributes->{'4'} ? '' : ' @attr 4=1 ') . ' "' . $phrase . '" ';
+                $atom_count++;
+            }
         }
     } else {
         foreach my $atom (@{$self->query_atoms}) {
             if (ref($atom)) {
-                $pqf .= $attr_string . ($attributes{'4'} ? '' : ' @attr 4=6 ') . $atom->target_syntax($server) . ' ';
-            } else {
-                $infix_count++;
+                $atom_content = $atom->target_syntax($server);
+                if ($atom_content) {
+                    $pqf .= $attr_string . ($attributes->{'4'} ? '' : ' @attr 4=6 ') . $atom_content . ' ';
+                    $atom_count++;
+                }
             }
         }
     }
-    $pqf = (QueryParser::_util::default_joiner eq '|' ? ' @or ' : ' @and ') x $infix_count . $pqf;
+    $pqf = (QueryParser::_util::default_joiner eq '|' ? ' @or ' : ' @and ') x ($atom_count - 1) . $pqf;
     return $pqf;
 }
 
