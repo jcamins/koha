@@ -10,7 +10,7 @@ sub bib1_field_map {
 }
 
 sub add_bib1_field_map {
-    my ($self, $class, $field, $server, $attributes) = @_;
+    my ($self, $server, $class, $field, $attributes) = @_;
 
     my $use_attr1 = $attributes->{1};
     $self->add_search_field( $class => $field );
@@ -50,16 +50,17 @@ use base 'QueryParser::query_plan';
 sub target_syntax {
     my ($self, $server) = @_;
     my $pqf = '';
-    my $node_count = 0;
+    my $infix_count = 0;
 
     for my $node ( @{$self->query_nodes} ) {
 
         if (ref($node)) {
-            $node_count++;
             $pqf .= $node->target_syntax($server);
+        } else {
+            $infix_count++;
         }
     }
-    $pqf = ($self->joiner eq '|' ? ' @or ' : ' @and ') . $pqf if ($node_count > 1);
+    $pqf = ($self->joiner eq '|' ? ' @or ' : ' @and ') x $infix_count . $pqf;
     return $pqf;
 }
 
@@ -93,15 +94,30 @@ use base 'QueryParser::query_plan::node';
 sub target_syntax {
     my ($self, $server) = @_;
     my $pqf = '';
-    my $atom_count = 0;
+    my $infix_count = 0;
+    my $attributes = $self->plan->QueryParser->bib1_field_by_class($server, $self->classname, $self->fields->[0]);
+    my $attr_string =  '';
+    my $key;
+    my $value;
 
-    foreach my $atom (@{$self->query_atoms}) {
-        if (ref($atom)) {
-            $atom_count++;
-            $pqf .= $atom->target_syntax($server);
+    while (($key, $value) = each(%$attributes)) {
+        $attr_string .= $attr_string . ' @attr ' . $key . '=' . $value . ' ';
+    }
+
+    if (@{$self->phrases}) {
+        foreach my $phrase (@{$self->phrases}) {
+            $pqf .= $attr_string . ($attributes{'4'} ? '' : ' @attr 4=1 ') . ' "' . $phrase . '" ';
+        }
+    } else {
+        foreach my $atom (@{$self->query_atoms}) {
+            if (ref($atom)) {
+                $pqf .= $attr_string . ($attributes{'4'} ? '' : ' @attr 4=6 ') . $atom->target_syntax($server) . ' ';
+            } else {
+                $infix_count++;
+            }
         }
     }
-    $pqf = (QueryParser::_util::default_joiner eq '|' ? ' @or ' : ' @and ') . $pqf if ($atom_count > 1);
+    $pqf = (QueryParser::_util::default_joiner eq '|' ? ' @or ' : ' @and ') x $infix_count . $pqf;
     return $pqf;
 }
 

@@ -5,13 +5,13 @@ use warnings; # FATAL => qw(all);
 use Test::More;
 
 BEGIN {
-    use_ok( 'QueryParser' );
+    use_ok( 'QueryParser::PQF' );
 #    use_ok( 'OpenILS::Application::Storage::Driver::Pg::QueryParser' );
 }
 
 my %args = ( debug => 0 );
-my $QParser = QueryParser->new(%args);
-is(ref $QParser, 'QueryParser', 'Created QueryParser');
+my $QParser = QueryParser::PQF->new(%args);
+is(ref $QParser, 'QueryParser::PQF', 'Created QueryParser');
 is($QParser->operator('and'), '&&', 'Expected and operator');
 
 $Data::Dumper::Indent = 1;
@@ -215,7 +215,7 @@ sub reparse {
 
 sub init_qp {
     $QueryParser::parser_config{QueryParser}->{allow_nested_modifiers} = 1;
-    $QParser = QueryParser->new(%args);
+    $QParser = QueryParser::PQF->new(%args);
     $QParser->add_search_class_alias( title => 'ti' );
     $QParser->add_search_class_alias( author => 'au' );
     $QParser->add_search_class_alias( author => 'name' );
@@ -294,4 +294,10 @@ sub init_qp {
     $QParser->add_facet_field( 'subject' => 'geographic' );
 
     $QParser->add_search_filter( 'testfilter', \&test_filter_callback );
+
+    $QParser->add_bib1_field_map( 'biblio' => 'keyword' => '' => { '1' => '1035' } );
+    $QParser->add_bib1_field_map( 'biblio' => 'author' => 'personal' => { '1' => '1004' } );
+
+    my $query = 'author|personal:smith keyword:"detective agency" fiction book';
+    die "$query = " . $QParser->target_syntax('biblio', $query);
 }
