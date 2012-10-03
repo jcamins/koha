@@ -4,6 +4,34 @@ use warnings;
 package QueryParser::PQF;
 use base 'QueryParser';
 
+=head1 NAME
+
+QueryParser::PQF - QueryParser driver for PQF
+
+=head1 SYNOPSIS
+
+    use QueryParser::PQF;
+    my $QParser = QueryParser::PQF->new(%args);
+
+=head1 DESCRIPTION
+
+Main entrypoint into the QueryParser PQF driver. PQF is the Prefix Query
+Language, the syntax used to serialize Z39.50 queries.
+
+=head1 FUNCTIONS
+
+=cut
+
+=head2 bib1_field_map
+
+    my $field_map = $QParser->bib1_field_map;
+    $field_map->{'by_class'}{'author'}{'personal'} = { '1' => '1003' };
+    $QParser->bib1_field_map($field_map);
+
+Gets or sets the bib1 field mapping data structure.
+
+=cut
+
 sub bib1_field_map {
     my ($self, $map) = @_;
 
@@ -11,6 +39,19 @@ sub bib1_field_map {
     $self->custom_data->{bib1_field_map} = $map if ($map);
     return $self->custom_data->{bib1_field_map};
 }
+
+=head2 add_bib1_field_map
+
+    $QParser->add_bib1_field_map($server => $class => $field => \%attributes);
+
+    $QParser->add_bib1_field_map('biblio' => 'author' => 'personal' =>
+                                    { '1' => '1003' });
+
+Adds a search field<->bib1 attribute mapping for the specified server. The
+%attributes hash contains maps Bib-1 Attributes to the appropropriate
+values. Not all attributes must be specified.
+
+=cut
 
 sub add_bib1_field_map {
     my ($self, $server, $class, $field, $attributes) = @_;
@@ -21,23 +62,74 @@ sub add_bib1_field_map {
     while (($key, $value) = each(%$attributes)) {
         $attr_string .= ' @attr ' . $key . '=' . $value . ' ';
     }
+    $attr_string =~ s/^\s*//;
+    $attr_string =~ s/\s*$//;
     $attributes->{'attr_string'} = $attr_string;
 
-    my $use_attr1 = $attributes->{1};
     $self->add_search_field( $class => $field );
     $self->bib1_field_map->{$server}{'by_class'}{$class}{$field} = $attributes;
-    $self->bib1_field_map->{$server}{'by_attr'}{$use_attr1} = { 'classname' => $class, 'field' => $field } if $use_attr1;
+    $self->bib1_field_map->{$server}{'by_attr'}{$attr_string} = { 'classname' => $class, 'field' => $field, %$attributes };
 
     return $self->bib1_field_map;
 }
 
+=head2 bib1_field_by_attr
+
+    my $field = $QParser->bib1_field_by_attr($server, \%attr);
+    my $field = $QParser->bib1_field_by_attr('biblio', {'1' => '1003'});
+    print $field->{'classname'}; # prints "author"
+    print $field->{'field'}; # prints "personal"
+
+Retrieve the search field used for the specified Bib-1 attribute set.
+
+=cut
+
 sub bib1_field_by_attr {
-    my ($self, $server, $attr) = @_;
+    my ($self, $server, $attributes) = @_;
+    return unless ($server && $attributes);
 
-    return unless ($server && $attr);
+    my $attr_string = '';
+    my $key;
+    my $value;
+    while (($key, $value) = each(%$attributes)) {
+        $attr_string .= ' @attr ' . $key . '=' . $value . ' ';
+    }
+    $attr_string =~ s/^\s*//;
+    $attr_string =~ s/\s*$//;
 
-    return $self->bib1_field_map->{$server}{'by_attr'}{$attr};
+    return $self->bib1_field_by_attr_string($server, $attr_string);
 }
+
+=head2 bib1_field_by_attr_string
+
+    my $field = $QParser->bib1_field_by_attr_string($server, $attr_string);
+    my $field = $QParser->bib1_field_by_attr_string('biblio', '@attr 1=1003');
+    print $field->{'classname'}; # prints "author"
+    print $field->{'field'}; # prints "personal"
+
+Retrieve the search field used for the specified Bib-1 attribute string
+(i.e. PQF snippet).
+
+=cut
+
+sub bib1_field_by_attr_string {
+    my ($self, $server, $attr_string) = @_;
+    return unless ($server && $attr_string);
+
+    return $self->bib1_field_map->{$server}{'by_attr'}{$attr_string};
+}
+
+=head2 bib1_field_by_class
+
+    my $attributes = $QParser->bib1_field_by_class($server, $class, $field);
+    my $attributes = $QParser->bib1_field_by_class('biblio', 'author', 'personal');
+    my $attributes = $QParser->bib1_field_by_class('biblio', 'keyword', '');
+
+Retrieve the Bib-1 attribute set associated with the specified search field. If
+the field is not specified, the Bib-1 attribute set associated with the class
+will be returned.
+
+=cut
 
 sub bib1_field_by_class {
     my ($self, $server, $class, $field) = @_;
@@ -46,6 +138,18 @@ sub bib1_field_by_class {
 
     return $self->bib1_field_map->{$server}{'by_class'}{$class}{$field};
 }
+
+=head2 target_syntax
+
+    my $pqf = $QParser->target_syntax($server, [$query]);
+    my $pqf = $QParser->target_syntax('biblio', 'author|personal:smith');
+    print $pqf; # assuming all the indexes are configured,
+                # prints '@attr 1=1003 @attr 4=6 "smith"'
+
+Transforms the current or specified query into a PQF query string for the
+specified server.
+
+=cut
 
 sub target_syntax {
     my ($self, $server, $query) = @_;
@@ -57,6 +161,14 @@ sub target_syntax {
 #-------------------------------
 package QueryParser::PQF::query_plan;
 use base 'QueryParser::query_plan';
+
+=head2 QueryParser::PQF::query_plan::target_syntax
+
+    my $pqf = $query_plan->target_syntax($server);
+
+Transforms a QueryParser::query_plan object into PQF. Do not use directly.
+
+=cut
 
 sub target_syntax {
     my ($self, $server) = @_;
@@ -92,6 +204,15 @@ use base 'QueryParser::query_plan::modifier';
 package QueryParser::PQF::query_plan::node::atom;
 use base 'QueryParser::query_plan::node::atom';
 
+=head2 QueryParser::PQF::query_plan::node::atom::target_syntax
+
+    my $pqf = $atom->target_syntax($server);
+
+Transforms a QueryParser::query_plan::node::atom object into PQF. Do not use
+directly.
+
+=cut
+
 sub target_syntax {
     my ($self, $server) = @_;
     my $pqf = '';
@@ -102,6 +223,14 @@ sub target_syntax {
 #-------------------------------
 package QueryParser::PQF::query_plan::node;
 use base 'QueryParser::query_plan::node';
+
+=head2 QueryParser::query_plan::node::target_syntax
+
+    my $pqf = $node->target_syntax($server);
+
+Transforms a QueryParser::query_plan::node object into PQF. Do not use directly.
+
+=cut
 
 sub target_syntax {
     my ($self, $server) = @_;
