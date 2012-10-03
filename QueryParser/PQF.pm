@@ -15,6 +15,14 @@ sub bib1_field_map {
 sub add_bib1_field_map {
     my ($self, $server, $class, $field, $attributes) = @_;
 
+    my $attr_string = '';
+    my $key;
+    my $value;
+    while (($key, $value) = each(%$attributes)) {
+        $attr_string .= ' @attr ' . $key . '=' . $value . ' ';
+    }
+    $attributes->{'attr_string'} = $attr_string;
+
     my $use_attr1 = $attributes->{1};
     $self->add_search_field( $class => $field );
     $self->bib1_field_map->{$server}{'by_class'}{$class}{$field} = $attributes;
@@ -100,19 +108,23 @@ sub target_syntax {
     my $pqf = '';
     my $atom_content;
     my $atom_count = 0;
-    my $attributes = $self->plan->QueryParser->bib1_field_by_class($server, $self->classname, $self->fields->[0]);
-    my $attr_string =  '';
-    my $key;
-    my $value;
+    my @fields;
 
-    while (($key, $value) = each(%$attributes)) {
-        $attr_string .= ' @attr ' . $key . '=' . $value . ' ';
+    if (scalar(@{$self->fields})) {
+        foreach my $field (@{$self->fields}) {
+            push @fields, $self->plan->QueryParser->bib1_field_by_class($server, $self->classname, $field)
+        }
+    } else {
+        push @fields, $self->plan->QueryParser->bib1_field_by_class($server, $self->classname, '')
     }
 
     if (@{$self->phrases}) {
         foreach my $phrase (@{$self->phrases}) {
             if ($phrase) {
-                $pqf .= $attr_string . ($attributes->{'4'} ? '' : ' @attr 4=1 ') . ' "' . $phrase . '" ';
+                $pqf .= ' @or ' x (scalar(@fields) - 1);
+                foreach my $attributes (@fields) {
+                    $pqf .= $attributes->{'attr_string'} . ($attributes->{'4'} ? '' : ' @attr 4=1 ') . ' "' . $phrase . '" ';
+                }
                 $atom_count++;
             }
         }
@@ -121,7 +133,10 @@ sub target_syntax {
             if (ref($atom)) {
                 $atom_content = $atom->target_syntax($server);
                 if ($atom_content) {
-                    $pqf .= $attr_string . ($attributes->{'4'} ? '' : ' @attr 4=6 ') . $atom_content . ' ';
+                    $pqf .= ' @or ' x (scalar(@fields) - 1);
+                    foreach my $attributes (@fields) {
+                        $pqf .= $attributes->{'attr_string'} . ($attributes->{'4'} ? '' : ' @attr 4=6 ') . $atom_content . ' ';
+                    }
                     $atom_count++;
                 }
             }

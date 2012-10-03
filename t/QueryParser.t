@@ -296,11 +296,13 @@ sub init_qp {
     $QParser->add_search_filter( 'testfilter', \&test_filter_callback );
 
     $QParser->add_bib1_field_map( 'biblio' => 'keyword' => '' => { '1' => '1016' } );
-    $QParser->add_bib1_field_map( 'biblio' => 'author' => 'personal' => { '1' => '1003' } );
+    $QParser->add_bib1_field_map( 'biblio' => 'author' => 'personal' => { '1' => '1004' } );
+    $QParser->add_bib1_field_map( 'biblio' => 'author' => 'corporate' => { '1' => '1005' } );
     $QParser->add_bib1_field_map( 'biblio' => 'keyword' => 'alwaysmatch' => { '1' => '_ALLRECORDS', '2' => '103' } );
+    $QParser->add_bib1_field_map( 'biblio' => 'subject' => 'complete' => { '1' => '21', '3' => '1', '4' => '1', '5' => '100', '6' => '3' } );
 
-    my $query = 'author|personal:smith keyword:"detective agency" book fiction';
-    $query = 'keyword|alwaysmatch:whatever';
+    my $query = 'author|personal|corporate:smith keyword:"detective agency" book fiction';
+#    $query = 'subject|complete:cooking';
     $QParser->parse($query);
     die "$query = " . $QParser->target_syntax('biblio');
 }
