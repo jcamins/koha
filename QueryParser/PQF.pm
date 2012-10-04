@@ -192,13 +192,58 @@ sub target_syntax {
 package QueryParser::PQF::query_plan::filter;
 use base 'QueryParser::query_plan::filter';
 
+=head2 QueryParser::PQF::query_plan::filter::target_syntax
+
+    my $pqf = $filter->target_syntax($server);
+
+Transforms a QueryParser::query_plan::filter object into PQF. Do not use
+directly.
+
+=cut
+
+sub target_syntax {
+    my ($self, $server) = @_;
+
+    return '';
+}
+
 #-------------------------------
 package QueryParser::PQF::query_plan::facet;
 use base 'QueryParser::query_plan::facet';
 
+=head2 QueryParser::PQF::query_plan::facet::target_syntax
+
+    my $pqf = $facet->target_syntax($server);
+
+Transforms a QueryParser::query_plan::facet object into PQF. Do not use
+directly.
+
+=cut
+
+sub target_syntax {
+    my ($self, $server) = @_;
+
+    return '';
+}
+
 #-------------------------------
 package QueryParser::PQF::query_plan::modifier;
 use base 'QueryParser::query_plan::modifier';
+
+=head2 QueryParser::PQF::query_plan::modifier::target_syntax
+
+    my $pqf = $modifier->target_syntax($server);
+
+Transforms a QueryParser::query_plan::modifier object into PQF. Do not use
+directly.
+
+=cut
+
+sub target_syntax {
+    my ($self, $server) = @_;
+
+    return '';
+}
 
 #-------------------------------
 package QueryParser::PQF::query_plan::node::atom;
@@ -215,7 +260,6 @@ directly.
 
 sub target_syntax {
     my ($self, $server) = @_;
-    my $pqf = '';
 
     return ' "' .  $self->content . '" ';
 }
