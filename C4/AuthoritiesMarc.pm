@@ -1301,8 +1301,8 @@ sub merge {
     } else {
         #zebra connection  
         my $oConnection=C4::Context->Zconn("biblioserver",0);
-        my $oldSyntax = $oConnection->option("preferredRecordSyntax");
-        $oConnection->option("preferredRecordSyntax"=>"XML");
+        # We used to use XML syntax here, but that no longer works.
+        # Thankfully, we don't need it.
         my $query;
         $query= "an=".$mergefrom;
         my $oResult = $oConnection->search(new ZOOM::Query::CCL2RPN( $query, $oConnection ));
@@ -1315,15 +1315,14 @@ sub merge {
             my $rec;
             $rec=$oResult->record($z);
             my $marcdata = $rec->raw();
-            my $marcrecordzebra= MARC::Record->new_from_xml($marcdata,"utf8",C4::Context->preference("marcflavour"));
+            my $marcrecordzebra= MARC::Record->new_from_usmarc($marcdata);
             my ( $biblionumbertagfield, $biblionumbertagsubfield ) = &GetMarcFromKohaField( "biblio.biblionumber", '' );
-            my $i = $marcrecordzebra->subfield($biblionumbertagfield, $biblionumbertagsubfield);
+            my $i = ($biblionumbertagfield < 10) ? $marcrecordzebra->field($biblionumbertagfield)->data : $marcrecordzebra->subfield($biblionumbertagfield, $biblionumbertagsubfield);
             my $marcrecorddb=GetMarcBiblio($i);
             push @reccache, $marcrecorddb;
             $z++;
         }
         $oResult->destroy();
-        $oConnection->option("preferredRecordSyntax"=>$oldSyntax);
     }
     #warn scalar(@reccache)." biblios to update";
     # Get All candidate Tags for the change 
@@ -1348,12 +1347,13 @@ sub merge {
         foreach my $tagfield (@tags_using_authtype){
 #             warn "tagfield : $tagfield ";
             foreach my $field ($marcrecord->field($tagfield)){
+                # biblio is linked to authority with $9 subfield containing authid
                 my $auth_number=$field->subfield("9");
                 my $tag=$field->tag();          
                 if ($auth_number==$mergefrom) {
                 my $field_to=MARC::Field->new(($tag_to?$tag_to:$tag),$field->indicator(1),$field->indicator(2),"9"=>$mergeto);
 		my $exclude='9';
-                foreach my $subfield (@record_to) {
+                foreach my $subfield (grep {$_->[0] ne '9'} @record_to) {
                     $field_to->add_subfields($subfield->[0] =>$subfield->[1]);
 		    $exclude.= $subfield->[0];
                 }

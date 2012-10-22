@@ -9,7 +9,7 @@
   exclude-result-prefixes="marc items">
 
 <xsl:import href="UNIMARCslimUtils.xsl"/>
-<xsl:output method = "xml" indent="yes" omit-xml-declaration = "yes" />
+<xsl:output method = "html" indent="yes" omit-xml-declaration = "yes" />
 <xsl:template match="/">
   <xsl:apply-templates/>
 </xsl:template>
@@ -19,8 +19,8 @@
   <xsl:variable name="leader6" select="substring($leader,7,1)"/>
   <xsl:variable name="leader7" select="substring($leader,8,1)"/>
   <xsl:variable name="biblionumber" select="marc:datafield[@tag=090]/marc:subfield[@code='a']"/>
-  <xsl:variable name="DisplayOPACiconsXSLT" select="marc:sysprefs/marc:syspref[@name='DisplayOPACiconsXSLT']"    />
-  <xsl:variable name="OPACURLOpenInNewWindow" select="marc:sysprefs/marc:syspref[@name='OPACURLOpenInNewWindo    w']"/>
+  <xsl:variable name="DisplayOPACiconsXSLT" select="marc:sysprefs/marc:syspref[@name='DisplayOPACiconsXSLT']"/>
+  <xsl:variable name="OPACURLOpenInNewWindow" select="marc:sysprefs/marc:syspref[@name='OPACURLOpenInNewWindow']"/>
   <xsl:variable name="URLLinkText" select="marc:sysprefs/marc:syspref[@name='URLLinkText']"/>
   <xsl:variable name="ShowISBD" select="marc:sysprefs/marc:syspref[@name='viewISBD']"/>
 

@@ -246,7 +246,7 @@ sub SimpleSearch {
                   . $@->code() . ") "
                   . $@->addinfo() . " "
                   . $@->diagset();
-                warn $error;
+                warn $error." for query: $query";
                 return ( $error, undef, undef );
             }
         }
@@ -719,7 +719,7 @@ sub _detect_truncation {
 sub _build_stemmed_operand {
     my ($operand,$lang) = @_;
     require Lingua::Stem::Snowball ;
-    my $stemmed_operand;
+    my $stemmed_operand=q{};
 
     # If operand contains a digit, it is almost certainly an identifier, and should
     # not be stemmed.  This is particularly relevant for ISBNs and ISSNs, which
@@ -1618,9 +1618,9 @@ sub searchResults {
         my $items_count           = scalar(@fields);
         my $maxitems_pref = C4::Context->preference('maxItemsinSearchResults');
         my $maxitems = $maxitems_pref ? $maxitems_pref - 1 : 1;
+        my @hiddenitems; # hidden itemnumbers based on OpacHiddenItems syspref
 
         # loop through every item
-	      my @hiddenitems;
         foreach my $field (@fields) {
             my $item;
 
@@ -1630,11 +1630,20 @@ sub searchResults {
             }
             $item->{description} = $itemtypes{ $item->{itype} }{description};
 
-	        # Hidden items
+	        # OPAC hidden items
             if ($is_opac) {
+                # hidden because lost
+                if ($hidelostitems && $item->{itemlost}) {
+                    $hideatopac_count++;
+                    next;
+                }
+                # hidden based on OpacHiddenItems syspref
                 my @hi = C4::Items::GetHiddenItemnumbers($item);
-                $item->{'hideatopac'} = @hi;
-                push @hiddenitems, @hi;
+                if (scalar @hi) {
+                    push @hiddenitems, @hi;
+                    $hideatopac_count++;
+                    next;
+                }
             }
 
             my $hbranch     = C4::Context->preference('HomeOrHoldingBranch') eq 'homebranch' ? 'homebranch'    : 'holdingbranch';
@@ -1713,14 +1722,12 @@ sub searchResults {
                     || $item->{itemlost}
                     || $item->{damaged}
                     || $item->{notforloan} > 0
-                    || $item->{hideatopac}
 		    || $reservestatus eq 'Waiting'
                     || ($transfertwhen ne ''))
                 {
                     $wthdrawn_count++        if $item->{wthdrawn};
                     $itemlost_count++        if $item->{itemlost};
                     $itemdamaged_count++     if $item->{damaged};
-                    $hideatopac_count++      if $item->{hideatopac};
                     $item_in_transit_count++ if $transfertwhen ne '';
 		    $item_onhold_count++     if $reservestatus eq 'Waiting';
                     $item->{status} = $item->{wthdrawn} . "-" . $item->{itemlost} . "-" . $item->{damaged} . "-" . $item->{notforloan};
@@ -1736,7 +1743,7 @@ sub searchResults {
                     $other_count++;
 
                     my $key = $prefix . $item->{status};
-                    foreach (qw(wthdrawn itemlost damaged branchname itemcallnumber hideatopac)) {
+                    foreach (qw(wthdrawn itemlost damaged branchname itemcallnumber)) {
                         $other_items->{$key}->{$_} = $item->{$_};
                     }
                     $other_items->{$key}->{intransit} = ( $transfertwhen ne '' ) ? 1 : 0;
@@ -1752,7 +1759,7 @@ sub searchResults {
                     $can_place_holds = 1;
                     $available_count++;
 					$available_items->{$prefix}->{count}++ if $item->{$hbranch};
-					foreach (qw(branchname itemcallnumber hideatopac description)) {
+					foreach (qw(branchname itemcallnumber description)) {
                     	$available_items->{$prefix}->{$_} = $item->{$_};
 					}
 					$available_items->{$prefix}->{location} = $shelflocations->{ $item->{location} };
@@ -1760,10 +1767,12 @@ sub searchResults {
                 }
             }
         }    # notforloan, item level and biblioitem level
-	if ($items_count > 0) {
-        next if $is_opac       && $hideatopac_count >= $items_count;
-        next if $hidelostitems && $itemlost_count   >= $items_count;
-	}
+
+        # if all items are hidden, do not show the record
+        if ($items_count > 0 && $hideatopac_count == $items_count) {
+            next;
+        }
+
         my ( $availableitemscount, $onloanitemscount, $otheritemscount );
         for my $key ( sort keys %$onloan_items ) {
             (++$onloanitemscount > $maxitems) and last;
