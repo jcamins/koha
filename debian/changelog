@@ -1,3 +1,10 @@
+koha (3.6.10-cpspecial) cpspecial; urgency=low
+
+  * Debian package for C & P based on 3.6.10
+  * Add indexes on 033, 583$z, 693, and 852
+
+ -- Jared Camins-Esakov <jcamins@cpbibliography.com>  Mon, 22 Oct 2012 18:17:52 -0400
+
 koha (3.6.8-cpspecial) cpspecial; urgency=low
 
   * Debian package for C & P based on 3.6.8
