@@ -295,3 +295,8 @@ att 9510    Note-reference
 att 9561    Note-provenance
 att 9563    Note-binding
 att 9583    action-agent
+att 9584    action-note
+att 7001    Auction-date
+att 7002    Collection-name
+att 7113    ANS-location
+
