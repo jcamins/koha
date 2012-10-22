@@ -71,6 +71,7 @@ melm 027        Report-number,Identifier-standard
 melm 028        Number-music-publisher,Identifier-standard
 melm 030        CODEN,Identifier-standard
 #melm 033       Date
+melm 033$a      Auction-date
 melm 034        Map-scale
 #melm 035       Local-number,Identifier-standard
 melm 037        Identifier-standard,Stock-number
@@ -165,6 +166,8 @@ melm 526$d      arp,arp:n
 #melm 541$d     Date-of-acquisition,Date-of-acquisition:s
 melm 561        Note-provenance:w
 melm 563        Note-binding:w
+melm 583$k      action-agent:w,action-agent:p
+melm 583$z      action-note:w,action-note:p
 melm 590        Note:w,Note:p
 
 melm 600$a      Name-and-title,Name,Personal-name,Subject-name-personal,Subject,Subject:p
@@ -206,6 +209,7 @@ melm 658$c      curriculum:w,curriculum:p,Subject,Subject:p
 melm 658        Subject,Subject:p
 melm 690$9      Koha-Auth-Number
 melm 690        Subject,Subject:p
+melm 693$a      Collection-name
 
 melm 700$9      Cross-Reference,Koha-Auth-Number
 melm 700$a      Author,Author:p
@@ -272,6 +276,7 @@ melm 830$w      Record-control-number
 melm 830$9      Koha-Auth-Number
 melm 830        Title,Title-series:w,Title-series:p
 melm 840        Title,Title-series:w,Title-series:p
+melm 852        ANS-location:w,ANS-location:p
 
 ###############################
 # Koha Local-Use Biblio Indexes
