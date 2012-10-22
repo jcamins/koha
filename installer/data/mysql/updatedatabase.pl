@@ -4780,6 +4780,13 @@ if (C4::Context->preference("Version") < TransformToNum($DBversion)) {
     SetVersion ($DBversion);
 }
 
+$CPversion = "3.06.10.000";
+if (C4::Context->preference("CPVersion") < TransformToNum($CPversion)) {
+    print "Upgrade to $CPversion done (Incrementing version for 3.6.10-cpspecial release. See release notes for details.) \n";
+    SetVersion ($CPversion);
+}
+
+
 
 =head1 FUNCTIONS
 
