@@ -22,6 +22,7 @@ use strict;
 use warnings;
 
 use C4::Installer::PerlDependencies;
+use Getopt::Long;
 
 # These are packages that may not be in the apt archive in a way that
 # apt-file can find, e.g. in the Koha repo rather than the regular
@@ -31,6 +32,13 @@ my %overrides = (
     'CHI'                             => 'libchi-perl',
     'CHI::Driver::Memcached'          => 'libchi-driver-memcached-perl',
     'Template::Plugin::HtmlToText'    => 'libtemplate-plugin-htmltotext-perl',
+    'HTTP::Cookies'                   => 'libwww-perl',
+    'HTTP::Request::Common'           => 'libwww-perl',
+);
+
+my $optionaldeps;
+my $options = GetOptions(
+    'o|optional' => \$optionaldeps,
 );
 
 my $deps = $C4::Installer::PerlDependencies::PERL_DEPS;
@@ -38,6 +46,11 @@ my $deps = $C4::Installer::PerlDependencies::PERL_DEPS;
 my $prefix = "^/usr/((lib|share)/perl5|(lib|share)/perl/[0-9.]+)";
 
 foreach my $module (keys %$deps) {
+    if ($optionaldeps) {
+        next if ($deps->{$module}->{'required'});
+    } else {
+        next unless ($deps->{$module}->{'required'});
+    }
     my $ver = $deps->{$module}->{'min_ver'};
     my $subpath = $module;
     $subpath =~ s,::,/,g;
@@ -53,7 +66,9 @@ foreach my $module (keys %$deps) {
             @lines = (@lines, $line);
         }
     }
-    if (scalar(@lines) == 1 && $lines[0] ne "") {
+    if (exists $overrides{$module}) {
+        print "$overrides{$module}\n";
+    } elsif (scalar(@lines) == 1 && $lines[0] ne "") {
         my $pkg = $lines[0];
         print "$pkg\n";
     } elsif (scalar(@lines) > 1) {
@@ -74,8 +89,6 @@ foreach my $module (keys %$deps) {
         # is no reason to be suspicious of this
         # commit.)
         # RM note: suspicious?  me?  always!
-    } elsif (exists $overrides{$module}) {
-        print "$overrides{$module}\n";
     } else {
         print "EEEK: unknown package for $module\n";
     }

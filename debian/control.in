@@ -8,6 +8,7 @@ Standards-Version: 3.8.4
 # There are some exceptions.
 Build-Depends:__AUTODEPENDS__, 
  debhelper (>= 7.0.50), gettext, python, python-debian, xsltproc, docbook-xsl
+Recommends:__AUTORECOMMENDS__
 
 Package: koha-common
 Architecture: all
@@ -28,6 +29,7 @@ Depends: ${misc:Depends}, ${koha:Depends},
  unzip,
  xmlstarlet,
  yaz
+Recommends: ${koha:Recommends}
 Suggests: mysql-server
 Homepage: http://koha-community.org/
 Description: integrated (physical) library management system
@@ -84,6 +86,7 @@ Description: Other dep. for koha
 
 Package: koha-perldeps
 Depends:__AUTODEPENDS__
+Recommends:__AUTORECOMMENDS__
 Architecture: all
 Description: Perl dep. for koha
  Koha is an Integrated Library Managment system for real-world libraries

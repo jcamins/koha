@@ -8,4 +8,10 @@ deps="$(debian/list-deps |
         tr -d '\n' | 
         sed 's/,\\n$//')"
 sed "s/__AUTODEPENDS__/$deps/" debian/control.in > debian/control
+recs="$(debian/list-deps -o |
+        sort -u |
+        sed 's/.*/ &,\\n/' | 
+        tr -d '\n' | 
+        sed 's/,\\n$//')"
+sed -i "s/__AUTORECOMMENDS__/$deps/" debian/control
 
