@@ -60,7 +60,7 @@ hash that can be accessed directly in Template::Toolkit.
 
 =head1 ACCESSORS
 
-By using some clever AUTOLOAD acrobatics, this plugin offers the user four
+By using some clever AUTOLOAD acrobatics, this plugin offers the user six
 types of accessors.
 
 =head2 Direct accessors
@@ -135,7 +135,7 @@ All the fields in a record can be accessed via the fields object method.
 
 This plugin will not sanity-check your code to make sure that you are accessing
 fields and subfields with proper allowances for repetition. If you access a value
-using [% record.505.t %] it is presumed that was intentional, and there will be
+using [% record.f505.st %] it is presumed that was intentional, and there will be
 no warning or error of any sort.
 
 However, the flip-side of this is that this plugin will not dictate your code
@@ -232,6 +232,27 @@ sub init {
     return $self;
 }
 
+=head2 filter
+
+=cut
+
+sub filter {
+    my ($self, $selectors) = @_;
+
+    $self->init();
+
+    my $fields = $self->{'record'}->{'fields'};
+    foreach my $selector (keys %$selectors) {
+        my $possibilities = [];
+        foreach my $testfield (@$fields) {
+            push @$possibilities, $testfield if $testfield->has($selector, $selectors->{$selector});
+        }
+        $fields = $possibilities;
+    }
+
+    return $fields;
+}
+
 =head2 marc
 
 Returns the MARC::Record object associated with the instance.
@@ -295,6 +316,34 @@ sub new {
     bless $fieldhash, $class;
 }
 
+sub has {
+    my ($self, $selector, $match) = @_;
+
+    unless ($selector eq 'ind1' || $selector eq 'ind2' || $selector eq 'tag') {
+        $selector = "s$selector"; # Everything else is a subfield
+    }
+
+    return $self->{$selector} eq $match if (defined $self->{$selector} && defined $match);
+    return defined $self->{$selector};
+}
+
+sub filter {
+    my ($self, $selectors) = @_;
+
+    my $result = '';
+    foreach my $selector (keys %$selectors) {
+        if ($selector eq 'code') {
+            foreach my $subf (@{$self->{'subfields'}}) {
+                if (index($selectors->{$selector}, $subf->code) >= 0) {
+                    $result .= ' ' if $result;
+                    $result .= $subf->value;
+                }
+            }
+        }
+    }
+    return $result;
+}
+
 sub AUTOLOAD {
     my $self = shift;
     (my $a = $AUTOLOAD) =~ s/.*:://;
@@ -315,8 +364,6 @@ Object class to allow nested auto-loading. Not used directly.
 
 use Modern::Perl;
 
-our $AUTOLOAD;
-
 sub new {
     my ($class, $code, $value) = @_;
 
@@ -326,11 +373,14 @@ sub new {
     }, $class;
 }
 
-sub AUTOLOAD {
+sub code {
     my $self = shift;
-    (my $a = $AUTOLOAD) =~ s/.*:://;
+    return $self->{'code'};
+}
 
-    return $self->{"$a"};
+sub value {
+    my $self = shift;
+    return $self->{'value'};
 }
 
 =head1 AUTHOR
