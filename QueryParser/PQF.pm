@@ -325,6 +325,7 @@ sub bib1_mapping_by_attr_string {
 sub TEST_SETUP {
     my ($self) = @_;
 
+    $self->debug(1);
     $self->operator( 'group_start' => '{' );
     $self->operator( 'group_end' => '}' );
     $self->default_search_class( 'keyword' );
@@ -527,6 +528,10 @@ sub TEST_SETUP {
     $self->add_bib1_modifier_map( 'biblioserver' => 'ascending' => { '7' => '1' } );
     $self->add_bib1_modifier_map( 'biblioserver' => 'descending' => { '7' => '2' } );
 
+    $self->add_bib1_field_map( 'biblioserver' => 'title' => 'exacttitle' => { '1' => '4', '4' => '1', '6' => '3' } );
+    $self->add_search_field_alias( 'title' => 'exacttitle' => 'ti,ext' );
+    $self->add_bib1_field_map( 'biblioserver' => 'author' => 'exactauthor' => { '1' => '1003', '4' => '1', '6' => '3' } );
+    $self->add_search_field_alias( 'author' => 'exactauthor' => 'au,ext' );
     #$self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'titlekw' => { '1' => '4' } );
     #$self->add_relevance_bump( 'biblioserver' => 'keyword' => 'publisher' => 34, 1 );
     #$self->add_relevance_bump( 'biblioserver' => 'keyword' => 'titlekw' => 14, 1 );
