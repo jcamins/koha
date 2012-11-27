@@ -2,7 +2,8 @@ use strict;
 use warnings;
 
 package QueryParser::PQF;
-use base 'QueryParser';
+use base qw(QueryParser Class::Accessor);
+
 
 =head1 NAME
 
@@ -18,24 +19,38 @@ QueryParser::PQF - QueryParser driver for PQF
 Main entrypoint into the QueryParser PQF driver. PQF is the Prefix Query
 Language, the syntax used to serialize Z39.50 queries.
 
+=head1 ACCESSORS
+
+In order to simplify Bib-1 attribute mapping, this driver uses Class::Accessor
+for accessing the following maps:
+
+=over 4
+
+=item B<bib1_field_map> - search class/field Bib-1 mappings
+
+=item B<bib1_modifier_map> - search modifier mappings
+
+=item B<bib1_filter_map> - search filter mappings
+
+=back
+
+=cut
+
+__PACKAGE__->mk_accessors(qw(bib1_field_map bib1_modifier_map bib1_filter_map));
+
+sub get {
+    my $self = shift;
+    return $self->_map(@_);
+}
+
+sub set {
+    my $self = shift;
+    return $self->_map(@_);
+}
+
 =head1 FUNCTIONS
 
 =cut
-
-=head2 bib1_field_map
-
-    my $field_map = $QParser->bib1_field_map;
-    $field_map->{'by_class'}{'author'}{'personal'} = { '1' => '1003' };
-    $QParser->bib1_field_map($field_map);
-
-Gets or sets the bib1 field mapping data structure.
-
-=cut
-
-sub bib1_field_map {
-    my ($self, $map) = @_;
-    return $self->_map('bib1_field_map', $map);
-}
 
 =head2 add_bib1_field_map
 
@@ -58,26 +73,10 @@ sub add_bib1_field_map {
 
     $self->add_search_field( $class => $field );
     $self->add_search_field_alias( $class => $field => $field );
-    $self->bib1_field_map->{$server}{'by_class'}{$class}{$field} = $attributes;
+    $self->bib1_field_map->{$server}{'by_name'}{$class}{$field} = $attributes;
     $self->bib1_field_map->{$server}{'by_attr'}{$attr_string} = { 'classname' => $class, 'field' => $field, %$attributes };
 
     return $self->bib1_field_map;
-}
-
-
-=head2 bib1_modifier_map
-
-    my $modifier_map = $QParser->bib1_modifier_map;
-    $modifier_map->{'by_name'}{'ascending'} = { '7' => '1' };
-    $QParser->bib1_modifier_map($modifier_map);
-
-Gets or sets the bib1 modifier mapping data structure.
-
-=cut
-
-sub bib1_modifier_map {
-    my ($self, $map) = @_;
-    return $self->_map('bib1_modifier_map', $map);
 }
 
 =head2 add_bib1_modifier_map
@@ -99,21 +98,6 @@ sub add_bib1_modifier_map {
     $self->add_search_modifier( $name );
 
     return $self->_add_mapping($self->bib1_modifier_map, $server, $name, $attributes);
-}
-
-=head2 bib1_filter_map
-
-    my $filter_map = $QParser->bib1_filter_map;
-    $filter_map->{'by_name'}{'date'} = { 'callback' => &_my_callback };
-    $QParser->bib1_filter_map($filter_map);
-
-Gets or sets the bib1 filter mapping data structure.
-
-=cut
-
-sub bib1_filter_map {
-    my ($self, $map) = @_;
-    return $self->_map('bib1_filter_map', $map);
 }
 
 =head2 add_bib1_filter_map
@@ -242,15 +226,12 @@ sub bib1_mapping_by_name {
     my ($self, $type, $server, $name, $field) = @_;
 
     return unless ($server && $name);
-
+    return unless ($type eq 'field' || $type eq 'modifier' || $type eq 'filter');
     if ($type eq 'field') {
-        return $self->bib1_field_map->{$server}{'by_class'}{$name}{$field};
-    } elsif ($type eq 'modifier') {
-        return $self->bib1_modifier_map->{$server}{'by_name'}{$name};
-    } elsif ($type eq 'filter') {
-        return $self->bib1_filter_map->{$server}{'by_name'}{$name};
+    # Unfortunately field is a special case thanks to the class->field hierarchy
+        return $self->_map('bib1_' . $type . '_map')->{$server}{'by_name'}{$name}{$field};
     } else {
-        return;
+        return $self->_map('bib1_' . $type . '_map')->{$server}{'by_name'}{$name};
     }
 }
 
@@ -289,16 +270,9 @@ Retrieve the search field/modifier/filter used for the specified Bib-1 attribute
 sub bib1_mapping_by_attr_string {
     my ($self, $type, $server, $attr_string) = @_;
     return unless ($server && $attr_string);
+    return unless ($type eq 'field' || $type eq 'modifier' || $type eq 'filter');
 
-    if ($type eq 'field') {
-        return $self->bib1_field_map->{$server}{'by_attr'}{$attr_string};
-    } elsif ($type eq 'modifier') {
-        return $self->bib1_modifier_map->{$server}{'by_attr'}{$attr_string};
-    } elsif ($type eq 'filter') {
-        return $self->bib1_filter_map->{$server}{'by_attr'}{$attr_string};
-    } else {
-        return;
-    }
+    return $self->_map('bib1_' . $type . '_map')->{$server}{'by_attr'}{$attr_string};
 }
 
 sub TEST_SETUP {
