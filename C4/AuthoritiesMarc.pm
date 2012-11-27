@@ -208,17 +208,8 @@ sub SearchAuthorities {
         my $mainentrytag;
         ##first set the authtype search and may be multiple authorities
         if ($authtypecode) {
-            my $n=0;
-            my @authtypecode;
             my @auths=split / /,$authtypecode ;
-            foreach my  $auth (@auths){
-                $query .=" \@attr 1=authtype \@attr 5=100 ".$auth; ##No truncation on authtype
-                    push @authtypecode ,$auth;
-                $n++;
-            }
-            if ($n>1){
-                while ($n>1){$query= "\@or ".$query;$n--;}
-            }
+            $query .= '(authtype:' . join('authtype:', @auths) . ')';
         }
         
         my $dosearch;
@@ -228,76 +219,23 @@ sub SearchAuthorities {
         for(my $i = 0 ; $i <= $#{$value} ; $i++)
         {
             if (@$value[$i]){
-                if ( @$tags[$i] eq "mainmainentry" ) {
-                    $attr = " \@attr 1=Heading-Main ";
-                }
-                elsif ( @$tags[$i] eq "mainentry" ) {
-                    $attr = " \@attr 1=Heading ";
-                }
-                elsif ( @$tags[$i] eq "match" ) {
-                    $attr = " \@attr 1=Match ";
-                }
-                elsif ( @$tags[$i] eq "match-heading" ) {
-                    $attr = " \@attr 1=Match-heading ";
-                }
-                elsif ( @$tags[$i] eq "see-from" ) {
-                    $attr = " \@attr 1=Match-heading-see-from ";
-                }
-                elsif ( @$tags[$i] eq "thesaurus" ) {
-                    $attr = " \@attr 1=Subject-heading-thesaurus ";
-                }
-                else { # Assume any if no index was specified
-                    $attr = " \@attr 1=Any ";
-                }
-                if ( @$operator[$i] eq 'is' ) {
-                    $attr .= " \@attr 4=1  \@attr 5=100 "
-                      ; ##Phrase, No truncation,all of subfield field must match
-                }
-                elsif ( @$operator[$i] eq "=" ) {
-                    $attr .= " \@attr 4=107 ";    #Number Exact match
-                }
-                elsif ( @$operator[$i] eq "start" ) {
-                    $attr .= " \@attr 3=2 \@attr 4=1 \@attr 5=1 "
-                      ;    #Firstinfield Phrase, Right truncated
-                }
-                elsif ( @$operator[$i] eq "exact" ) {
-                    $attr .= " \@attr 4=1  \@attr 5=100 \@attr 6=3 "
-                      ; ##Phrase, No truncation,all of subfield field must match
-                }
-                else {
-                    $attr .= " \@attr 5=1 \@attr 4=6 "
-                      ;    ## Word list, right truncated, anywhere
-                      if ($sortby eq 'Relevance') {
-                          $attr .= "\@attr 2=102 ";
-                      }
-                }
-                @$value[$i] =~ s/"/\\"/g; # Escape the double-quotes in the search value
-                $attr =$attr."\"".@$value[$i]."\"";
-                $q2 .=$attr;
-                $dosearch=1;
-                ++$attr_cnt;
+                $query .= " @$tags[$i]:@$value[$i]";
             }#if value
         }
-        ##Add how many queries generated
-        if (defined $query && $query=~/\S+/){
-          $query= $and x $attr_cnt . $query . (defined $q2 ? $q2 : '');
+
+        $query .= ' all:all' unless $value->[0];
+
+        if ( $value->[0] =~ m/^qp=(.*)$/ ) {
+            $query = $1;
         } else {
-          $query= $q2;
+            $query .= " #$sortby";
         }
-        ## Adding order
-        #$query=' @or  @attr 7=2 @attr 1=Heading 0 @or  @attr 7=1 @attr 1=Heading 1'.$query if ($sortby eq "HeadingDsc");
-        my $orderstring;
-        if ($sortby eq 'HeadingAsc') {
-            $orderstring = '@attr 7=1 @attr 1=Heading 0';
-        } elsif ($sortby eq 'HeadingDsc') {
-            $orderstring = '@attr 7=2 @attr 1=Heading 0';
-        } elsif ($sortby eq 'AuthidAsc') {
-            $orderstring = '@attr 7=1 @attr 1=Local-Number 0';
-        } elsif ($sortby eq 'AuthidDsc') {
-            $orderstring = '@attr 7=2 @attr 1=Local-Number 0';
-        }
-        $query=($query?$query:"\@attr 1=_ALLRECORDS \@attr 2=103 ''");
-        $query="\@or $orderstring $query" if $orderstring;
+        require QueryParser::PQF;
+        my $QParser = QueryParser::PQF->new();
+        $QParser->TEST_SETUP;
+
+        $QParser->parse( $query );
+        $query = $QParser->target_syntax('authority');
 
         $offset=0 unless $offset;
         my $counter = $offset;
