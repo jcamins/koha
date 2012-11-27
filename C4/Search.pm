@@ -36,6 +36,7 @@ use URI::Escape;
 use Business::ISBN;
 use MARC::Record;
 use MARC::Field;
+use QueryParser::PQF;
 
 use vars qw($VERSION @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS $DEBUG);
 
@@ -229,8 +230,14 @@ sub SimpleSearch {
         # Initialize & Search Zebra
         for ( my $i = 0 ; $i < @servers ; $i++ ) {
             eval {
+                my $QParser = QueryParser::PQF->new();
+                $QParser->TEST_SETUP;
+
+                $QParser->parse( $query );
+                $query = $QParser->target_syntax($servers[$i]);
+
                 $zconns[$i] = C4::Context->Zconn( $servers[$i], 1 );
-                $zoom_queries[$i] = new ZOOM::Query::CCL2RPN( $query, $zconns[$i]);
+                $zoom_queries[$i] = new ZOOM::Query::PQF( $query, $zconns[$i]);
                 $tmpresults[$i] = $zconns[$i]->search( $zoom_queries[$i] );
 
                 # error handling
@@ -1056,7 +1063,7 @@ sub _handle_exploding_index {
     my $codesubfield = $marcflavour eq 'UNIMARC' ? '5' : 'w';
     my $wantedcodes = '';
     my @subqueries = ( "(su=\"$term\")");
-    my ($error, $results, $total_hits) = SimpleSearch( "Heading,wrdl=$term", undef, undef, [ "authorityserver" ] );
+    my ($error, $results, $total_hits) = SimpleSearch( "he:$term", undef, undef, [ "authorityserver" ] );
     foreach my $auth (@$results) {
         my $record = MARC::Record->new_from_usmarc($auth);
         my @references = $record->field('5..');
@@ -1102,10 +1109,17 @@ sub parseQuery {
     my $index;
     my $term;
 
+    my $QParser = QueryParser::PQF->new();
+    $QParser->TEST_SETUP;
+
+    if ( $query =~ m/^qp=(.*)$/ ) {
+        $QParser->parse( $1 );
+        $operands[0] = "pqf=" . $QParser->target_syntax('biblio');
+        $operands[1] = QueryParser::Canonicalize::abstract_query2str_impl($QParser->parse_tree()->to_abstract_query());
 # TODO: once we are using QueryParser, all this special case code for
 #       exploded search indexes will be replaced by a callback to
 #       _handle_exploding_index
-    if ( $query =~ m/^(.*)\b(su-br|su-na|su-rl)[:=](\w.*)$/ ) {
+    } elsif ( $query =~ m/^(.*)\b(su-br|su-na|su-rl)[:=](\w.*)$/ ) {
         $query = $1;
         $index = $2;
         $term  = $3;
@@ -1218,7 +1232,10 @@ sub buildQuery {
         return ( undef, $', $', "q=cql=$'", $', '', '', '', '', 'cql' );
     }
     if ( $query =~ /^pqf=/ ) {
-        return ( undef, $', $', "q=pqf=$'", $', '', '', '', '', 'pqf' );
+        $query_desc = $';
+        $query_desc = $operands[1] if $operands[1];
+        warn "Query desc: $query_desc\n";
+        return ( undef, $', $query_desc, "q=pqf=$'", $', '', '', '', '', 'pqf' );
     }
 
     # pass nested queries directly

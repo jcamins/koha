@@ -427,7 +427,7 @@ sub CountUsage {
     } else {
         ### ZOOM search here
         my $query;
-        $query= "an=".$authid;
+        $query= "an:".$authid;
   		my ($err,$res,$result) = C4::Search::SimpleSearch($query,0,10);
         if ($err) {
             warn "Error: $err from search $query";
@@ -931,11 +931,11 @@ sub FindDuplicateAuthority {
     $sth->finish;
 #     warn "record :".$record->as_formatted."  auth_tag_to_report :$auth_tag_to_report";
     # build a request for SearchAuthorities
-    my $query='at='.$authtypecode.' ';
+    my $query='at:'.$authtypecode.' ';
     my $filtervalues=qr([\001-\040\!\'\"\`\#\$\%\&\*\+,\-\./:;<=>\?\@\(\)\{\[\]\}_\|\~]);
     if ($record->field($auth_tag_to_report)) {
       foreach ($record->field($auth_tag_to_report)->subfields()) {
-        $_->[1]=~s/$filtervalues/ /g; $query.= " and he,wrdl=\"".$_->[1]."\"" if ($_->[0]=~/[A-z]/);
+        $_->[1]=~s/$filtervalues/ /g; $query.= " and he:\"".$_->[1]."\"" if ($_->[0]=~/[A-z]/);
       }
     }
     my ($error, $results, $total_hits) = C4::Search::SimpleSearch( $query, 0, 1, [ "authorityserver" ] );
