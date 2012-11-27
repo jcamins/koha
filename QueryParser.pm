@@ -849,6 +849,7 @@ sub decompose {
             warn '  'x$recursing." *** ... Looking for aliases of $field\n" if $self->debug;
 
             for my $alias ( @{$pkg->search_field_aliases->{$class}{$field}} ) {
+                next unless ($alias);
                 my $aliasr = qr/$alias/;
                 s/(^|\s+)$aliasr\|/$1$class\|$field#$alias\|/g;
                 s/(^|\s+)$aliasr[:=]/$1$class\|$field#$alias:/g;
@@ -865,6 +866,7 @@ sub decompose {
     for my $class ( keys %{$pkg->search_class_aliases} ) {
 
         for my $alias ( @{$pkg->search_class_aliases->{$class}} ) {
+            next unless ($alias);
             my $aliasr = qr/$alias/;
             s/(^|[^|])\b$aliasr\|/$1$class#$alias\|/g;
             s/(^|[^|])\b$aliasr[:=]/$1$class#$alias:/g;

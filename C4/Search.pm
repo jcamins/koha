@@ -104,26 +104,26 @@ sub FindDuplicate {
         $query = "isbn=$result->{isbn}";
     }
     else {
-        $result->{title} =~ s /\\//g;
-        $result->{title} =~ s /\"//g;
-        $result->{title} =~ s /\(//g;
-        $result->{title} =~ s /\)//g;
+        #$result->{title} =~ s /\\//g;
+        #$result->{title} =~ s /\"//g;
+        #$result->{title} =~ s /\(//g;
+        #$result->{title} =~ s /\)//g;
 
         # FIXME: instead of removing operators, could just do
         # quotes around the value
-        $result->{title} =~ s/(and|or|not)//g;
-        $query = "ti,ext=$result->{title}";
-        $query .= " and itemtype=$result->{itemtype}"
+        #$result->{title} =~ s/(and|or|not)//g;
+        $query = "ti,ext:\"$result->{title}\"";
+        $query .= " && itemtype:$result->{itemtype}"
           if ( $result->{itemtype} );
         if   ( $result->{author} ) {
-            $result->{author} =~ s /\\//g;
-            $result->{author} =~ s /\"//g;
-            $result->{author} =~ s /\(//g;
-            $result->{author} =~ s /\)//g;
+            #$result->{author} =~ s /\\//g;
+            #$result->{author} =~ s /\"//g;
+            #$result->{author} =~ s /\(//g;
+            #$result->{author} =~ s /\)//g;
 
             # remove valid operators
-            $result->{author} =~ s/(and|or|not)//g;
-            $query .= " and au,ext=$result->{author}";
+            #$result->{author} =~ s/(and|or|not)//g;
+            $query .= " && au,ext:\"$result->{author}\"";
         }
     }
 
