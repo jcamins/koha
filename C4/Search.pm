@@ -1109,12 +1109,11 @@ sub parseQuery {
     my $index;
     my $term;
 
-    my $QParser = QueryParser::PQF->new();
-    $QParser->TEST_SETUP;
-
     if ( $query =~ m/^qp=(.*)$/ ) {
+        my $QParser = QueryParser::PQF->new();
+        $QParser->TEST_SETUP;
         $QParser->parse( $1 );
-        $operands[0] = "pqf=" . $QParser->target_syntax('biblio');
+        $operands[0] = "pqf=" . $QParser->target_syntax('biblioserver');
         $operands[1] = QueryParser::Canonicalize::abstract_query2str_impl($QParser->parse_tree()->to_abstract_query());
 # TODO: once we are using QueryParser, all this special case code for
 #       exploded search indexes will be replaced by a callback to
