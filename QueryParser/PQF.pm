@@ -200,7 +200,7 @@ sub date_filter_target_callback {
                 $datepqf .= $attr_string . ' "' . $datespec . '"';
             }
         }
-        $pqf = ' @or ' . $pqf if $pqf;
+        $pqf = ' @or ' . ($negate ? '@not @attr 1=_ALLRECORDS @attr 2=103 "" ' : '') . $pqf if $pqf;
         $pqf .= $datepqf;
     }
     return $pqf;
@@ -605,7 +605,7 @@ sub target_syntax {
         my $modifierpqf = $modifier->target_syntax($server, $self);
         $pqf = $modifierpqf . ' ' . $pqf if $modifierpqf;
     }
-    return $pqf;
+    return ($self->negate ? '@not @attr 1=_ALLRECORDS @attr 2=103 "" ' : '') . $pqf;
 }
 
 #-------------------------------
@@ -671,7 +671,7 @@ sub target_syntax {
     my @fields;
 
     my $attributes = $query_plan->QueryParser->bib1_mapping_by_name('modifier', $server, $self->name);
-    $pqf = $attributes->{'op'} . ' ' . ($self->{'negate'} ? '@not ' : '') . $attributes->{'attr_string'};
+    $pqf = ($attributes->{'op'} ? $attributes->{'op'} . ' ' : '') . ($self->negate ? '@not @attr 1=_ALLRECORDS @attr 2=103 "" ' : '') . $attributes->{'attr_string'};
     return $pqf;
 }
 
@@ -763,7 +763,7 @@ sub target_syntax {
         }
     }
     $pqf = (QueryParser::_util::default_joiner eq '|' ? ' @or ' : ' @and ') x ($atom_count - 1) . $pqf;
-    return $pqf;
+    return ($self->negate ? '@not @attr 1=_ALLRECORDS @attr 2=103 "" ' : '') . $pqf;
 }
 
 package QueryParser::PQF::_util;
