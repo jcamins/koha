@@ -38,19 +38,31 @@ for accessing the following maps:
 
 __PACKAGE__->mk_accessors(qw(bib1_field_map bib1_modifier_map bib1_filter_map));
 
+=head1 FUNCTIONS
+
+=cut
+
+=head2 get
+
+Overridden accessor method for Class::Accessor. (Do not call directly)
+
+=cut
+
 sub get {
     my $self = shift;
     return $self->_map(@_);
 }
 
+=head2 set
+
+Overridden mutator method for Class::Accessor. (Do not call directly)
+
+=cut
+
 sub set {
     my $self = shift;
     return $self->_map(@_);
 }
-
-=head1 FUNCTIONS
-
-=cut
 
 =head2 add_bib1_field_map
 
