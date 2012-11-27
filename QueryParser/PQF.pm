@@ -743,7 +743,7 @@ sub target_syntax {
             if ($phrase) {
                 $pqf .= ' @or ' x (scalar(@fields) - 1);
                 foreach my $attributes (@fields) {
-                    $pqf .= $attributes->{'attr_string'} . ($attributes->{'4'} ? '' : ' @attr 4=1 ') . ' "' . $phrase . '" ';
+                    $pqf .= $attributes->{'attr_string'} . ($attributes->{'4'} ? '' : ' @attr 4=1') . ' "' . $phrase . '" ';
                 }
                 $atom_count++;
             }
