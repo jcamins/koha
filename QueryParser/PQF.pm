@@ -32,11 +32,13 @@ for accessing the following maps:
 
 =item B<bib1_filter_map> - search filter mappings
 
+=item B<bib1_relevance_bump_map> - relevance bump mappings
+
 =back
 
 =cut
 
-__PACKAGE__->mk_accessors(qw(bib1_field_map bib1_modifier_map bib1_filter_map));
+__PACKAGE__->mk_accessors(qw(bib1_field_map bib1_modifier_map bib1_filter_map bib1_relevance_bump_map));
 
 =head1 FUNCTIONS
 
@@ -80,15 +82,9 @@ values. Not all attributes must be specified.
 sub add_bib1_field_map {
     my ($self, $server, $class, $field, $attributes) = @_;
 
-    my $attr_string = QueryParser::PQF::_util::attributes_to_attr_string($attributes);
-    $attributes->{'attr_string'} = $attr_string;
-
     $self->add_search_field( $class => $field );
     $self->add_search_field_alias( $class => $field => $field );
-    $self->bib1_field_map->{$server}{'by_name'}{$class}{$field} = $attributes;
-    $self->bib1_field_map->{$server}{'by_attr'}{$attr_string} = { 'classname' => $class, 'field' => $field, %$attributes };
-
-    return $self->bib1_field_map;
+    return $self->_add_field_mapping($self->bib1_field_map, $server, $class, $field, $attributes);
 }
 
 =head2 add_bib1_modifier_map
@@ -133,6 +129,26 @@ sub add_bib1_filter_map {
     return $self->_add_mapping($self->bib1_filter_map, $server, $name, $attributes);
 }
 
+=head2 add_relevance_bump
+
+    $QParser->add_relevance_bump($server, $class, $field, $multiplier, $active);
+    $QParser->add_relevance_bump('biblioserver' => 'title' => 'exact' => 34, 1);
+
+Add a relevance bump to the specified field. When searching for a class without
+any fields, all the relevance bumps for the specified class will be 'OR'ed
+together.
+
+=cut
+
+sub add_relevance_bump {
+    my ($self, $server, $class, $field, $multiplier, $active) = @_;
+    my $attributes = { '9' => $multiplier, '2' => '102', 'active' => $active };
+
+    $self->add_search_field( $class => $field );
+    return $self->_add_field_mapping($self->bib1_relevance_bump_map, $server, $class, $field, $attributes);
+}
+
+
 =head2 target_syntax
 
     my $pqf = $QParser->target_syntax($server, [$query]);
@@ -149,9 +165,9 @@ sub target_syntax {
     my ($self, $server, $query) = @_;
     my $pqf = '';
     $self->parse($query) if $query;
-    #warn "QP query for $server: " . $self->query . "\n";
+    warn "QP query for $server: " . $self->query . "\n";
     $pqf = $self->parse_tree->target_syntax($server);
-    #warn "PQF query: $pqf\n";
+    warn "PQF query: $pqf\n";
     return $pqf;
 }
 
@@ -209,7 +225,7 @@ sub _map {
 
     return $self->_add_mapping($map, $server, $name, $attributes)
 
-Adds a mapping. Note that this is not used for fields.
+Adds a mapping. Note that this is not used for mappings relating to fields.
 
 =cut
 
@@ -225,6 +241,25 @@ sub _add_mapping {
     return $map;
 }
 
+=head2 _add_field_mapping
+
+    return $self->_add_field_mapping($map, $server, $class, $field, $attributes)
+
+Adds a mapping for field-related data.
+
+=cut
+
+sub _add_field_mapping {
+    my ($self, $map, $server, $class, $field, $attributes) = @_;
+    my $attr_string = QueryParser::PQF::_util::attributes_to_attr_string($attributes);
+    $attributes->{'attr_string'} = $attr_string;
+
+    $map->{$server}{'by_name'}{$class}{$field} = $attributes;
+    $map->{$server}{'by_attr'}{$attr_string} = { 'classname' => $class, 'field' => $field, %$attributes };
+    return $map;
+}
+
+
 =head2 bib1_mapping_by_name
 
     my $attributes = $QParser->bib1_mapping_by_name($server, $type, $name[, $subname]);
@@ -238,7 +273,7 @@ sub bib1_mapping_by_name {
     my ($self, $type, $server, $name, $field) = @_;
 
     return unless ($server && $name);
-    return unless ($type eq 'field' || $type eq 'modifier' || $type eq 'filter');
+    return unless ($type eq 'field' || $type eq 'modifier' || $type eq 'filter' || $type eq 'relevance_bump');
     if ($type eq 'field') {
     # Unfortunately field is a special case thanks to the class->field hierarchy
         return $self->_map('bib1_' . $type . '_map')->{$server}{'by_name'}{$name}{$field};
@@ -282,7 +317,7 @@ Retrieve the search field/modifier/filter used for the specified Bib-1 attribute
 sub bib1_mapping_by_attr_string {
     my ($self, $type, $server, $attr_string) = @_;
     return unless ($server && $attr_string);
-    return unless ($type eq 'field' || $type eq 'modifier' || $type eq 'filter');
+    return unless ($type eq 'field' || $type eq 'modifier' || $type eq 'filter' || $type eq 'relevance_bump');
 
     return $self->_map('bib1_' . $type . '_map')->{$server}{'by_attr'}{$attr_string};
 }
@@ -486,10 +521,15 @@ sub TEST_SETUP {
     $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'alwaysmatch' => { '1' => '_ALLRECORDS', '2' => '103' } );
     $self->add_bib1_field_map( 'biblioserver' => 'subject' => 'complete' => { '1' => '21', '3' => '1', '4' => '1', '5' => '100', '6' => '3' } );
 
+    $self->add_bib1_modifier_map( 'biblioserver' => 'relevance' => { '2' => '102' } );
     $self->add_bib1_modifier_map( 'biblioserver' => 'title-sort-za' => { '7' => '2', '1' => '36', '' => '0', 'op' => '@or' } );
     $self->add_bib1_modifier_map( 'biblioserver' => 'title-sort-az' => { '7' => '1', '1' => '36', '' => '0', 'op' => '@or' } );
     $self->add_bib1_modifier_map( 'biblioserver' => 'ascending' => { '7' => '1' } );
     $self->add_bib1_modifier_map( 'biblioserver' => 'descending' => { '7' => '2' } );
+
+    #$self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'titlekw' => { '1' => '4' } );
+    #$self->add_relevance_bump( 'biblioserver' => 'keyword' => 'publisher' => 34, 1 );
+    #$self->add_relevance_bump( 'biblioserver' => 'keyword' => 'titlekw' => 14, 1 );
 
     $self->add_bib1_field_map( 'authorityserver' => 'subject' => 'headingmain' => { '1' => 'Heading-Main' } );
     $self->add_bib1_field_map( 'authorityserver' => 'subject' => 'heading' => { '1' => 'Heading' } );
@@ -672,13 +712,30 @@ sub target_syntax {
     my $atom_content;
     my $atom_count = 0;
     my @fields;
+    my $fieldobj;
+    my $relbump;
 
     if (scalar(@{$self->fields})) {
         foreach my $field (@{$self->fields}) {
-            push @fields, $self->plan->QueryParser->bib1_mapping_by_name('field', $server, $self->classname, $field)
+            $fieldobj = $self->plan->QueryParser->bib1_mapping_by_name('field', $server, $self->classname, $field);
+            $relbump = $self->plan->QueryParser->bib1_mapping_by_name('relevance_bump', $server, $self->classname, $field);
+            if ($relbump) {
+                $fieldobj->{'attr_string'} .= ' ' . $relbump->{'attr_string'};
+            }
+            push @fields, $fieldobj;
         }
     } else {
-        push @fields, $self->plan->QueryParser->bib1_mapping_by_name('field', $server, $self->classname, '')
+        $fieldobj = $self->plan->QueryParser->bib1_mapping_by_name('field', $server, $self->classname, '');
+        my $relbumps = $self->plan->QueryParser->bib1_mapping_by_name('relevance_bump', $server, $self->classname, '');
+        push @fields, $fieldobj;
+        if ($relbumps) {
+            foreach my $field (keys %$relbumps) {
+                $relbump = $relbumps->{$field};
+                $fieldobj = $self->plan->QueryParser->bib1_mapping_by_name('field', $server, $relbump->{'classname'}, $relbump->{'field'});
+                $fieldobj->{'attr_string'} .= ' ' . $relbump->{'attr_string'};
+                push @fields, $fieldobj;
+            }
+        }
     }
 
     if (@{$self->phrases}) {
