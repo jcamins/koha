@@ -324,25 +324,28 @@ sub TEST_SETUP {
 
 #   $self->add_search_filter( 'testfilter', \&test_filter_callback );
 
-    $self->add_bib1_field_map( 'biblio' => 'keyword' => '' => { '1' => '1016' } );
-    $self->add_bib1_field_map( 'biblio' => 'author' => '' => { '1' => '1003' } );
-    $self->add_bib1_field_map( 'biblio' => 'author' => 'personal' => { '1' => '1004' } );
-    $self->add_bib1_field_map( 'biblio' => 'author' => 'corporate' => { '1' => '1005' } );
-    $self->add_bib1_field_map( 'biblio' => 'keyword' => 'alwaysmatch' => { '1' => '_ALLRECORDS', '2' => '103' } );
-    $self->add_bib1_field_map( 'biblio' => 'subject' => 'complete' => { '1' => '21', '3' => '1', '4' => '1', '5' => '100', '6' => '3' } );
+    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => '' => { '1' => '1016' } );
+    $self->add_bib1_field_map( 'biblioserver' => 'author' => '' => { '1' => '1003' } );
+    $self->add_bib1_field_map( 'biblioserver' => 'author' => 'personal' => { '1' => '1004' } );
+    $self->add_bib1_field_map( 'biblioserver' => 'author' => 'corporate' => { '1' => '1005' } );
+    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'alwaysmatch' => { '1' => '_ALLRECORDS', '2' => '103' } );
+    $self->add_bib1_field_map( 'biblioserver' => 'subject' => 'complete' => { '1' => '21', '3' => '1', '4' => '1', '5' => '100', '6' => '3' } );
+    $self->add_bib1_field_map( 'biblioserver' => 'subject' => 'authid' => { '1' => 'Koha-Auth-Number' } );
+    $self->add_search_field_alias( 'subject' => 'authid' => 'an' );
 
-    $self->add_bib1_field_map( 'authority' => 'subject' => 'headingmain' => { '1' => 'Heading-Main' } );
-    $self->add_bib1_field_map( 'authority' => 'subject' => 'heading' => { '1' => 'Heading' } );
-    $self->add_bib1_field_map( 'authority' => 'subject' => 'matchheading' => { '1' => 'Match-heading' } );
-    $self->add_bib1_field_map( 'authority' => 'subject' => 'seefrom' => { '1' => 'Match-heading-see-from' } );
-    $self->add_bib1_field_map( 'authority' => 'subject' => '' => { '1' => 'Match-heading' } );
-    $self->add_bib1_field_map( 'authority' => 'keyword' => 'alwaysmatch' => { '1' => '_ALLRECORDS', '2' => '103' } );
-    $self->add_bib1_field_map( 'authority' => 'keyword' => 'match' => { '1' => 'Match' } );
-    $self->add_bib1_field_map( 'authority' => 'keyword' => 'thesaurus' => { '1' => 'Subject-heading-thesaurus' } );
-    $self->add_bib1_field_map( 'authority' => 'keyword' => 'authtype' => { '1' => 'authtype', '5' => '100' } );
-    $self->add_bib1_field_map( 'authority' => 'keyword' => '' => { '1' => 'Any' } );
+    $self->add_bib1_field_map( 'authorityserver' => 'subject' => 'headingmain' => { '1' => 'Heading-Main' } );
+    $self->add_bib1_field_map( 'authorityserver' => 'subject' => 'heading' => { '1' => 'Heading' } );
+    $self->add_bib1_field_map( 'authorityserver' => 'subject' => 'matchheading' => { '1' => 'Match-heading' } );
+    $self->add_bib1_field_map( 'authorityserver' => 'subject' => 'seefrom' => { '1' => 'Match-heading-see-from' } );
+    $self->add_bib1_field_map( 'authorityserver' => 'subject' => '' => { '1' => 'Match-heading' } );
+    $self->add_bib1_field_map( 'authorityserver' => 'keyword' => 'alwaysmatch' => { '1' => '_ALLRECORDS', '2' => '103' } );
+    $self->add_bib1_field_map( 'authorityserver' => 'keyword' => 'match' => { '1' => 'Match' } );
+    $self->add_bib1_field_map( 'authorityserver' => 'keyword' => 'thesaurus' => { '1' => 'Subject-heading-thesaurus' } );
+    $self->add_bib1_field_map( 'authorityserver' => 'keyword' => 'authtype' => { '1' => 'authtype', '5' => '100' } );
+    $self->add_bib1_field_map( 'authorityserver' => 'keyword' => '' => { '1' => 'Any' } );
     $self->add_search_field_alias( 'subject' => 'headingmain' => 'mainmainentry' );
     $self->add_search_field_alias( 'subject' => 'heading' => 'mainentry' );
+    $self->add_search_field_alias( 'subject' => 'heading' => 'he' );
     $self->add_search_field_alias( 'subject' => 'matchheading' => 'match-heading' );
     $self->add_search_field_alias( 'keyword' => '' => 'any' );
     $self->add_search_field_alias( 'keyword' => 'match' => 'match' );
@@ -350,15 +353,16 @@ sub TEST_SETUP {
     $self->add_search_field_alias( 'keyword' => 'thesaurus' => 'thesaurus' );
     $self->add_search_field_alias( 'keyword' => 'alwaysmatch' => 'all' );
     $self->add_search_field_alias( 'keyword' => 'authtype' => 'authtype' );
+    $self->add_search_field_alias( 'keyword' => 'authtype' => 'at' );
 
-    $self->add_bib1_field_map( 'authority' => 'subject' => 'start' => { '3' => '2', '4' => '1', '5' => '1' } );
-    $self->add_bib1_field_map( 'authority' => 'subject' => 'exact' => { '4' => '1', '5' => '100', '6' => '3' } );
+    $self->add_bib1_field_map( 'authorityserver' => 'subject' => 'start' => { '3' => '2', '4' => '1', '5' => '1' } );
+    $self->add_bib1_field_map( 'authorityserver' => 'subject' => 'exact' => { '4' => '1', '5' => '100', '6' => '3' } );
 
-    $self->add_bib1_modifier_map( 'authority' => 'HeadingAsc' => { '7' => '1', '1' => 'Heading', '' => '0', 'op' => '@or' } );
-    $self->add_bib1_modifier_map( 'authority' => 'HeadingDsc' => { '7' => '2', '1' => 'Heading', '' => '0', 'op' => '@or' } );
-    $self->add_bib1_modifier_map( 'authority' => 'AuthidAsc' => { '7' => '1', '1' => 'Local-Number', '' => '0', 'op' => '@or' } );
-    $self->add_bib1_modifier_map( 'authority' => 'AuthidDsc' => { '7' => '2', '1' => 'Local-Number', '' => '0', 'op' => '@or' } );
-    $self->add_bib1_modifier_map( 'authority' => 'Relevance' => { '2' => '102' } );
+    $self->add_bib1_modifier_map( 'authorityserver' => 'HeadingAsc' => { '7' => '1', '1' => 'Heading', '' => '0', 'op' => '@or' } );
+    $self->add_bib1_modifier_map( 'authorityserver' => 'HeadingDsc' => { '7' => '2', '1' => 'Heading', '' => '0', 'op' => '@or' } );
+    $self->add_bib1_modifier_map( 'authorityserver' => 'AuthidAsc' => { '7' => '1', '1' => 'Local-Number', '' => '0', 'op' => '@or' } );
+    $self->add_bib1_modifier_map( 'authorityserver' => 'AuthidDsc' => { '7' => '2', '1' => 'Local-Number', '' => '0', 'op' => '@or' } );
+    $self->add_bib1_modifier_map( 'authorityserver' => 'Relevance' => { '2' => '102' } );
 
     return $self;
 }
