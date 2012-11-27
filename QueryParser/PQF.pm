@@ -44,7 +44,7 @@ sub bib1_field_map {
 
     $QParser->add_bib1_field_map($server => $class => $field => \%attributes);
 
-    $QParser->add_bib1_field_map('biblio' => 'author' => 'personal' =>
+    $QParser->add_bib1_field_map('biblioserver' => 'author' => 'personal' =>
                                     { '1' => '1003' });
 
 Adds a search field<->bib1 attribute mapping for the specified server. The
@@ -60,6 +60,7 @@ sub add_bib1_field_map {
     $attributes->{'attr_string'} = $attr_string;
 
     $self->add_search_field( $class => $field );
+    $self->add_search_field_alias( $class => $field => $field );
     $self->bib1_field_map->{$server}{'by_class'}{$class}{$field} = $attributes;
     $self->bib1_field_map->{$server}{'by_attr'}{$attr_string} = { 'classname' => $class, 'field' => $field, %$attributes };
 
@@ -69,7 +70,7 @@ sub add_bib1_field_map {
 =head2 bib1_field_by_attr
 
     my $field = $QParser->bib1_field_by_attr($server, \%attr);
-    my $field = $QParser->bib1_field_by_attr('biblio', {'1' => '1003'});
+    my $field = $QParser->bib1_field_by_attr('biblioserver', {'1' => '1003'});
     print $field->{'classname'}; # prints "author"
     print $field->{'field'}; # prints "personal"
 
@@ -89,7 +90,7 @@ sub bib1_field_by_attr {
 =head2 bib1_field_by_attr_string
 
     my $field = $QParser->bib1_field_by_attr_string($server, $attr_string);
-    my $field = $QParser->bib1_field_by_attr_string('biblio', '@attr 1=1003');
+    my $field = $QParser->bib1_field_by_attr_string('biblioserver', '@attr 1=1003');
     print $field->{'classname'}; # prints "author"
     print $field->{'field'}; # prints "personal"
 
@@ -108,8 +109,8 @@ sub bib1_field_by_attr_string {
 =head2 bib1_field_by_class
 
     my $attributes = $QParser->bib1_field_by_class($server, $class, $field);
-    my $attributes = $QParser->bib1_field_by_class('biblio', 'author', 'personal');
-    my $attributes = $QParser->bib1_field_by_class('biblio', 'keyword', '');
+    my $attributes = $QParser->bib1_field_by_class('biblioserver', 'author', 'personal');
+    my $attributes = $QParser->bib1_field_by_class('biblioserver', 'keyword', '');
 
 Retrieve the Bib-1 attribute set associated with the specified search field. If
 the field is not specified, the Bib-1 attribute set associated with the class
@@ -147,7 +148,7 @@ sub bib1_modifier_map {
 
     $QParser->add_bib1_modifier_map($server => $name => \%attributes);
 
-    $QParser->add_bib1_modifier_map('biblio' => 'ascendin' =>
+    $QParser->add_bib1_modifier_map('biblioserver' => 'ascendin' =>
                                     { '7' => '1' });
 
 Adds a search modifier<->bib1 attribute mapping for the specified server. The
@@ -172,7 +173,7 @@ sub add_bib1_modifier_map {
 =head2 bib1_modifier_by_attr
 
     my $modifier = $QParser->bib1_modifier_by_attr($server, \%attr);
-    my $modifier = $QParser->bib1_modifier_by_attr('biblio', {'7' => '1'});
+    my $modifier = $QParser->bib1_modifier_by_attr('biblioserver', {'7' => '1'});
     print $field->{'name'}; # prints "ascending"
 
 Retrieve the search modifier used for the specified Bib-1 attribute set.
@@ -191,7 +192,7 @@ sub bib1_modifier_by_attr {
 =head2 bib1_modifier_by_attr_string
 
     my $modifier = $QParser->bib1_modifier_by_attr_string($server, $attr_string);
-    my $modifier = $QParser->bib1_modifier_by_attr_string('biblio', '@attr 7=1');
+    my $modifier = $QParser->bib1_modifier_by_attr_string('biblioserver', '@attr 7=1');
     print $field->{'name'}; # prints "ascending"
 
 Retrieve the search modifier used for the specified Bib-1 attribute string
@@ -209,7 +210,7 @@ sub bib1_modifier_by_attr_string {
 =head2 bib1_modifier_by_name
 
     my $attributes = $QParser->bib1_modifier_by_name($server, $name);
-    my $attributes = $QParser->bib1_modifier_by_name('biblio', 'ascending');
+    my $attributes = $QParser->bib1_modifier_by_name('biblioserver', 'ascending');
 
 Retrieve the Bib-1 attribute set associated with the specified search modifier.
 
@@ -222,11 +223,108 @@ sub bib1_modifier_by_name {
 
     return $self->bib1_modifier_map->{$server}{'by_name'}{$name};
 }
+=head2 bib1_filter_map
+
+    my $filter_map = $QParser->bib1_filter_map;
+    $filter_map->{'by_name'}{'date'} = { 'callback' => &_my_callback };
+    $QParser->bib1_filter_map($filter_map);
+
+Gets or sets the bib1 filter mapping data structure.
+
+=cut
+
+sub bib1_filter_map {
+    my ($self, $map) = @_;
+
+    $self->custom_data->{bib1_filter_map} ||= {};
+    $self->custom_data->{bib1_filter_map} = $map if ($map);
+    return $self->custom_data->{bib1_filter_map};
+}
+
+=head2 add_bib1_filter_map
+
+    $QParser->add_bib1_filter_map($server => $name => \%attributes);
+
+    $QParser->add_bib1_filter_map('biblioserver' => 'date' =>
+                                    { 'callback' => &_my_callback });
+
+Adds a search filter<->bib1 attribute mapping for the specified server. The
+%attributes hash maps Bib-1 Attributes to the appropropriate values and
+provides a callback for the filter. Not all attributes must be specified.
+
+=cut
+
+sub add_bib1_filter_map {
+    my ($self, $server, $name, $attributes) = @_;
+
+    my $attr_string = QueryParser::PQF::_util::attributes_to_attr_string($attributes);
+    $attributes->{'attr_string'} = $attr_string;
+
+    $self->add_search_filter( $name, $attributes->{'callback'} );
+    $self->bib1_filter_map->{$server}{'by_name'}{$name} = $attributes;
+    $self->bib1_filter_map->{$server}{'by_attr'}{$attr_string} = { 'name' => $name, %$attributes };
+
+    return $self->bib1_filter_map;
+}
+
+=head2 bib1_filter_by_attr
+
+    my $filter = $QParser->bib1_filter_by_attr($server, \%attr);
+    my $filter = $QParser->bib1_filter_by_attr('biblioserver', {'7' => '1'});
+    print $field->{'name'}; # prints "ascending"
+
+Retrieve the search filter used for the specified Bib-1 attribute set.
+
+=cut
+
+sub bib1_filter_by_attr {
+    my ($self, $server, $attributes) = @_;
+    return unless ($server && $attributes);
+
+    my $attr_string = QueryParser::PQF::_util::attributes_to_attr_string($attributes);
+
+    return $self->bib1_filter_by_attr_string($server, $attr_string);
+}
+
+=head2 bib1_filter_by_attr_string
+
+    my $filter = $QParser->bib1_filter_by_attr_string($server, $attr_string);
+    my $filter = $QParser->bib1_filter_by_attr_string('biblioserver', '@attr 7=1');
+    print $field->{'name'}; # prints "ascending"
+
+Retrieve the search filter used for the specified Bib-1 attribute string
+(i.e. PQF snippet).
+
+=cut
+
+sub bib1_filter_by_attr_string {
+    my ($self, $server, $attr_string) = @_;
+    return unless ($server && $attr_string);
+
+    return $self->bib1_filter_map->{$server}{'by_attr'}{$attr_string};
+}
+
+=head2 bib1_filter_by_name
+
+    my $attributes = $QParser->bib1_filter_by_name($server, $name);
+    my $attributes = $QParser->bib1_filter_by_name('biblioserver', 'ascending');
+
+Retrieve the Bib-1 attribute set associated with the specified search filter.
+
+=cut
+
+sub bib1_filter_by_name {
+    my ($self, $server, $name) = @_;
+
+    return unless ($server && $name);
+
+    return $self->bib1_filter_map->{$server}{'by_name'}{$name};
+}
 
 =head2 target_syntax
 
     my $pqf = $QParser->target_syntax($server, [$query]);
-    my $pqf = $QParser->target_syntax('biblio', 'author|personal:smith');
+    my $pqf = $QParser->target_syntax('biblioserver', 'author|personal:smith');
     print $pqf; # assuming all the indexes are configured,
                 # prints '@attr 1=1003 @attr 4=6 "smith"'
 
@@ -239,13 +337,52 @@ sub target_syntax {
     my ($self, $server, $query) = @_;
     my $pqf = '';
     $self->parse($query) if $query;
-    return $self->parse_tree->target_syntax($server);
+    #warn "QP query for $server: " . $self->query . "\n";
+    $pqf = $self->parse_tree->target_syntax($server);
+    #warn "PQF query: $pqf\n";
+    return $pqf;
+}
+
+=head2 date_filter_target_callback
+
+    $QParser->add_bib1_filter_map($server, { 'target_syntax_callback' => \&QueryParser::PQF::date_filter_target_callback, '1' => 'pubdate' });
+
+Callback for date filters. Note that although the first argument is the QParser
+object, this is technically not an object-oriented routine. This has no
+real-world implications.
+
+=cut
+
+sub date_filter_target_callback {
+    my ($QParser, $filter, $params, $negate, $server) = @_;
+    my $attr_string = $QParser->bib1_filter_by_name( $server, $filter )->{'attr_string'};
+    my $pqf = '';
+    foreach my $datespec (@$params) {
+        my $datepqf = '';
+        if ($datespec) {
+            if ($datespec =~ m/(.*)-(.*)/) {
+                if ($1) {
+                    $datepqf .= $attr_string . ' @attr 2=4 "' . $1 . '"';
+                }
+                if ($2) {
+                    $datepqf .= $attr_string . ' @attr 2=2 "' . $2 . '"';
+                    $datepqf = '@and ' . $datepqf if $1;
+                }
+            } else {
+                $datepqf .= $attr_string . ' "' . $datespec . '"';
+            }
+        }
+        $pqf = ' @or ' . $pqf if $pqf;
+        $pqf .= $datepqf;
+    }
+    return $pqf;
 }
 
 sub TEST_SETUP {
     my ($self) = @_;
 
-
+    $self->operator( 'group_start' => '{' );
+    $self->operator( 'group_end' => '}' );
     $self->default_search_class( 'keyword' );
 
     $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'abstract' => { '1' => '62' } );
@@ -276,12 +413,12 @@ sub TEST_SETUP {
     $self->add_search_field_alias( 'keyword' => 'lc-card-number' => 'lc-card' );
     $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'local-number' => { '1' => '12' } );
     $self->add_search_field_alias( 'keyword' => 'local-number' => 'sn' );
-    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'copydate' => { '1' => '30' } );
-    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'date-of-publication' => { '1' => 'pubdate' } );
-    $self->add_search_field_alias( 'keyword' => 'date-of-publication' => 'yr' );
-    $self->add_search_field_alias( 'keyword' => 'date-of-publication' => 'pubdate' );
-    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'date-of-acquisition' => { '1' => 'Date-of-acquisition' } );
-    $self->add_search_field_alias( 'keyword' => 'date-of-acquisition' => 'acqdate' );
+    $self->add_bib1_filter_map( 'biblioserver', 'copyate', { 'target_syntax_callback' => \&QueryParser::PQF::date_filter_target_callback, '1' => '30', '4' => '4' });
+    $self->add_bib1_filter_map( 'biblioserver', 'pubdate', { 'target_syntax_callback' => \&QueryParser::PQF::date_filter_target_callback, '1' => 'pubdate', '4' => '4' });
+#    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'date-of-publication' => { '1' => 'pubdate' } );
+#    $self->add_search_field_alias( 'keyword' => 'date-of-publication' => 'yr' );
+#    $self->add_search_field_alias( 'keyword' => 'date-of-publication' => 'pubdate' );
+    $self->add_bib1_filter_map( 'biblioserver', 'acqdate', { 'target_syntax_callback' => \&QueryParser::PQF::date_filter_target_callback, '1' => 'Date-of-acquisition', '4' => '4' });
     $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'isbn' => { '1' => '7' } );
     $self->add_search_field_alias( 'keyword' => 'isbn' => 'nb' );
     $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'issn' => { '1' => '8' } );
@@ -506,6 +643,15 @@ sub target_syntax {
         }
     }
     $pqf = ($self->joiner eq '|' ? ' @or ' : ' @and ') x ($node_count - 1) . $pqf;
+    $node_count = ($node_count ? '1' : '0');
+    for my $node ( @{$self->filters} ) {
+        if (ref($node)) {
+            $node_pqf = $node->target_syntax($server);
+            $node_count++ if $node_pqf;
+            $pqf .= $node_pqf;
+        }
+    }
+    $pqf = ($self->joiner eq '|' ? ' @or ' : ' @and ') x ($node_count - 1) . $pqf;
     foreach my $modifier ( @{$self->modifiers} ) {
         my $modifierpqf = $modifier->target_syntax($server, $self);
         $pqf = $modifierpqf . ' ' . $pqf if $modifierpqf;
@@ -528,8 +674,13 @@ directly.
 
 sub target_syntax {
     my ($self, $server) = @_;
+    my $attributes = $self->plan->QueryParser->bib1_filter_by_name( $server, $self->name );
 
-    return '';
+    if ($attributes->{'target_syntax_callback'}) {
+        return $attributes->{'target_syntax_callback'}->($self->plan->QueryParser, $self->name, $self->args, $self->negate, $server);
+    } else {
+        return '';
+    }
 }
 
 #-------------------------------
@@ -650,6 +801,7 @@ sub target_syntax {
 }
 
 package QueryParser::PQF::_util;
+use Scalar::Util qw(looks_like_number);
 
 sub attributes_to_attr_string {
     my ($attributes) = @_;
@@ -657,7 +809,7 @@ sub attributes_to_attr_string {
     my $key;
     my $value;
     while (($key, $value) = each(%$attributes)) {
-        next unless ($key and $key ne 'op');
+        next unless looks_like_number($key);
         $attr_string .= ' @attr ' . $key . '=' . $value . ' ';
     }
     $attr_string =~ s/^\s*//;
