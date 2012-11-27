@@ -34,10 +34,7 @@ Gets or sets the bib1 field mapping data structure.
 
 sub bib1_field_map {
     my ($self, $map) = @_;
-
-    $self->custom_data->{bib1_field_map} ||= {};
-    $self->custom_data->{bib1_field_map} = $map if ($map);
-    return $self->custom_data->{bib1_field_map};
+    return $self->_map('bib1_field_map', $map);
 }
 
 =head2 add_bib1_field_map
@@ -67,64 +64,6 @@ sub add_bib1_field_map {
     return $self->bib1_field_map;
 }
 
-=head2 bib1_field_by_attr
-
-    my $field = $QParser->bib1_field_by_attr($server, \%attr);
-    my $field = $QParser->bib1_field_by_attr('biblioserver', {'1' => '1003'});
-    print $field->{'classname'}; # prints "author"
-    print $field->{'field'}; # prints "personal"
-
-Retrieve the search field used for the specified Bib-1 attribute set.
-
-=cut
-
-sub bib1_field_by_attr {
-    my ($self, $server, $attributes) = @_;
-    return unless ($server && $attributes);
-
-    my $attr_string = QueryParser::PQF::_util::attributes_to_attr_string($attributes);
-
-    return $self->bib1_field_by_attr_string($server, $attr_string);
-}
-
-=head2 bib1_field_by_attr_string
-
-    my $field = $QParser->bib1_field_by_attr_string($server, $attr_string);
-    my $field = $QParser->bib1_field_by_attr_string('biblioserver', '@attr 1=1003');
-    print $field->{'classname'}; # prints "author"
-    print $field->{'field'}; # prints "personal"
-
-Retrieve the search field used for the specified Bib-1 attribute string
-(i.e. PQF snippet).
-
-=cut
-
-sub bib1_field_by_attr_string {
-    my ($self, $server, $attr_string) = @_;
-    return unless ($server && $attr_string);
-
-    return $self->bib1_field_map->{$server}{'by_attr'}{$attr_string};
-}
-
-=head2 bib1_field_by_class
-
-    my $attributes = $QParser->bib1_field_by_class($server, $class, $field);
-    my $attributes = $QParser->bib1_field_by_class('biblioserver', 'author', 'personal');
-    my $attributes = $QParser->bib1_field_by_class('biblioserver', 'keyword', '');
-
-Retrieve the Bib-1 attribute set associated with the specified search field. If
-the field is not specified, the Bib-1 attribute set associated with the class
-will be returned.
-
-=cut
-
-sub bib1_field_by_class {
-    my ($self, $server, $class, $field) = @_;
-
-    return unless ($server && $class);
-
-    return $self->bib1_field_map->{$server}{'by_class'}{$class}{$field};
-}
 
 =head2 bib1_modifier_map
 
@@ -138,10 +77,7 @@ Gets or sets the bib1 modifier mapping data structure.
 
 sub bib1_modifier_map {
     my ($self, $map) = @_;
-
-    $self->custom_data->{bib1_modifier_map} ||= {};
-    $self->custom_data->{bib1_modifier_map} = $map if ($map);
-    return $self->custom_data->{bib1_modifier_map};
+    return $self->_map('bib1_modifier_map', $map);
 }
 
 =head2 add_bib1_modifier_map
@@ -160,69 +96,11 @@ values. Not all attributes must be specified.
 sub add_bib1_modifier_map {
     my ($self, $server, $name, $attributes) = @_;
 
-    my $attr_string = QueryParser::PQF::_util::attributes_to_attr_string($attributes);
-    $attributes->{'attr_string'} = $attr_string;
-
     $self->add_search_modifier( $name );
-    $self->bib1_modifier_map->{$server}{'by_name'}{$name} = $attributes;
-    $self->bib1_modifier_map->{$server}{'by_attr'}{$attr_string} = { 'name' => $name, %$attributes };
 
-    return $self->bib1_modifier_map;
+    return $self->_add_mapping($self->bib1_modifier_map, $server, $name, $attributes);
 }
 
-=head2 bib1_modifier_by_attr
-
-    my $modifier = $QParser->bib1_modifier_by_attr($server, \%attr);
-    my $modifier = $QParser->bib1_modifier_by_attr('biblioserver', {'7' => '1'});
-    print $field->{'name'}; # prints "ascending"
-
-Retrieve the search modifier used for the specified Bib-1 attribute set.
-
-=cut
-
-sub bib1_modifier_by_attr {
-    my ($self, $server, $attributes) = @_;
-    return unless ($server && $attributes);
-
-    my $attr_string = QueryParser::PQF::_util::attributes_to_attr_string($attributes);
-
-    return $self->bib1_modifier_by_attr_string($server, $attr_string);
-}
-
-=head2 bib1_modifier_by_attr_string
-
-    my $modifier = $QParser->bib1_modifier_by_attr_string($server, $attr_string);
-    my $modifier = $QParser->bib1_modifier_by_attr_string('biblioserver', '@attr 7=1');
-    print $field->{'name'}; # prints "ascending"
-
-Retrieve the search modifier used for the specified Bib-1 attribute string
-(i.e. PQF snippet).
-
-=cut
-
-sub bib1_modifier_by_attr_string {
-    my ($self, $server, $attr_string) = @_;
-    return unless ($server && $attr_string);
-
-    return $self->bib1_modifier_map->{$server}{'by_attr'}{$attr_string};
-}
-
-=head2 bib1_modifier_by_name
-
-    my $attributes = $QParser->bib1_modifier_by_name($server, $name);
-    my $attributes = $QParser->bib1_modifier_by_name('biblioserver', 'ascending');
-
-Retrieve the Bib-1 attribute set associated with the specified search modifier.
-
-=cut
-
-sub bib1_modifier_by_name {
-    my ($self, $server, $name) = @_;
-
-    return unless ($server && $name);
-
-    return $self->bib1_modifier_map->{$server}{'by_name'}{$name};
-}
 =head2 bib1_filter_map
 
     my $filter_map = $QParser->bib1_filter_map;
@@ -235,10 +113,7 @@ Gets or sets the bib1 filter mapping data structure.
 
 sub bib1_filter_map {
     my ($self, $map) = @_;
-
-    $self->custom_data->{bib1_filter_map} ||= {};
-    $self->custom_data->{bib1_filter_map} = $map if ($map);
-    return $self->custom_data->{bib1_filter_map};
+    return $self->_map('bib1_filter_map', $map);
 }
 
 =head2 add_bib1_filter_map
@@ -257,68 +132,9 @@ provides a callback for the filter. Not all attributes must be specified.
 sub add_bib1_filter_map {
     my ($self, $server, $name, $attributes) = @_;
 
-    my $attr_string = QueryParser::PQF::_util::attributes_to_attr_string($attributes);
-    $attributes->{'attr_string'} = $attr_string;
-
     $self->add_search_filter( $name, $attributes->{'callback'} );
-    $self->bib1_filter_map->{$server}{'by_name'}{$name} = $attributes;
-    $self->bib1_filter_map->{$server}{'by_attr'}{$attr_string} = { 'name' => $name, %$attributes };
 
-    return $self->bib1_filter_map;
-}
-
-=head2 bib1_filter_by_attr
-
-    my $filter = $QParser->bib1_filter_by_attr($server, \%attr);
-    my $filter = $QParser->bib1_filter_by_attr('biblioserver', {'7' => '1'});
-    print $field->{'name'}; # prints "ascending"
-
-Retrieve the search filter used for the specified Bib-1 attribute set.
-
-=cut
-
-sub bib1_filter_by_attr {
-    my ($self, $server, $attributes) = @_;
-    return unless ($server && $attributes);
-
-    my $attr_string = QueryParser::PQF::_util::attributes_to_attr_string($attributes);
-
-    return $self->bib1_filter_by_attr_string($server, $attr_string);
-}
-
-=head2 bib1_filter_by_attr_string
-
-    my $filter = $QParser->bib1_filter_by_attr_string($server, $attr_string);
-    my $filter = $QParser->bib1_filter_by_attr_string('biblioserver', '@attr 7=1');
-    print $field->{'name'}; # prints "ascending"
-
-Retrieve the search filter used for the specified Bib-1 attribute string
-(i.e. PQF snippet).
-
-=cut
-
-sub bib1_filter_by_attr_string {
-    my ($self, $server, $attr_string) = @_;
-    return unless ($server && $attr_string);
-
-    return $self->bib1_filter_map->{$server}{'by_attr'}{$attr_string};
-}
-
-=head2 bib1_filter_by_name
-
-    my $attributes = $QParser->bib1_filter_by_name($server, $name);
-    my $attributes = $QParser->bib1_filter_by_name('biblioserver', 'ascending');
-
-Retrieve the Bib-1 attribute set associated with the specified search filter.
-
-=cut
-
-sub bib1_filter_by_name {
-    my ($self, $server, $name) = @_;
-
-    return unless ($server && $name);
-
-    return $self->bib1_filter_map->{$server}{'by_name'}{$name};
+    return $self->_add_mapping($self->bib1_filter_map, $server, $name, $attributes);
 }
 
 =head2 target_syntax
@@ -355,7 +171,7 @@ real-world implications.
 
 sub date_filter_target_callback {
     my ($QParser, $filter, $params, $negate, $server) = @_;
-    my $attr_string = $QParser->bib1_filter_by_name( $server, $filter )->{'attr_string'};
+    my $attr_string = $QParser->bib1_mapping_by_name( 'filter', $server, $filter )->{'attr_string'};
     my $pqf = '';
     foreach my $datespec (@$params) {
         my $datepqf = '';
@@ -376,6 +192,113 @@ sub date_filter_target_callback {
         $pqf .= $datepqf;
     }
     return $pqf;
+}
+
+=head2 _map
+
+    return $self->_map('bib1_field_map', $map);
+
+Retrieves or sets a map.
+
+=cut
+
+sub _map {
+    my ($self, $name, $map) = @_;
+    $self->custom_data->{$name} ||= {};
+    $self->custom_data->{$name} = $map if ($map);
+    return $self->custom_data->{$name};
+}
+
+=head2 _add_mapping
+
+    return $self->_add_mapping($map, $server, $name, $attributes)
+
+Adds a mapping. Note that this is not used for fields.
+
+=cut
+
+sub _add_mapping {
+    my ($self, $map, $server, $name, $attributes) = @_;
+
+    my $attr_string = QueryParser::PQF::_util::attributes_to_attr_string($attributes);
+    $attributes->{'attr_string'} = $attr_string;
+
+    $map->{$server}{'by_name'}{$name} = $attributes;
+    $map->{$server}{'by_attr'}{$attr_string} = { 'name' => $name, %$attributes };
+
+    return $map;
+}
+
+=head2 bib1_mapping_by_name
+
+    my $attributes = $QParser->bib1_mapping_by_name($server, $type, $name[, $subname]);
+    my $attributes = $QParser->bib1_mapping_by_name('field', 'biblioserver', 'author', 'personal');
+    my $attributes = $QParser->bib1_mapping_by_name('filter', 'biblioserver', 'pubdate');
+
+Retrieve the Bib-1 attribute set associated with the specified mapping.
+=cut
+
+sub bib1_mapping_by_name {
+    my ($self, $type, $server, $name, $field) = @_;
+
+    return unless ($server && $name);
+
+    if ($type eq 'field') {
+        return $self->bib1_field_map->{$server}{'by_class'}{$name}{$field};
+    } elsif ($type eq 'modifier') {
+        return $self->bib1_modifier_map->{$server}{'by_name'}{$name};
+    } elsif ($type eq 'filter') {
+        return $self->bib1_filter_map->{$server}{'by_name'}{$name};
+    } else {
+        return;
+    }
+}
+
+=head2 bib1_mapping_by_attr
+
+    my $field = $QParser->bib1_mapping_by_attr($type, $server, \%attr);
+    my $field = $QParser->bib1_mapping_by_attr('field', 'biblioserver', {'1' => '1003'});
+    print $field->{'classname'}; # prints "author"
+    print $field->{'field'}; # prints "personal"
+
+Retrieve the search field/modifier/filter used for the specified Bib-1 attribute set.
+
+=cut
+
+sub bib1_mapping_by_attr {
+    my ($self, $type, $server, $attributes) = @_;
+    return unless ($server && $attributes);
+
+    my $attr_string = QueryParser::PQF::_util::attributes_to_attr_string($attributes);
+
+    return $self->bib1_mapping_by_attr_string($type, $server, $attr_string);
+}
+
+=head2 bib1_mapping_by_attr_string
+
+    my $field = $QParser->bib1_mapping_by_attr_string($type, $server, $attr_string);
+    my $field = $QParser->bib1_mapping_by_attr_string('field', 'biblioserver', '@attr 1=1003');
+    print $field->{'classname'}; # prints "author"
+    print $field->{'field'}; # prints "personal"
+
+Retrieve the search field/modifier/filter used for the specified Bib-1 attribute string
+(i.e. PQF snippet).
+
+=cut
+
+sub bib1_mapping_by_attr_string {
+    my ($self, $type, $server, $attr_string) = @_;
+    return unless ($server && $attr_string);
+
+    if ($type eq 'field') {
+        return $self->bib1_field_map->{$server}{'by_attr'}{$attr_string};
+    } elsif ($type eq 'modifier') {
+        return $self->bib1_modifier_map->{$server}{'by_attr'}{$attr_string};
+    } elsif ($type eq 'filter') {
+        return $self->bib1_filter_map->{$server}{'by_attr'}{$attr_string};
+    } else {
+        return;
+    }
 }
 
 sub TEST_SETUP {
@@ -674,7 +597,7 @@ directly.
 
 sub target_syntax {
     my ($self, $server) = @_;
-    my $attributes = $self->plan->QueryParser->bib1_filter_by_name( $server, $self->name );
+    my $attributes = $self->plan->QueryParser->bib1_mapping_by_name( 'filter', $server, $self->name );
 
     if ($attributes->{'target_syntax_callback'}) {
         return $attributes->{'target_syntax_callback'}->($self->plan->QueryParser, $self->name, $self->args, $self->negate, $server);
@@ -721,7 +644,7 @@ sub target_syntax {
     my $pqf = '';
     my @fields;
 
-    my $attributes = $query_plan->QueryParser->bib1_modifier_by_name($server, $self->name);
+    my $attributes = $query_plan->QueryParser->bib1_mapping_by_name('modifier', $server, $self->name);
     $pqf = $attributes->{'op'} . ' ' . ($self->{'negate'} ? '@not ' : '') . $attributes->{'attr_string'};
     return $pqf;
 }
@@ -766,10 +689,10 @@ sub target_syntax {
 
     if (scalar(@{$self->fields})) {
         foreach my $field (@{$self->fields}) {
-            push @fields, $self->plan->QueryParser->bib1_field_by_class($server, $self->classname, $field)
+            push @fields, $self->plan->QueryParser->bib1_mapping_by_name('field', $server, $self->classname, $field)
         }
     } else {
-        push @fields, $self->plan->QueryParser->bib1_field_by_class($server, $self->classname, '')
+        push @fields, $self->plan->QueryParser->bib1_mapping_by_name('field', $server, $self->classname, '')
     }
 
     if (@{$self->phrases}) {
