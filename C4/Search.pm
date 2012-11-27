@@ -1064,7 +1064,7 @@ sub _handle_exploding_index {
 
     my $codesubfield = $marcflavour eq 'UNIMARC' ? '5' : 'w';
     my $wantedcodes = '';
-    my @subqueries = ( "{su:\"$term\"}");
+    my @subqueries = ( "su:\"$term\"");
     my ($error, $results, $total_hits) = SimpleSearch( "he:$term", undef, undef, [ "authorityserver" ] );
     foreach my $auth (@$results) {
         my $record = MARC::Record->new_from_usmarc($auth);
@@ -1079,11 +1079,13 @@ sub _handle_exploding_index {
             }
             foreach my $reference (@references) {
                 my $codes = $reference->subfield($codesubfield);
-                push @subqueries, '{su:"' . $reference->as_string('abcdefghijlmnopqrstuvxyz') . '"}' if (($codes && $codes eq $wantedcodes) || !$wantedcodes);
+                push @subqueries, 'su:"' . $reference->as_string('abcdefghijlmnopqrstuvxyz') . '"' if (($codes && $codes eq $wantedcodes) || !$wantedcodes);
             }
         }
     }
-    return '{' . join(' || ', @subqueries) . '}';
+    my $query = '(' x scalar(@subqueries) . join(') || ', @subqueries) . ')';
+    warn $query;
+    return $query;
 }
 
 =head2 parseQuery
@@ -1115,7 +1117,6 @@ sub parseQuery {
     if ( $query =~ m/^qp=(.*)$/ ) {
         my $QParser = QueryParser::PQF->new();
         $QParser->TEST_SETUP;
-        $QParser->debug(1);
         $QParser->add_bib1_filter_map( 'biblioserver', 'su-br', { 'callback' => \&_handle_exploding_index });
         $QParser->add_bib1_filter_map( 'biblioserver', 'su-na', { 'callback' => \&_handle_exploding_index });
         $QParser->add_bib1_filter_map( 'biblioserver', 'su-rl', { 'callback' => \&_handle_exploding_index });

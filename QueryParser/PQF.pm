@@ -325,8 +325,6 @@ sub bib1_mapping_by_attr_string {
 sub TEST_SETUP {
     my ($self) = @_;
 
-    $self->operator( 'group_start' => '{' );
-    $self->operator( 'group_end' => '}' );
     $self->default_search_class( 'keyword' );
 
     $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'abstract' => { '1' => '62' } );
