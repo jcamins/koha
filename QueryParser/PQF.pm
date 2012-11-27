@@ -325,7 +325,6 @@ sub bib1_mapping_by_attr_string {
 sub TEST_SETUP {
     my ($self) = @_;
 
-    $self->debug(1);
     $self->operator( 'group_start' => '{' );
     $self->operator( 'group_end' => '}' );
     $self->default_search_class( 'keyword' );
@@ -358,7 +357,7 @@ sub TEST_SETUP {
     $self->add_search_field_alias( 'keyword' => 'lc-card-number' => 'lc-card' );
     $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'local-number' => { '1' => '12' } );
     $self->add_search_field_alias( 'keyword' => 'local-number' => 'sn' );
-    $self->add_bib1_filter_map( 'biblioserver', 'copyate', { 'target_syntax_callback' => \&QueryParser::PQF::date_filter_target_callback, '1' => '30', '4' => '4' });
+    $self->add_bib1_filter_map( 'biblioserver', 'copydate', { 'target_syntax_callback' => \&QueryParser::PQF::date_filter_target_callback, '1' => '30', '4' => '4' });
     $self->add_bib1_filter_map( 'biblioserver', 'pubdate', { 'target_syntax_callback' => \&QueryParser::PQF::date_filter_target_callback, '1' => 'pubdate', '4' => '4' });
 #    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'date-of-publication' => { '1' => 'pubdate' } );
 #    $self->add_search_field_alias( 'keyword' => 'date-of-publication' => 'yr' );

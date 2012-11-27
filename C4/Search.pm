@@ -1054,7 +1054,9 @@ on authority data).
 =cut
 
 sub _handle_exploding_index {
-    my ( $index, $term ) = @_;
+    my ($QParser, $struct, $filter, $params, $negate, $server) = @_;
+    my $index = $filter;
+    my $term = join(' ', @$params);
 
     return unless ($index =~ m/(su-br|su-na|su-rl)/ && $term);
 
@@ -1062,7 +1064,7 @@ sub _handle_exploding_index {
 
     my $codesubfield = $marcflavour eq 'UNIMARC' ? '5' : 'w';
     my $wantedcodes = '';
-    my @subqueries = ( "(su=\"$term\")");
+    my @subqueries = ( "{su:\"$term\"}");
     my ($error, $results, $total_hits) = SimpleSearch( "he:$term", undef, undef, [ "authorityserver" ] );
     foreach my $auth (@$results) {
         my $record = MARC::Record->new_from_usmarc($auth);
@@ -1077,11 +1079,11 @@ sub _handle_exploding_index {
             }
             foreach my $reference (@references) {
                 my $codes = $reference->subfield($codesubfield);
-                push @subqueries, '(su="' . $reference->as_string('abcdefghijlmnopqrstuvxyz') . '")' if (($codes && $codes eq $wantedcodes) || !$wantedcodes);
+                push @subqueries, '{su:"' . $reference->as_string('abcdefghijlmnopqrstuvxyz') . '"}' if (($codes && $codes eq $wantedcodes) || !$wantedcodes);
             }
         }
     }
-    return join(' or ', @subqueries);
+    return '{' . join(' || ', @subqueries) . '}';
 }
 
 =head2 parseQuery
@@ -1109,39 +1111,20 @@ sub parseQuery {
     my $index;
     my $term;
 
+    $query = 'qp=' . $query if ( $query =~ m/^(?!qp=).*(su-br|su-na|su-rl)/ );
     if ( $query =~ m/^qp=(.*)$/ ) {
         my $QParser = QueryParser::PQF->new();
         $QParser->TEST_SETUP;
+        $QParser->debug(1);
+        $QParser->add_bib1_filter_map( 'biblioserver', 'su-br', { 'callback' => \&_handle_exploding_index });
+        $QParser->add_bib1_filter_map( 'biblioserver', 'su-na', { 'callback' => \&_handle_exploding_index });
+        $QParser->add_bib1_filter_map( 'biblioserver', 'su-rl', { 'callback' => \&_handle_exploding_index });
         $QParser->parse( $1 );
         $operands[0] = "pqf=" . $QParser->target_syntax('biblioserver');
         $operands[1] = QueryParser::Canonicalize::abstract_query2str_impl($QParser->parse_tree()->to_abstract_query());
 # TODO: once we are using QueryParser, all this special case code for
 #       exploded search indexes will be replaced by a callback to
 #       _handle_exploding_index
-    } elsif ( $query =~ m/^(.*)\b(su-br|su-na|su-rl)[:=](\w.*)$/ ) {
-        $query = $1;
-        $index = $2;
-        $term  = $3;
-    } else {
-        $query = '';
-        for ( my $i = 0 ; $i <= @operands ; $i++ ) {
-            if ($operands[$i] && $indexes[$i] =~ m/(su-br|su-na|su-rl)/) {
-                $index = $indexes[$i];
-                $term = $operands[$i];
-            } elsif ($operands[$i]) {
-                $query .= $operators[$i] eq 'or' ? ' or ' : ' and ' if ($query);
-                $query .= "($indexes[$i]:$operands[$i])";
-            }
-        }
-    }
-
-    if ($index) {
-        my $queryPart = _handle_exploding_index($index, $term);
-        if ($queryPart) {
-            $query .= "($queryPart)";
-        }
-        $operators = ();
-        $operands[0] = "ccl=$query";
     }
 
     return ( $operators, \@operands, $indexes, $limits, $sort_by, $scan, $lang);
