@@ -165,9 +165,9 @@ sub target_syntax {
     my ($self, $server, $query) = @_;
     my $pqf = '';
     $self->parse($query) if $query;
-    warn "QP query for $server: " . $self->query . "\n";
+    warn "QP query for $server: " . $self->query . "\n" if $self->debug;
     $pqf = $self->parse_tree->target_syntax($server);
-    warn "PQF query: $pqf\n";
+    warn "PQF query: $pqf\n" if $self->debug;
     return $pqf;
 }
 
