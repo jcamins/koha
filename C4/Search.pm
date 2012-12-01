@@ -1159,10 +1159,35 @@ sub parseQuery {
     my $index;
     my $term;
 
+    my $useQueryParser = 1;
+
+    unless ( $query =~ m/^(ccl=|pqf=|cql=|qp=)/
+        || !$useQueryParser
+        || grep( /,/, @operands ) )
+    {
+        $query = '';
+        for ( my $ii = 0 ; $ii <= @operands ; $ii++ ) {
+            next unless $operands[$ii];
+            $query .= $operators[ $ii - 1 ] eq 'or' ? ' || ' : ' && '
+              if ($query);
+            $query .=
+              ( $operators[$ii] ? "$operators[$ii]:" : '' ) . $operands[$ii];
+        }
+        foreach my $limit (@limits) {
+        }
+        foreach my $modifier (@sort_by) {
+            $query .= " #$modifier";
+        }
+        $query = "qp=$query";
+        warn $query
+    }
+
     $query = 'qp=' . $query if ( $query =~ m/^(?!qp=).*(su-br|su-na|su-rl)/ );
     if ( $query =~ m/^qp=(.*)$/ ) {
         my $QParser = QueryParser::PQF->new();
         $QParser->TEST_SETUP;
+        if ( C4::Context->preference("QueryWeightFields") ) {
+        }
         $QParser->add_bib1_filter_map( 'biblioserver', 'su-br', { 'callback' => \&_handle_exploding_index });
         $QParser->add_bib1_filter_map( 'biblioserver', 'su-na', { 'callback' => \&_handle_exploding_index });
         $QParser->add_bib1_filter_map( 'biblioserver', 'su-rl', { 'callback' => \&_handle_exploding_index });
