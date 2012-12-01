@@ -522,6 +522,24 @@ sub TEST_SETUP {
     $self->add_bib1_modifier_map( 'biblioserver' => 'relevance' => { '2' => '102' } );
     $self->add_bib1_modifier_map( 'biblioserver' => 'title-sort-za' => { '7' => '2', '1' => '36', '' => '0', 'op' => '@or' } );
     $self->add_bib1_modifier_map( 'biblioserver' => 'title-sort-az' => { '7' => '1', '1' => '36', '' => '0', 'op' => '@or' } );
+    $self->add_bib1_modifier_map( 'biblioserver' => 'relevance_dsc' => { '2' => '102' } );
+    $self->add_bib1_modifier_map( 'biblioserver' => 'title_dsc' => { '7' => '2', '1' => '4', '' => '0', 'op' => '@or' } );
+    $self->add_bib1_modifier_map( 'biblioserver' => 'title_asc' => { '7' => '1', '1' => '4', '' => '0', 'op' => '@or' } );
+    $self->add_bib1_modifier_map( 'biblioserver' => 'author_asc' => { '7' => '2', '1' => '1003', '' => '0', 'op' => '@or' } );
+    $self->add_bib1_modifier_map( 'biblioserver' => 'author_dsc' => { '7' => '1', '1' => '1003', '' => '0', 'op' => '@or' } );
+    $self->add_bib1_modifier_map( 'biblioserver' => 'popularity_asc' => { '7' => '2', '1' => '9003', '' => '0', 'op' => '@or' } );
+    $self->add_bib1_modifier_map( 'biblioserver' => 'popularity_dsc' => { '7' => '1', '1' => '9003', '' => '0', 'op' => '@or' } );
+    $self->add_bib1_modifier_map( 'biblioserver' => 'call_number_asc' => { '7' => '2', '1' => '8007', '' => '0', 'op' => '@or' } );
+    $self->add_bib1_modifier_map( 'biblioserver' => 'call_number_dsc' => { '7' => '1', '1' => '8007', '' => '0', 'op' => '@or' } );
+    $self->add_bib1_modifier_map( 'biblioserver' => 'pubdate_asc' => { '7' => '2', '1' => '31', '' => '0', 'op' => '@or' } );
+    $self->add_bib1_modifier_map( 'biblioserver' => 'pubdate_dsc' => { '7' => '1', '1' => '31', '' => '0', 'op' => '@or' } );
+    $self->add_bib1_modifier_map( 'biblioserver' => 'acqdate_asc' => { '7' => '2', '1' => '32', '' => '0', 'op' => '@or' } );
+    $self->add_bib1_modifier_map( 'biblioserver' => 'acqdate_dsc' => { '7' => '1', '1' => '32', '' => '0', 'op' => '@or' } );
+
+    $self->add_bib1_modifier_map( 'biblioserver' => 'title_za' => { '7' => '2', '1' => '4', '' => '0', 'op' => '@or' } );
+    $self->add_bib1_modifier_map( 'biblioserver' => 'title_az' => { '7' => '1', '1' => '4', '' => '0', 'op' => '@or' } );
+    $self->add_bib1_modifier_map( 'biblioserver' => 'author_za' => { '7' => '2', '1' => '1003', '' => '0', 'op' => '@or' } );
+    $self->add_bib1_modifier_map( 'biblioserver' => 'author_az' => { '7' => '1', '1' => '1003', '' => '0', 'op' => '@or' } );
     $self->add_bib1_modifier_map( 'biblioserver' => 'ascending' => { '7' => '1' } );
     $self->add_bib1_modifier_map( 'biblioserver' => 'descending' => { '7' => '2' } );
 
