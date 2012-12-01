@@ -634,33 +634,10 @@ sub get_matches {
         my $error;
         my $searchresults;
         my $total_hits;
-        if ($self->{'record_type'} eq 'biblio') {
-            $query = join(" or ", map { "$matchpoint->{'index'}=$_" } @source_keys);
+        $query = join(" || ", map { "$matchpoint->{'index'}=$_" } @source_keys);
 # FIXME only searching biblio index at the moment
-            require C4::Search;
-            ($error, $searchresults, $total_hits) = C4::Search::SimpleSearch($query, 0, $max_matches);
-        } elsif ($self->{'record_type'} eq 'authority') {
-            my $authresults;
-            my @marclist;
-            my @and_or;
-            my @excluding = [];
-            my @operator;
-            my @value;
-            foreach my $key (@source_keys) {
-                push @marclist, $matchpoint->{'index'};
-                push @and_or, 'or';
-                push @operator, 'exact';
-                push @value, $key;
-            }
-            require C4::AuthoritiesMarc;
-            ($authresults, $total_hits) = C4::AuthoritiesMarc::SearchAuthorities(
-                    \@marclist, \@and_or, \@excluding, \@operator,
-                    \@value, 0, 20, undef, 'AuthidAsc', 1
-            );
-            foreach my $result (@$authresults) {
-                push @$searchresults, $result->{'authid'};
-            }
-        }
+        require C4::Search;
+        ($error, $searchresults, $total_hits) = C4::Search::SimpleSearch($query, 0, $max_matches, [ $self->{'record_type'} . 'server' ] );
 
         if (defined $error ) {
             warn "search failed ($query) $error";

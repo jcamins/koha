@@ -91,9 +91,9 @@ if ($op eq "do_search" && $query) {
     my $itemtypelimit = $input->param('itemtypelimit');
     if ( $itemtypelimit ) {
 	if (!$advanced_search_types or $advanced_search_types eq 'itemtypes') {
-	    $query .= " AND $itype_or_itemtype=$itemtypelimit";
+        $query .= " && $itype_or_itemtype=$itemtypelimit";
 	} else {
-	    $query .= " AND $advanced_search_types=$itemtypelimit";
+        $query .= " && $advanced_search_types=$itemtypelimit";
 	}
     }
     $debug && warn $query;
