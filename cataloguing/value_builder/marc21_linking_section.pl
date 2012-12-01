@@ -190,7 +190,7 @@ sub plugin {
            my $startfrom      = $query->param('startfrom');
                my $resultsperpage = $query->param('resultsperpage') || 20;
             my $orderby;
-           $search = 'kw,wrdl=' . $search . ' and mc-itemtype=' . $itype if $itype;
+           $search = 'kw=' . $search . ' and mc-itemtype=' . $itype if $itype;
                my ( $errors, $results, $total_hits ) =
                   SimpleSearch( $search, $startfrom * $resultsperpage,
                  $resultsperpage );

@@ -77,15 +77,15 @@ if ( $op eq "do_search" ) {
 
     if ($datefrom) {
         $datefrom = C4::Dates->new($datefrom);
-        $ccl_query .= ' and ' if $ccl_textbox;
+        $ccl_query .= ' && ' if $ccl_textbox;
         $ccl_query .=
-          "acqdate,st-date-normalized,ge=" . $datefrom->output("iso");
+          "acqdate(" . $datefrom->output("iso") . '-)';
     }
 
     if ($dateto) {
         $dateto = C4::Dates->new($dateto);
-        $ccl_query .= ' and ' if ( $ccl_textbox || $datefrom );
-        $ccl_query .= "acqdate,st-date-normalized,le=" . $dateto->output("iso");
+        $ccl_query .= ' && ' if ( $ccl_textbox || $datefrom );
+        $ccl_query .= "acqdate(-" . $dateto->output("iso") . ')';
     }
 
     my $offset = $startfrom > 1 ? $startfrom - 1 : 0;
