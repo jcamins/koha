@@ -4,6 +4,8 @@ use warnings;
 package QueryParser::PQF;
 use base qw(QueryParser Class::Accessor);
 
+use Module::Load::Conditional qw(can_load);
+
 
 =head1 NAME
 
@@ -320,6 +322,50 @@ sub bib1_mapping_by_attr_string {
     return unless ($type eq 'field' || $type eq 'modifier' || $type eq 'filter' || $type eq 'relevance_bump');
 
     return $self->_map('bib1_' . $type . '_map')->{$server}{'by_attr'}{$attr_string};
+}
+
+=head2 serialize_mappings
+
+    my $yaml = $QParser->serialize_mappings;
+    my $json = $QParser->serialze_mappings('json');
+
+Serialize Bib-1 mappings to YAML or JSON.
+
+=cut
+
+sub serialize_mappings {
+    my ( $self, $format ) = @_;
+    $format ||= 'yaml';
+
+    if ( $format eq 'json' && can_load( modules => { 'JSON' => undef } ) ) {
+        return JSON::to_json( $self->custom_data );
+    }
+    elsif ( can_load( modules => { 'YAML::Any' => undef } ) ) {
+        return YAML::Any::Dump( $self->custom_data );
+    }
+    return;
+}
+
+=head2 initialize
+
+    $QParser->initialize( { 'bib1_field_mappings' => \%bib1_field_mappings,
+                            'search_field_alias_mappings' => \%search_field_alias_mappings,
+                            'bib1_modifier_mappings' => \%bib1_modifier_mappings,
+                            'bib1_filter_mappings' => \%bib1_filter_mappings,
+                            'relevance_bumps' => \%relevance_bumps });
+
+Initialize the QueryParser mapping tables based on the provided configuration.
+This method was written to play nice with YAML configuration files in the
+following format:
+=cut
+
+sub initialize {
+    my ($self, $args) = @_;
+
+    foreach my $mapping (@{$args->{'bib1_field_mappings'}}) {
+        $self->add_bib1_field_map($mapping->{'server'} => $mapping->{'class'} => $mapping->{'field'} => $mapping->{'mapping'});
+    }
+    return $self;
 }
 
 sub TEST_SETUP {
