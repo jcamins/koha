@@ -1,0 +1,31 @@
+---
+bib1_field_mappings:
+    - server: biblioserver
+      class: keyword
+      field: keyword
+      mapping:
+        1: 1016
+
+search_field_alias_mappings:
+    - alias: kw
+      class: keyword
+      field: keyword
+      
+bib1_modifier_mappings:
+    - server: biblioserver
+      modifier: relevance
+      mapping:
+        2: 102
+
+bib1_filter_mappings:
+    - server: biblioserver
+      filter: pubdate
+      mapping:
+        1: pubdate
+        4: 4
+
+relevance_bumps:
+    - server: biblioserver
+      class: keyword
+      field: title
+      bump: 34
