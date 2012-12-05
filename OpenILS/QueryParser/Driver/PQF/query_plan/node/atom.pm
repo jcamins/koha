@@ -1,5 +1,5 @@
 package OpenILS::QueryParser::Driver::PQF::query_plan::node::atom;
-use base 'QueryParser::query_plan::node::atom';
+use base 'OpenILS::QueryParser::query_plan::node::atom';
 
 use strict;
 use warnings;

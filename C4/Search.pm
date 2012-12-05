@@ -1193,7 +1193,7 @@ sub parseQuery {
         $QParser->add_bib1_filter_map( 'biblioserver', 'su-rl', { 'callback' => \&_handle_exploding_index });
         $QParser->parse( $1 );
         $operands[0] = "pqf=" . $QParser->target_syntax('biblioserver');
-        $operands[1] = QueryParser::Canonicalize::abstract_query2str_impl($QParser->parse_tree()->to_abstract_query());
+        $operands[1] = OpenILS::QueryParser::Canonicalize::abstract_query2str_impl($QParser->parse_tree()->to_abstract_query());
 # TODO: once we are using QueryParser, all this special case code for
 #       exploded search indexes will be replaced by a callback to
 #       _handle_exploding_index

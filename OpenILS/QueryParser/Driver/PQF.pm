@@ -1,5 +1,5 @@
 package OpenILS::QueryParser::Driver::PQF;
-use base qw(QueryParser Class::Accessor);
+use base qw(OpenILS::QueryParser Class::Accessor);
 
 use strict;
 use warnings;
@@ -531,7 +531,7 @@ sub TEST_SETUP {
     my ($self) = @_;
 
     require YAML::Any;
-    my $config = YAML::Any::LoadFile('/home/jcamins/kohaclone/QueryParser/AutoKohaPQF.yaml');
+    my $config = YAML::Any::LoadFile('/home/jcamins/kohaclone/OpenILS/QueryParser/AutoKohaPQF.yaml');
     $self->initialize($config);
     return $self;
     $self->default_search_class( 'keyword' );

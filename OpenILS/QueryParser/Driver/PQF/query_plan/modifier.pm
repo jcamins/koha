@@ -1,5 +1,5 @@
 package OpenILS::QueryParser::Driver::PQF::query_plan::modifier;
-use base 'QueryParser::query_plan::modifier';
+use base 'OpenILS::QueryParser::query_plan::modifier';
 
 use strict;
 use warnings;

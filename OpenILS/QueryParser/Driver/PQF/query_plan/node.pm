@@ -1,5 +1,5 @@
 package OpenILS::QueryParser::Driver::PQF::query_plan::node;
-use base 'QueryParser::query_plan::node';
+use base 'OpenILS::QueryParser::query_plan::node';
 
 use strict;
 use warnings;
@@ -68,7 +68,7 @@ sub target_syntax {
             }
         }
     }
-    $pqf = (QueryParser::_util::default_joiner eq '|' ? ' @or ' : ' @and ') x ($atom_count - 1) . $pqf;
+    $pqf = (OpenILS::QueryParser::_util::default_joiner eq '|' ? ' @or ' : ' @and ') x ($atom_count - 1) . $pqf;
     return ($self->negate ? '@not @attr 1=_ALLRECORDS @attr 2=103 "" ' : '') . $pqf;
 }
 

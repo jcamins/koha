@@ -1,5 +1,5 @@
 package OpenILS::QueryParser::Driver::PQF::query_plan::facet;
-use base 'QueryParser::query_plan::facet';
+use base 'OpenILS::QueryParser::query_plan::facet';
 
 use strict;
 use warnings;
