@@ -6,10 +6,23 @@ field_mappings: {
             label: Keyword,
             enabled: 1,
             aliases: [
+                - keyword,
                 - kw
             ],
             bib1_mapping: {
                 biblioserver: { 1: 1016 }
+            }
+        },
+        abstract: {
+            index: abstract,
+            label: Abstract,
+            enabled: 1,
+            aliases: [
+                - abstract,
+                - ab
+            ],
+            bib1_mapping: {
+                biblioserver: { 1: 62 }
             }
         }
     }

@@ -70,9 +70,9 @@ sub set {
 
 =head2 add_bib1_field_map
 
-    $QParser->add_bib1_field_map($server => $class => $field => \%attributes);
+    $QParser->add_bib1_field_map($class => $field => $server => \%attributes);
 
-    $QParser->add_bib1_field_map('biblioserver' => 'author' => 'personal' =>
+    $QParser->add_bib1_field_map('author' => 'personal' => 'biblioserver' =>
                                     { '1' => '1003' });
 
 Adds a search field<->bib1 attribute mapping for the specified server. The
@@ -82,18 +82,18 @@ values. Not all attributes must be specified.
 =cut
 
 sub add_bib1_field_map {
-    my ($self, $server, $class, $field, $attributes) = @_;
+    my ($self, $class, $field, $server, $attributes) = @_;
 
     $self->add_search_field( $class => $field );
     $self->add_search_field_alias( $class => $field => $field );
-    return $self->_add_field_mapping($self->bib1_field_map, $server, $class, $field, $attributes);
+    return $self->_add_field_mapping($self->bib1_field_map, $class, $field, $server, $attributes);
 }
 
 =head2 add_bib1_modifier_map
 
-    $QParser->add_bib1_modifier_map($server => $name => \%attributes);
+    $QParser->add_bib1_modifier_map($name => $server => \%attributes);
 
-    $QParser->add_bib1_modifier_map('biblioserver' => 'ascendin' =>
+    $QParser->add_bib1_modifier_map('ascending' => 'biblioserver' =>
                                     { '7' => '1' });
 
 Adds a search modifier<->bib1 attribute mapping for the specified server. The
@@ -103,18 +103,18 @@ values. Not all attributes must be specified.
 =cut
 
 sub add_bib1_modifier_map {
-    my ($self, $server, $name, $attributes) = @_;
+    my ($self, $name, $server, $attributes) = @_;
 
     $self->add_search_modifier( $name );
 
-    return $self->_add_mapping($self->bib1_modifier_map, $server, $name, $attributes);
+    return $self->_add_mapping($self->bib1_modifier_map, $name, $server, $attributes);
 }
 
 =head2 add_bib1_filter_map
 
-    $QParser->add_bib1_filter_map($server => $name => \%attributes);
+    $QParser->add_bib1_filter_map($name => $server => \%attributes);
 
-    $QParser->add_bib1_filter_map('biblioserver' => 'date' =>
+    $QParser->add_bib1_filter_map('date' => 'biblioserver' =>
                                     { 'callback' => &_my_callback });
 
 Adds a search filter<->bib1 attribute mapping for the specified server. The
@@ -124,7 +124,7 @@ provides a callback for the filter. Not all attributes must be specified.
 =cut
 
 sub add_bib1_filter_map {
-    my ($self, $server, $name, $attributes) = @_;
+    my ($self, $name, $server, $attributes) = @_;
 
     $self->add_search_filter( $name, $attributes->{'callback'} );
 
@@ -133,8 +133,8 @@ sub add_bib1_filter_map {
 
 =head2 add_relevance_bump
 
-    $QParser->add_relevance_bump($server, $class, $field, $multiplier, $active);
-    $QParser->add_relevance_bump('biblioserver' => 'title' => 'exact' => 34, 1);
+    $QParser->add_relevance_bump($class, $field, $server, $multiplier, $active);
+    $QParser->add_relevance_bump('title' => 'exact' => 'biblioserver' => 34, 1);
 
 Add a relevance bump to the specified field. When searching for a class without
 any fields, all the relevance bumps for the specified class will be 'OR'ed
@@ -143,11 +143,11 @@ together.
 =cut
 
 sub add_relevance_bump {
-    my ($self, $server, $class, $field, $multiplier, $active) = @_;
+    my ($self, $class, $field, $server, $multiplier, $active) = @_;
     my $attributes = { '9' => $multiplier, '2' => '102', 'active' => $active };
 
     $self->add_search_field( $class => $field );
-    return $self->_add_field_mapping($self->bib1_relevance_bump_map, $server, $class, $field, $attributes);
+    return $self->_add_field_mapping($self->bib1_relevance_bump_map, $class, $field, $server, $attributes);
 }
 
 
@@ -225,62 +225,63 @@ sub _map {
 
 =head2 _add_mapping
 
-    return $self->_add_mapping($map, $server, $name, $attributes)
+    return $self->_add_mapping($map, $name, $server, $attributes)
 
 Adds a mapping. Note that this is not used for mappings relating to fields.
 
 =cut
 
 sub _add_mapping {
-    my ($self, $map, $server, $name, $attributes) = @_;
+    my ($self, $map, $name, $server, $attributes) = @_;
 
     my $attr_string = QueryParser::PQF::_util::attributes_to_attr_string($attributes);
     $attributes->{'attr_string'} = $attr_string;
 
-    $map->{$server}{'by_name'}{$name} = $attributes;
-    $map->{$server}{'by_attr'}{$attr_string} = { 'name' => $name, %$attributes };
+    $map->{'by_name'}{$name}{$server} = $attributes;
+    $map->{'by_attr'}{$server}{$attr_string} = { 'name' => $name, %$attributes };
 
     return $map;
 }
 
 =head2 _add_field_mapping
 
-    return $self->_add_field_mapping($map, $server, $class, $field, $attributes)
+    return $self->_add_field_mapping($map, $class, $field, $server, $attributes)
 
 Adds a mapping for field-related data.
 
 =cut
 
 sub _add_field_mapping {
-    my ($self, $map, $server, $class, $field, $attributes) = @_;
+    my ($self, $map, $class, $field, $server, $attributes) = @_;
     my $attr_string = QueryParser::PQF::_util::attributes_to_attr_string($attributes);
     $attributes->{'attr_string'} = $attr_string;
 
-    $map->{$server}{'by_name'}{$class}{$field} = $attributes;
-    $map->{$server}{'by_attr'}{$attr_string} = { 'classname' => $class, 'field' => $field, %$attributes };
+    $map->{'by_name'}{$class}{$field}{$server} = $attributes;
+    $map->{'by_attr'}{$server}{$attr_string} = { 'classname' => $class, 'field' => $field, %$attributes };
     return $map;
 }
 
 
 =head2 bib1_mapping_by_name
 
-    my $attributes = $QParser->bib1_mapping_by_name($server, $type, $name[, $subname]);
-    my $attributes = $QParser->bib1_mapping_by_name('field', 'biblioserver', 'author', 'personal');
-    my $attributes = $QParser->bib1_mapping_by_name('filter', 'biblioserver', 'pubdate');
+    my $attributes = $QParser->bib1_mapping_by_name($type, $name[, $subname], $server);
+    my $attributes = $QParser->bib1_mapping_by_name('field', 'author', 'personal', 'biblioserver');
+    my $attributes = $QParser->bib1_mapping_by_name('filter', 'pubdate', 'biblioserver');
 
 Retrieve the Bib-1 attribute set associated with the specified mapping.
 =cut
 
 sub bib1_mapping_by_name {
-    my ($self, $type, $server, $name, $field) = @_;
+    my $server = pop;
+    my ($self, $type, $name, $field) = @_;
 
     return unless ($server && $name);
     return unless ($type eq 'field' || $type eq 'modifier' || $type eq 'filter' || $type eq 'relevance_bump');
     if ($type eq 'field') {
     # Unfortunately field is a special case thanks to the class->field hierarchy
-        return $self->_map('bib1_' . $type . '_map')->{$server}{'by_name'}{$name}{$field};
+        return $self->_map('bib1_' . $type . '_map')->{'by_name'}{$name}{$field}{$server};
     } else {
-        return $self->_map('bib1_' . $type . '_map')->{$server}{'by_name'}{$name};
+        return $self->_map('bib1_' . $type . '_map')->{'by_name'}{$name}{$server};
     }
 }
 
@@ -321,7 +322,82 @@ sub bib1_mapping_by_attr_string {
     return unless ($server && $attr_string);
     return unless ($type eq 'field' || $type eq 'modifier' || $type eq 'filter' || $type eq 'relevance_bump');
 
-    return $self->_map('bib1_' . $type . '_map')->{$server}{'by_attr'}{$attr_string};
+    return $self->_map('bib1_' . $type . '_map')->{'by_attr'}{$server}{$attr_string};
+}
+
+
+=head2 _canonicalize_field_map
+
+Convert a field map into its canonical form for serialization. Used only for
+fields and relevance bumps.
+
+=cut
+
+sub _canonicalize_field_map {
+    my ( $map, $aliases ) = @_;
+    my $canonical_map = {};
+
+    foreach my $class ( keys %{ $map->{'by_name'} } ) {
+        $canonical_map->{$class} ||= {};
+        foreach my $field ( keys %{ $map->{'by_name'}->{$class} } ) {
+            my $field_map = {
+                'index'   => $field,
+                'label'   => ucfirst($field),
+                'enabled' => '1',
+            };
+            foreach
+              my $server ( keys %{ $map->{'by_name'}->{$class}->{$field} } )
+            {
+                $field_map->{'bib1_mapping'} ||= {};
+                $field_map->{'bib1_mapping'}->{$server} =
+                  $map->{'by_name'}->{$class}->{$field}->{$server};
+                delete $field_map->{'bib1_mapping'}->{$server}->{'attr_string'}
+                  if defined(
+                          $field_map->{'bib1_mapping'}->{$server}
+                            ->{'attr_string'}
+                  );
+            }
+            if ($aliases) {
+                $field_map->{'aliases'} = [];
+                foreach my $alias ( @{ $aliases->{$class}->{$field} } ) {
+                    push @{ $field_map->{$class}->{$field}->{'aliases'} },
+                      $alias;
+                }
+            }
+            $canonical_map->{$class}->{$field} = $field_map;
+        }
+    }
+    return $canonical_map;
+}
+
+=head2 _canonicalize_map
+
+Convert a map into its canonical form for serialization. Not used for fields.
+
+=cut
+
+sub _canonicalize_map {
+    my ($map) = @_;
+    my $canonical_map = {};
+
+    foreach my $name ( keys %{ $map->{'by_name'} } ) {
+        $canonical_map->{$name} = {
+            'label'        => ucfirst($name),
+            'enabled'      => 1,
+            'bib1_mapping' => {}
+        };
+        foreach my $server ( keys %{ $map->{'by_name'}->{$name} } ) {
+            $canonical_map->{$name}->{'bib1_mapping'}->{$server} =
+              $map->{'by_name'}->{$name}->{$server};
+            delete $canonical_map->{$name}->{'bib1_mapping'}->{$server}
+              ->{'attr_string'}
+              if defined(
+                      $canonical_map->{$name}->{'bib1_mapping'}->{$server}
+                        ->{'attr_string'}
+              );
+        }
+    }
+    return $canonical_map;
 }
 
 =head2 serialize_mappings
@@ -336,12 +412,22 @@ Serialize Bib-1 mappings to YAML or JSON.
 sub serialize_mappings {
     my ( $self, $format ) = @_;
     $format ||= 'yaml';
+    my $config;
+
+    $config->{'field_mappings'} =
+      _canonicalize_field_map( $self->bib1_field_map,
+        $self->search_field_aliases );
+    $config->{'modifier_mappings'} =
+      _canonicalize_map( $self->bib1_modifier_map );
+    $config->{'filter_mappings'} = _canonicalize_map( $self->bib1_filter_map );
+    $config->{'relevance_bumps'} =
+      _canonicalize_field_map( $self->bib1_relevance_bump_map );
 
     if ( $format eq 'json' && can_load( modules => { 'JSON' => undef } ) ) {
-        return JSON::to_json( $self->custom_data );
+        return JSON::to_json($config);
     }
     elsif ( can_load( modules => { 'YAML::Any' => undef } ) ) {
-        return YAML::Any::Dump( $self->custom_data );
+        return YAML::Any::Dump($config);
     }
     return;
 }
@@ -375,13 +461,16 @@ sub initialize {
                     %{ $field_mappings->{$class}->{$field}->{'bib1_mapping'} } )
                 {
                     $self->add_bib1_field_map(
-                        $server => $class => $field => $bib1_mapping );
+                        $class => $field => $server => $bib1_mapping );
                 }
                 $self->add_search_field_alias( $class => $field =>
                       $field_mappings->{$class}->{$field}->{'index'} );
                 foreach my $alias (
                     @{ $field_mappings->{$class}->{$field}->{'aliases'} } )
                 {
+                    next
+                      if ( $alias eq
+                        $field_mappings->{$class}->{$field}->{'index'} );
                     $self->add_search_field_alias( $class => $field => $alias );
                 }
             }
@@ -393,7 +482,7 @@ sub initialize {
                 each %{ $modifier_mappings->{$modifier}->{'bib1_mapping'} } )
             {
                 $self->add_bib1_modifier_map(
-                    $server => $modifier => $bib1_mapping );
+                    $modifier => $server => $bib1_mapping );
             }
         }
     }
@@ -409,19 +498,21 @@ sub initialize {
                       \&QueryParser::PQF::date_filter_target_callback;
                 }
                 $self->add_bib1_filter_map(
-                    $server => $filter => $bib1_mapping );
+                    $filter => $server => $bib1_mapping );
             }
         }
     }
     foreach my $class ( keys %$relbumps ) {
         foreach my $field ( keys %{ $relbumps->{$class} } ) {
-            while ( ( $server, $bib1_mapping ) =
-                each %{ $relbumps->{$class}->{$field}->{'bib1_mapping'} } )
-            {
-                $self->add_relevance_bump(
-                    $server => $class => $field => $bib1_mapping,
-                    $relbumps->{$class}->{$field}->{'enabled'}
-                );
+            if ( $relbumps->{$class}->{$field}->{'enabled'} ) {
+                while ( ( $server, $bib1_mapping ) =
+                    each %{ $relbumps->{$class}->{$field}->{'bib1_mapping'} } )
+                {
+                    $self->add_relevance_bump(
+                        $class => $field => $server => $bib1_mapping,
+                        1
+                    );
+                }
             }
         }
     }
@@ -431,242 +522,246 @@ sub initialize {
 sub TEST_SETUP {
     my ($self) = @_;
 
+    require YAML::Any;
+    my $config = YAML::Any::LoadFile('/home/jcamins/kohaclone/QueryParser/AutoKohaPQF.yaml');
+    $self->initialize($config);
+    return $self;
     $self->default_search_class( 'keyword' );
 
-    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'abstract' => { '1' => '62' } );
+    $self->add_bib1_field_map('keyword' => 'abstract' => 'biblioserver' => { '1' => '62' } );
     $self->add_search_field_alias( 'keyword' => 'abstract' => 'ab' );
-    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => '' => { '1' => '1016' } );
+    $self->add_bib1_field_map('keyword' => '' => 'biblioserver' => { '1' => '1016' } );
     $self->add_search_field_alias( 'keyword' => '' => 'kw' );
-    $self->add_bib1_field_map( 'biblioserver' => 'author' => '' => { '1' => '1003' } );
+    $self->add_bib1_field_map('author' => '' => 'biblioserver' => { '1' => '1003' } );
     $self->add_search_field_alias( 'author' => '' => 'au' );
-    $self->add_bib1_field_map( 'biblioserver' => 'author' => 'personal' => { '1' => '1004' } );
-    $self->add_bib1_field_map( 'biblioserver' => 'author' => 'corporate' => { '1' => '1005' } );
+    $self->add_bib1_field_map('author' => 'personal' => 'biblioserver' => { '1' => '1004' } );
+    $self->add_bib1_field_map('author' => 'corporate' => 'biblioserver' => { '1' => '1005' } );
     $self->add_search_field_alias( 'author' => 'corporate' => 'cpn' );
-    $self->add_bib1_field_map( 'biblioserver' => 'author' => 'conference' => { '1' => '1006' } );
+    $self->add_bib1_field_map('author' => 'conference' => 'biblioserver' => { '1' => '1006' } );
     $self->add_search_field_alias( 'author' => 'conference' => 'cfn' );
-    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'local-classification' => { '1' => '20' } );
+    $self->add_bib1_field_map('keyword' => 'local-classification' => 'biblioserver' => { '1' => '20' } );
     $self->add_search_field_alias( 'keyword' => 'local-classification' => 'lcn' );
     $self->add_search_field_alias( 'keyword' => 'local-classification' => 'callnum' );
-    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'bib-level' => { '1' => '1021' } );
-    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'code-institution' => { '1' => '56' } );
-    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'language' => { '1' => '54' } );
+    $self->add_bib1_field_map('keyword' => 'bib-level' => 'biblioserver' => { '1' => '1021' } );
+    $self->add_bib1_field_map('keyword' => 'code-institution' => 'biblioserver' => { '1' => '56' } );
+    $self->add_bib1_field_map('keyword' => 'language' => 'biblioserver' => { '1' => '54' } );
     $self->add_search_field_alias( 'keyword' => 'language' => 'ln' );
-    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'record-type' => { '1' => '1001' } );
+    $self->add_bib1_field_map('keyword' => 'record-type' => 'biblioserver' => { '1' => '1001' } );
     $self->add_search_field_alias( 'keyword' => 'record-type' => 'rtype' );
     $self->add_search_field_alias( 'keyword' => 'record-type' => 'mc-rtype' );
     $self->add_search_field_alias( 'keyword' => 'record-type' => 'mus' );
-    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'content-type' => { '1' => '1034' } );
+    $self->add_bib1_field_map('keyword' => 'content-type' => 'biblioserver' => { '1' => '1034' } );
     $self->add_search_field_alias( 'keyword' => 'content-type' => 'ctype' );
-    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'lc-card-number' => { '1' => '9' } );
+    $self->add_bib1_field_map('keyword' => 'lc-card-number' => 'biblioserver' => { '1' => '9' } );
     $self->add_search_field_alias( 'keyword' => 'lc-card-number' => 'lc-card' );
-    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'local-number' => { '1' => '12' } );
+    $self->add_bib1_field_map('keyword' => 'local-number' => 'biblioserver' => { '1' => '12' } );
     $self->add_search_field_alias( 'keyword' => 'local-number' => 'sn' );
     $self->add_bib1_filter_map( 'biblioserver', 'copydate', { 'target_syntax_callback' => \&QueryParser::PQF::date_filter_target_callback, '1' => '30', '4' => '4' });
     $self->add_bib1_filter_map( 'biblioserver', 'pubdate', { 'target_syntax_callback' => \&QueryParser::PQF::date_filter_target_callback, '1' => 'pubdate', '4' => '4' });
-#    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'date-of-publication' => { '1' => 'pubdate' } );
+#    $self->add_bib1_field_map('keyword' => 'date-of-publication' => 'biblioserver' => { '1' => 'pubdate' } );
 #    $self->add_search_field_alias( 'keyword' => 'date-of-publication' => 'yr' );
 #    $self->add_search_field_alias( 'keyword' => 'date-of-publication' => 'pubdate' );
     $self->add_bib1_filter_map( 'biblioserver', 'acqdate', { 'target_syntax_callback' => \&QueryParser::PQF::date_filter_target_callback, '1' => 'Date-of-acquisition', '4' => '4' });
-    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'isbn' => { '1' => '7' } );
+    $self->add_bib1_field_map('keyword' => 'isbn' => 'biblioserver' => { '1' => '7' } );
     $self->add_search_field_alias( 'keyword' => 'isbn' => 'nb' );
-    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'issn' => { '1' => '8' } );
+    $self->add_bib1_field_map('keyword' => 'issn' => 'biblioserver' => { '1' => '8' } );
     $self->add_search_field_alias( 'keyword' => 'issn' => 'ns' );
-    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'identifier-standard' => { '1' => '1007' } );
+    $self->add_bib1_field_map('keyword' => 'identifier-standard' => 'biblioserver' => { '1' => '1007' } );
     $self->add_search_field_alias( 'keyword' => 'identifier-standard' => 'ident' );
-    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'upc' => { '1' => 'UPC' } );
+    $self->add_bib1_field_map('keyword' => 'upc' => 'biblioserver' => { '1' => 'UPC' } );
     $self->add_search_field_alias( 'keyword' => 'upc' => 'upc' );
-    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'ean' => { '1' => 'EAN' } );
+    $self->add_bib1_field_map('keyword' => 'ean' => 'biblioserver' => { '1' => 'EAN' } );
     $self->add_search_field_alias( 'keyword' => 'ean' => 'ean' );
-    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'music' => { '1' => 'Music-number' } );
+    $self->add_bib1_field_map('keyword' => 'music' => 'biblioserver' => { '1' => 'Music-number' } );
     $self->add_search_field_alias( 'keyword' => 'music' => 'music' );
-    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'stock-number' => { '1' => '1028' } );
+    $self->add_bib1_field_map('keyword' => 'stock-number' => 'biblioserver' => { '1' => '1028' } );
     $self->add_search_field_alias( 'keyword' => 'stock-number' => 'stock-number' );
-    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'material-type' => { '1' => '1031' } );
+    $self->add_bib1_field_map('keyword' => 'material-type' => 'biblioserver' => { '1' => '1031' } );
     $self->add_search_field_alias( 'keyword' => 'material-type' => 'material-type' );
-    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'place-publication' => { '1' => '59' } );
+    $self->add_bib1_field_map('keyword' => 'place-publication' => 'biblioserver' => { '1' => '59' } );
     $self->add_search_field_alias( 'keyword' => 'place-publication' => 'pl' );
-    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'personal-name' => { '1' => 'Personal-name' } );
+    $self->add_bib1_field_map('keyword' => 'personal-name' => 'biblioserver' => { '1' => 'Personal-name' } );
     $self->add_search_field_alias( 'keyword' => 'personal-name' => 'pn' );
-    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'publisher' => { '1' => '1018' } );
+    $self->add_bib1_field_map('keyword' => 'publisher' => 'biblioserver' => { '1' => '1018' } );
     $self->add_search_field_alias( 'keyword' => 'publisher' => 'pb' );
-    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'note' => { '1' => '63' } );
+    $self->add_bib1_field_map('keyword' => 'note' => 'biblioserver' => { '1' => '63' } );
     $self->add_search_field_alias( 'keyword' => 'note' => 'nt' );
-    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'record-control-number' => { '1' => '1045' } );
+    $self->add_bib1_field_map('keyword' => 'record-control-number' => 'biblioserver' => { '1' => '1045' } );
     $self->add_search_field_alias( 'keyword' => 'record-control-number' => 'rcn' );
-    $self->add_bib1_field_map( 'biblioserver' => 'subject' => '' => { '1' => '21' } );
+    $self->add_bib1_field_map('subject' => '' => 'biblioserver' => { '1' => '21' } );
     $self->add_search_field_alias( 'subject' => '' => 'su' );
     $self->add_search_field_alias( 'subject' => '' => 'su-to' );
     $self->add_search_field_alias( 'subject' => '' => 'su-geo' );
     $self->add_search_field_alias( 'subject' => '' => 'su-ut' );
-    $self->add_bib1_field_map( 'biblioserver' => 'subject' => 'name-personal' => { '1' => '1009' } );
+    $self->add_bib1_field_map('subject' => 'name-personal' => 'biblioserver' => { '1' => '1009' } );
     $self->add_search_field_alias( 'subject' => 'name-personal' => 'su-na' );
-    $self->add_bib1_field_map( 'biblioserver' => 'title' => '' => { '1' => '4' } );
+    $self->add_bib1_field_map('title' => '' => 'biblioserver' => { '1' => '4' } );
     $self->add_search_field_alias( 'title' => '' => 'ti' );
-    $self->add_bib1_field_map( 'biblioserver' => 'title' => 'cover' => { '1' => '36' } );
+    $self->add_bib1_field_map('title' => 'cover' => 'biblioserver' => { '1' => '36' } );
     $self->add_search_field_alias( 'title' => 'cover' => 'title-cover' );
-    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'host-item' => { '1' => '1033' } );
-    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'video-mt' => { '1' => 'Video-mt' } );
-    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'graphics-type' => { '1' => 'Graphic-type' } );
-    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'graphics-support' => { '1' => 'Graphic-support' } );
-    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'type-of-serial' => { '1' => 'Type-Of-Serial' } );
-    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'regularity-code' => { '1' => 'Regularity-code' } );
-    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'material-type' => { '1' => 'Material-type' } );
-    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'literature-code' => { '1' => 'Literature-Code' } );
-    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'biography-code' => { '1' => 'Biography-code' } );
-    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'illustration-code' => { '1' => 'Illustration-code' } );
-    $self->add_bib1_field_map( 'biblioserver' => 'title' => 'series' => { '1' => '5' } );
+    $self->add_bib1_field_map('keyword' => 'host-item' => 'biblioserver' => { '1' => '1033' } );
+    $self->add_bib1_field_map('keyword' => 'video-mt' => 'biblioserver' => { '1' => 'Video-mt' } );
+    $self->add_bib1_field_map('keyword' => 'graphics-type' => 'biblioserver' => { '1' => 'Graphic-type' } );
+    $self->add_bib1_field_map('keyword' => 'graphics-support' => 'biblioserver' => { '1' => 'Graphic-support' } );
+    $self->add_bib1_field_map('keyword' => 'type-of-serial' => 'biblioserver' => { '1' => 'Type-Of-Serial' } );
+    $self->add_bib1_field_map('keyword' => 'regularity-code' => 'biblioserver' => { '1' => 'Regularity-code' } );
+    $self->add_bib1_field_map('keyword' => 'material-type' => 'biblioserver' => { '1' => 'Material-type' } );
+    $self->add_bib1_field_map('keyword' => 'literature-code' => 'biblioserver' => { '1' => 'Literature-Code' } );
+    $self->add_bib1_field_map('keyword' => 'biography-code' => 'biblioserver' => { '1' => 'Biography-code' } );
+    $self->add_bib1_field_map('keyword' => 'illustration-code' => 'biblioserver' => { '1' => 'Illustration-code' } );
+    $self->add_bib1_field_map('title' => 'series' => 'biblioserver' => { '1' => '5' } );
     $self->add_search_field_alias( 'title' => 'series' => 'title-series' );
     $self->add_search_field_alias( 'title' => 'series' => 'se' );
-    $self->add_bib1_field_map( 'biblioserver' => 'title' => 'uniform' => { '1' => 'Title-uniform' } );
+    $self->add_bib1_field_map('title' => 'uniform' => 'biblioserver' => { '1' => 'Title-uniform' } );
     $self->add_search_field_alias( 'title' => 'uniform' => 'title-uniform' );
-    $self->add_bib1_field_map( 'biblioserver' => 'subject' => 'authority-number' => { '1' => 'Koha-Auth-Number' } );
+    $self->add_bib1_field_map('subject' => 'authority-number' => 'biblioserver' => { '1' => 'Koha-Auth-Number' } );
     $self->add_search_field_alias( 'subject' => 'authority-number' => 'an' );
-    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'control-number' => { '1' => '9001' } );
-    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'biblionumber' => { '1' => '9002', '5' => '100' } );
-    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'totalissues' => { '1' => '9003' } );
-    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'cn-bib-source' => { '1' => '9004' } );
-    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'cn-bib-sort' => { '1' => '9005' } );
-    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'itemtype' => { '1' => '9006' } );
+    $self->add_bib1_field_map('keyword' => 'control-number' => 'biblioserver' => { '1' => '9001' } );
+    $self->add_bib1_field_map('keyword' => 'biblionumber' => 'biblioserver' => { '1' => '9002', '5' => '100' } );
+    $self->add_bib1_field_map('keyword' => 'totalissues' => 'biblioserver' => { '1' => '9003' } );
+    $self->add_bib1_field_map('keyword' => 'cn-bib-source' => 'biblioserver' => { '1' => '9004' } );
+    $self->add_bib1_field_map('keyword' => 'cn-bib-sort' => 'biblioserver' => { '1' => '9005' } );
+    $self->add_bib1_field_map('keyword' => 'itemtype' => 'biblioserver' => { '1' => '9006' } );
     $self->add_search_field_alias( 'keyword' => 'itemtype' => 'mc-itemtype' );
-    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'cn-class' => { '1' => '9007' } );
-    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'cn-item' => { '1' => '9008' } );
-    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'cn-prefix' => { '1' => '9009' } );
-    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'cn-suffix' => { '1' => '9010' } );
-    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'suppress' => { '1' => '9011' } );
-    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'id-other' => { '1' => '9012' } );
-    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'date-entered-on-file' => { '1' => 'date-entered-on-file' } );
-    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'extent' => { '1' => 'Extent' } );
-    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'llength' => { '1' => 'llength' } );
-    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'summary' => { '1' => 'Summary' } );
-    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'withdrawn' => { '1' => '8001' } );
-    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'lost' => { '1' => '8002' } );
-    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'classification-source' => { '1' => '8003' } );
-    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'materials-specified' => { '1' => '8004' } );
-    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'damaged' => { '1' => '8005' } );
-    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'restricted' => { '1' => '8006' } );
-    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'cn-sort' => { '1' => '8007' } );
-    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'notforloan' => { '1' => '8008', '4' => '109' } );
-    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'ccode' => { '1' => '8009' } );
+    $self->add_bib1_field_map('keyword' => 'cn-class' => 'biblioserver' => { '1' => '9007' } );
+    $self->add_bib1_field_map('keyword' => 'cn-item' => 'biblioserver' => { '1' => '9008' } );
+    $self->add_bib1_field_map('keyword' => 'cn-prefix' => 'biblioserver' => { '1' => '9009' } );
+    $self->add_bib1_field_map('keyword' => 'cn-suffix' => 'biblioserver' => { '1' => '9010' } );
+    $self->add_bib1_field_map('keyword' => 'suppress' => 'biblioserver' => { '1' => '9011' } );
+    $self->add_bib1_field_map('keyword' => 'id-other' => 'biblioserver' => { '1' => '9012' } );
+    $self->add_bib1_field_map('keyword' => 'date-entered-on-file' => 'biblioserver' => { '1' => 'date-entered-on-file' } );
+    $self->add_bib1_field_map('keyword' => 'extent' => 'biblioserver' => { '1' => 'Extent' } );
+    $self->add_bib1_field_map('keyword' => 'llength' => 'biblioserver' => { '1' => 'llength' } );
+    $self->add_bib1_field_map('keyword' => 'summary' => 'biblioserver' => { '1' => 'Summary' } );
+    $self->add_bib1_field_map('keyword' => 'withdrawn' => 'biblioserver' => { '1' => '8001' } );
+    $self->add_bib1_field_map('keyword' => 'lost' => 'biblioserver' => { '1' => '8002' } );
+    $self->add_bib1_field_map('keyword' => 'classification-source' => 'biblioserver' => { '1' => '8003' } );
+    $self->add_bib1_field_map('keyword' => 'materials-specified' => 'biblioserver' => { '1' => '8004' } );
+    $self->add_bib1_field_map('keyword' => 'damaged' => 'biblioserver' => { '1' => '8005' } );
+    $self->add_bib1_field_map('keyword' => 'restricted' => 'biblioserver' => { '1' => '8006' } );
+    $self->add_bib1_field_map('keyword' => 'cn-sort' => 'biblioserver' => { '1' => '8007' } );
+    $self->add_bib1_field_map('keyword' => 'notforloan' => 'biblioserver' => { '1' => '8008', '4' => '109' } );
+    $self->add_bib1_field_map('keyword' => 'ccode' => 'biblioserver' => { '1' => '8009' } );
     $self->add_search_field_alias( 'keyword' => 'ccode' => 'mc-ccode' );
-    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'itemnumber' => { '1' => '8010' } );
-    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'homebranch' => { '1' => 'homebranch' } );
+    $self->add_bib1_field_map('keyword' => 'itemnumber' => 'biblioserver' => { '1' => '8010' } );
+    $self->add_bib1_field_map('keyword' => 'homebranch' => 'biblioserver' => { '1' => 'homebranch' } );
     $self->add_search_field_alias( 'keyword' => 'homebranch' => 'branch' );
-    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'holdingbranch' => { '1' => '8012' } );
-    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'location' => { '1' => '8013' } );
+    $self->add_bib1_field_map('keyword' => 'holdingbranch' => 'biblioserver' => { '1' => '8012' } );
+    $self->add_bib1_field_map('keyword' => 'location' => 'biblioserver' => { '1' => '8013' } );
     $self->add_search_field_alias( 'keyword' => 'location' => 'mc-loc' );
-    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'acqsource' => { '1' => '8015' } );
-    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'coded-location-qualifier' => { '1' => '8016' } );
-    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'price' => { '1' => '8017' } );
-    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'stocknumber' => { '1' => '1062' } );
+    $self->add_bib1_field_map('keyword' => 'acqsource' => 'biblioserver' => { '1' => '8015' } );
+    $self->add_bib1_field_map('keyword' => 'coded-location-qualifier' => 'biblioserver' => { '1' => '8016' } );
+    $self->add_bib1_field_map('keyword' => 'price' => 'biblioserver' => { '1' => '8017' } );
+    $self->add_bib1_field_map('keyword' => 'stocknumber' => 'biblioserver' => { '1' => '1062' } );
     $self->add_search_field_alias( 'keyword' => 'stocknumber' => 'inv' );
-    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'stack' => { '1' => '8018' } );
-    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'issues' => { '1' => '8019' } );
-    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'renewals' => { '1' => '8020' } );
-    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'reserves' => { '1' => '8021' } );
-    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'local-classification' => { '1' => '8022' } );
-    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'barcode' => { '1' => '8023' } );
+    $self->add_bib1_field_map('keyword' => 'stack' => 'biblioserver' => { '1' => '8018' } );
+    $self->add_bib1_field_map('keyword' => 'issues' => 'biblioserver' => { '1' => '8019' } );
+    $self->add_bib1_field_map('keyword' => 'renewals' => 'biblioserver' => { '1' => '8020' } );
+    $self->add_bib1_field_map('keyword' => 'reserves' => 'biblioserver' => { '1' => '8021' } );
+    $self->add_bib1_field_map('keyword' => 'local-classification' => 'biblioserver' => { '1' => '8022' } );
+    $self->add_bib1_field_map('keyword' => 'barcode' => 'biblioserver' => { '1' => '8023' } );
     $self->add_search_field_alias( 'keyword' => 'barcode' => 'bc' );
-    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'onloan' => { '1' => '8024' } );
-    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'datelastseen' => { '1' => '8025' } );
-    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'datelastborrowed' => { '1' => '8026' } );
-    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'copynumber' => { '1' => '8027' } );
-    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'uri' => { '1' => '8028' } );
-    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'replacementprice' => { '1' => '8029' } );
-    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'replacementpricedate' => { '1' => '8030' } );
-    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'itype' => { '1' => '8031' } );
+    $self->add_bib1_field_map('keyword' => 'onloan' => 'biblioserver' => { '1' => '8024' } );
+    $self->add_bib1_field_map('keyword' => 'datelastseen' => 'biblioserver' => { '1' => '8025' } );
+    $self->add_bib1_field_map('keyword' => 'datelastborrowed' => 'biblioserver' => { '1' => '8026' } );
+    $self->add_bib1_field_map('keyword' => 'copynumber' => 'biblioserver' => { '1' => '8027' } );
+    $self->add_bib1_field_map('keyword' => 'uri' => 'biblioserver' => { '1' => '8028' } );
+    $self->add_bib1_field_map('keyword' => 'replacementprice' => 'biblioserver' => { '1' => '8029' } );
+    $self->add_bib1_field_map('keyword' => 'replacementpricedate' => 'biblioserver' => { '1' => '8030' } );
+    $self->add_bib1_field_map('keyword' => 'itype' => 'biblioserver' => { '1' => '8031' } );
     $self->add_search_field_alias( 'keyword' => 'itype' => 'mc-itype' );
-    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'ff8-22' => { '1' => '8822' } );
-    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'ff8-23' => { '1' => '8823' } );
-    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'ff8-34' => { '1' => '8834' } );
+    $self->add_bib1_field_map('keyword' => 'ff8-22' => 'biblioserver' => { '1' => '8822' } );
+    $self->add_bib1_field_map('keyword' => 'ff8-23' => 'biblioserver' => { '1' => '8823' } );
+    $self->add_bib1_field_map('keyword' => 'ff8-34' => 'biblioserver' => { '1' => '8834' } );
 # Audience
-    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'audience' => { '1' => '8822' } );
+    $self->add_bib1_field_map('keyword' => 'audience' => 'biblioserver' => { '1' => '8822' } );
     $self->add_search_field_alias( 'keyword' => 'audience' => 'aud' );
 
 # Content and Literary form
-    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'fiction' => { '1' => '8833' } );
+    $self->add_bib1_field_map('keyword' => 'fiction' => 'biblioserver' => { '1' => '8833' } );
     $self->add_search_field_alias( 'keyword' => 'fiction' => 'fic' );
-    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'biography' => { '1' => '8834' } );
+    $self->add_bib1_field_map('keyword' => 'biography' => 'biblioserver' => { '1' => '8834' } );
     $self->add_search_field_alias( 'keyword' => 'biography' => 'bio' );
 
 # Format
-    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'format' => { '1' => '8823' } );
+    $self->add_bib1_field_map('keyword' => 'format' => 'biblioserver' => { '1' => '8823' } );
 # format used as a limit FIXME: needed?
-    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'l-format' => { '1' => '8703' } );
+    $self->add_bib1_field_map('keyword' => 'l-format' => 'biblioserver' => { '1' => '8703' } );
 
-    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'illustration-code' => { '1' => 'Illustration-code ' } );
+    $self->add_bib1_field_map('keyword' => 'illustration-code' => 'biblioserver' => { '1' => 'Illustration-code ' } );
 
 # Lexile Number
-    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'lex' => { '1' => '9903 r=r' } );
+    $self->add_bib1_field_map('keyword' => 'lex' => 'biblioserver' => { '1' => '9903 r=r' } );
 
 #Accelerated Reader Level
-    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'arl' => { '1' => '9904 r=r' } );
+    $self->add_bib1_field_map('keyword' => 'arl' => 'biblioserver' => { '1' => '9904 r=r' } );
 
 #Accelerated Reader Point
-    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'arp' => { '1' => '9013 r=r' } );
+    $self->add_bib1_field_map('keyword' => 'arp' => 'biblioserver' => { '1' => '9013 r=r' } );
 
 # Curriculum
-    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'curriculum' => { '1' => '9658' } );
+    $self->add_bib1_field_map('keyword' => 'curriculum' => 'biblioserver' => { '1' => '9658' } );
 
 ## Statuses
-    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'popularity' => { '1' => 'issues' } );
+    $self->add_bib1_field_map('keyword' => 'popularity' => 'biblioserver' => { '1' => 'issues' } );
 
 ## Type Limits
-    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'dt-bks' => { '1' => '8700' } );
-    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'dt-vis' => { '1' => '8700' } );
-    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'dt-sr' => { '1' => '8700' } );
-    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'dt-cf' => { '1' => '8700' } );
-    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'dt-map' => { '1' => '8700' } );
+    $self->add_bib1_field_map('keyword' => 'dt-bks' => 'biblioserver' => { '1' => '8700' } );
+    $self->add_bib1_field_map('keyword' => 'dt-vis' => 'biblioserver' => { '1' => '8700' } );
+    $self->add_bib1_field_map('keyword' => 'dt-sr' => 'biblioserver' => { '1' => '8700' } );
+    $self->add_bib1_field_map('keyword' => 'dt-cf' => 'biblioserver' => { '1' => '8700' } );
+    $self->add_bib1_field_map('keyword' => 'dt-map' => 'biblioserver' => { '1' => '8700' } );
 
-    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'name' => { '1' => '1002' } );
-    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'item' => { '1' => '9520' } );
-    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'host-item-number' => { '1' => '8911' } );
+    $self->add_bib1_field_map('keyword' => 'name' => 'biblioserver' => { '1' => '1002' } );
+    $self->add_bib1_field_map('keyword' => 'item' => 'biblioserver' => { '1' => '9520' } );
+    $self->add_bib1_field_map('keyword' => 'host-item-number' => 'biblioserver' => { '1' => '8911' } );
     $self->add_search_field_alias( 'keyword' => 'host-item-number' => 'hi' );
 
-    $self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'alwaysmatch' => { '1' => '_ALLRECORDS', '2' => '103' } );
-    $self->add_bib1_field_map( 'biblioserver' => 'subject' => 'complete' => { '1' => '21', '3' => '1', '4' => '1', '5' => '100', '6' => '3' } );
+    $self->add_bib1_field_map('keyword' => 'alwaysmatch' => 'biblioserver' => { '1' => '_ALLRECORDS', '2' => '103' } );
+    $self->add_bib1_field_map('subject' => 'complete' => 'biblioserver' => { '1' => '21', '3' => '1', '4' => '1', '5' => '100', '6' => '3' } );
 
-    $self->add_bib1_modifier_map( 'biblioserver' => 'relevance' => { '2' => '102' } );
-    $self->add_bib1_modifier_map( 'biblioserver' => 'title-sort-za' => { '7' => '2', '1' => '36', '' => '0', 'op' => '@or' } );
-    $self->add_bib1_modifier_map( 'biblioserver' => 'title-sort-az' => { '7' => '1', '1' => '36', '' => '0', 'op' => '@or' } );
-    $self->add_bib1_modifier_map( 'biblioserver' => 'relevance_dsc' => { '2' => '102' } );
-    $self->add_bib1_modifier_map( 'biblioserver' => 'title_dsc' => { '7' => '2', '1' => '4', '' => '0', 'op' => '@or' } );
-    $self->add_bib1_modifier_map( 'biblioserver' => 'title_asc' => { '7' => '1', '1' => '4', '' => '0', 'op' => '@or' } );
-    $self->add_bib1_modifier_map( 'biblioserver' => 'author_asc' => { '7' => '2', '1' => '1003', '' => '0', 'op' => '@or' } );
-    $self->add_bib1_modifier_map( 'biblioserver' => 'author_dsc' => { '7' => '1', '1' => '1003', '' => '0', 'op' => '@or' } );
-    $self->add_bib1_modifier_map( 'biblioserver' => 'popularity_asc' => { '7' => '2', '1' => '9003', '' => '0', 'op' => '@or' } );
-    $self->add_bib1_modifier_map( 'biblioserver' => 'popularity_dsc' => { '7' => '1', '1' => '9003', '' => '0', 'op' => '@or' } );
-    $self->add_bib1_modifier_map( 'biblioserver' => 'call_number_asc' => { '7' => '2', '1' => '8007', '' => '0', 'op' => '@or' } );
-    $self->add_bib1_modifier_map( 'biblioserver' => 'call_number_dsc' => { '7' => '1', '1' => '8007', '' => '0', 'op' => '@or' } );
-    $self->add_bib1_modifier_map( 'biblioserver' => 'pubdate_asc' => { '7' => '2', '1' => '31', '' => '0', 'op' => '@or' } );
-    $self->add_bib1_modifier_map( 'biblioserver' => 'pubdate_dsc' => { '7' => '1', '1' => '31', '' => '0', 'op' => '@or' } );
-    $self->add_bib1_modifier_map( 'biblioserver' => 'acqdate_asc' => { '7' => '2', '1' => '32', '' => '0', 'op' => '@or' } );
-    $self->add_bib1_modifier_map( 'biblioserver' => 'acqdate_dsc' => { '7' => '1', '1' => '32', '' => '0', 'op' => '@or' } );
+    $self->add_bib1_modifier_map('relevance' => 'biblioserver' => { '2' => '102' } );
+    $self->add_bib1_modifier_map('title-sort-za' => 'biblioserver' => { '7' => '2', '1' => '36', '' => '0', 'op' => '@or' } );
+    $self->add_bib1_modifier_map('title-sort-az' => 'biblioserver' => { '7' => '1', '1' => '36', '' => '0', 'op' => '@or' } );
+    $self->add_bib1_modifier_map('relevance_dsc' => 'biblioserver' => { '2' => '102' } );
+    $self->add_bib1_modifier_map('title_dsc' => 'biblioserver' => { '7' => '2', '1' => '4', '' => '0', 'op' => '@or' } );
+    $self->add_bib1_modifier_map('title_asc' => 'biblioserver' => { '7' => '1', '1' => '4', '' => '0', 'op' => '@or' } );
+    $self->add_bib1_modifier_map('author_asc' => 'biblioserver' => { '7' => '2', '1' => '1003', '' => '0', 'op' => '@or' } );
+    $self->add_bib1_modifier_map('author_dsc' => 'biblioserver' => { '7' => '1', '1' => '1003', '' => '0', 'op' => '@or' } );
+    $self->add_bib1_modifier_map('popularity_asc' => 'biblioserver' => { '7' => '2', '1' => '9003', '' => '0', 'op' => '@or' } );
+    $self->add_bib1_modifier_map('popularity_dsc' => 'biblioserver' => { '7' => '1', '1' => '9003', '' => '0', 'op' => '@or' } );
+    $self->add_bib1_modifier_map('call_number_asc' => 'biblioserver' => { '7' => '2', '1' => '8007', '' => '0', 'op' => '@or' } );
+    $self->add_bib1_modifier_map('call_number_dsc' => 'biblioserver' => { '7' => '1', '1' => '8007', '' => '0', 'op' => '@or' } );
+    $self->add_bib1_modifier_map('pubdate_asc' => 'biblioserver' => { '7' => '2', '1' => '31', '' => '0', 'op' => '@or' } );
+    $self->add_bib1_modifier_map('pubdate_dsc' => 'biblioserver' => { '7' => '1', '1' => '31', '' => '0', 'op' => '@or' } );
+    $self->add_bib1_modifier_map('acqdate_asc' => 'biblioserver' => { '7' => '2', '1' => '32', '' => '0', 'op' => '@or' } );
+    $self->add_bib1_modifier_map('acqdate_dsc' => 'biblioserver' => { '7' => '1', '1' => '32', '' => '0', 'op' => '@or' } );
 
-    $self->add_bib1_modifier_map( 'biblioserver' => 'title_za' => { '7' => '2', '1' => '4', '' => '0', 'op' => '@or' } );
-    $self->add_bib1_modifier_map( 'biblioserver' => 'title_az' => { '7' => '1', '1' => '4', '' => '0', 'op' => '@or' } );
-    $self->add_bib1_modifier_map( 'biblioserver' => 'author_za' => { '7' => '2', '1' => '1003', '' => '0', 'op' => '@or' } );
-    $self->add_bib1_modifier_map( 'biblioserver' => 'author_az' => { '7' => '1', '1' => '1003', '' => '0', 'op' => '@or' } );
-    $self->add_bib1_modifier_map( 'biblioserver' => 'ascending' => { '7' => '1' } );
-    $self->add_bib1_modifier_map( 'biblioserver' => 'descending' => { '7' => '2' } );
+    $self->add_bib1_modifier_map('title_za' => 'biblioserver' => { '7' => '2', '1' => '4', '' => '0', 'op' => '@or' } );
+    $self->add_bib1_modifier_map('title_az' => 'biblioserver' => { '7' => '1', '1' => '4', '' => '0', 'op' => '@or' } );
+    $self->add_bib1_modifier_map('author_za' => 'biblioserver' => { '7' => '2', '1' => '1003', '' => '0', 'op' => '@or' } );
+    $self->add_bib1_modifier_map('author_az' => 'biblioserver' => { '7' => '1', '1' => '1003', '' => '0', 'op' => '@or' } );
+    $self->add_bib1_modifier_map('ascending' => 'biblioserver' => { '7' => '1' } );
+    $self->add_bib1_modifier_map('descending' => 'biblioserver' => { '7' => '2' } );
 
-    $self->add_bib1_field_map( 'biblioserver' => 'title' => 'exacttitle' => { '1' => '4', '4' => '1', '6' => '3' } );
+    $self->add_bib1_field_map('title' => 'exacttitle' => 'biblioserver' => { '1' => '4', '4' => '1', '6' => '3' } );
     $self->add_search_field_alias( 'title' => 'exacttitle' => 'ti,ext' );
-    $self->add_bib1_field_map( 'biblioserver' => 'author' => 'exactauthor' => { '1' => '1003', '4' => '1', '6' => '3' } );
+    $self->add_bib1_field_map('author' => 'exactauthor' => 'biblioserver' => { '1' => '1003', '4' => '1', '6' => '3' } );
     $self->add_search_field_alias( 'author' => 'exactauthor' => 'au,ext' );
-    #$self->add_bib1_field_map( 'biblioserver' => 'keyword' => 'titlekw' => { '1' => '4' } );
+    #$self->add_bib1_field_map('keyword' => 'titlekw' => 'biblioserver' => { '1' => '4' } );
     #$self->add_relevance_bump( 'biblioserver' => 'keyword' => 'publisher' => 34, 1 );
     #$self->add_relevance_bump( 'biblioserver' => 'keyword' => 'titlekw' => 14, 1 );
 
-    $self->add_bib1_field_map( 'authorityserver' => 'subject' => 'headingmain' => { '1' => 'Heading-Main' } );
-    $self->add_bib1_field_map( 'authorityserver' => 'subject' => 'heading' => { '1' => 'Heading' } );
-    $self->add_bib1_field_map( 'authorityserver' => 'subject' => 'matchheading' => { '1' => 'Match-heading' } );
-    $self->add_bib1_field_map( 'authorityserver' => 'subject' => 'seefrom' => { '1' => 'Match-heading-see-from' } );
-    $self->add_bib1_field_map( 'authorityserver' => 'subject' => '' => { '1' => 'Match-heading' } );
-    $self->add_bib1_field_map( 'authorityserver' => 'keyword' => 'alwaysmatch' => { '1' => '_ALLRECORDS', '2' => '103' } );
-    $self->add_bib1_field_map( 'authorityserver' => 'keyword' => 'match' => { '1' => 'Match' } );
-    $self->add_bib1_field_map( 'authorityserver' => 'keyword' => 'thesaurus' => { '1' => 'Subject-heading-thesaurus' } );
-    $self->add_bib1_field_map( 'authorityserver' => 'keyword' => 'authtype' => { '1' => 'authtype', '5' => '100' } );
-    $self->add_bib1_field_map( 'authorityserver' => 'keyword' => '' => { '1' => 'Any' } );
+    $self->add_bib1_field_map('subject' => 'headingmain' => 'authorityserver' => { '1' => 'Heading-Main' } );
+    $self->add_bib1_field_map('subject' => 'heading' => 'authorityserver' => { '1' => 'Heading' } );
+    $self->add_bib1_field_map('subject' => 'matchheading' => 'authorityserver' => { '1' => 'Match-heading' } );
+    $self->add_bib1_field_map('subject' => 'seefrom' => 'authorityserver' => { '1' => 'Match-heading-see-from' } );
+    $self->add_bib1_field_map('subject' => '' => 'authorityserver' => { '1' => 'Match-heading' } );
+    $self->add_bib1_field_map('keyword' => 'alwaysmatch' => 'authorityserver' => { '1' => '_ALLRECORDS', '2' => '103' } );
+    $self->add_bib1_field_map('keyword' => 'match' => 'authorityserver' => { '1' => 'Match' } );
+    $self->add_bib1_field_map('keyword' => 'thesaurus' => 'authorityserver' => { '1' => 'Subject-heading-thesaurus' } );
+    $self->add_bib1_field_map('keyword' => 'authtype' => 'authorityserver' => { '1' => 'authtype', '5' => '100' } );
+    $self->add_bib1_field_map('keyword' => '' => 'authorityserver' => { '1' => 'Any' } );
     $self->add_search_field_alias( 'subject' => 'headingmain' => 'mainmainentry' );
     $self->add_search_field_alias( 'subject' => 'heading' => 'mainentry' );
     $self->add_search_field_alias( 'subject' => 'heading' => 'he' );
@@ -679,14 +774,14 @@ sub TEST_SETUP {
     $self->add_search_field_alias( 'keyword' => 'authtype' => 'authtype' );
     $self->add_search_field_alias( 'keyword' => 'authtype' => 'at' );
 
-    $self->add_bib1_field_map( 'authorityserver' => 'subject' => 'start' => { '3' => '2', '4' => '1', '5' => '1' } );
-    $self->add_bib1_field_map( 'authorityserver' => 'subject' => 'exact' => { '4' => '1', '5' => '100', '6' => '3' } );
+    $self->add_bib1_field_map('subject' => 'start' => 'authorityserver' => { '3' => '2', '4' => '1', '5' => '1' } );
+    $self->add_bib1_field_map('subject' => 'exact' => 'authorityserver' => { '4' => '1', '5' => '100', '6' => '3' } );
 
-    $self->add_bib1_modifier_map( 'authorityserver' => 'HeadingAsc' => { '7' => '1', '1' => 'Heading', '' => '0', 'op' => '@or' } );
-    $self->add_bib1_modifier_map( 'authorityserver' => 'HeadingDsc' => { '7' => '2', '1' => 'Heading', '' => '0', 'op' => '@or' } );
-    $self->add_bib1_modifier_map( 'authorityserver' => 'AuthidAsc' => { '7' => '1', '1' => 'Local-Number', '' => '0', 'op' => '@or' } );
-    $self->add_bib1_modifier_map( 'authorityserver' => 'AuthidDsc' => { '7' => '2', '1' => 'Local-Number', '' => '0', 'op' => '@or' } );
-    $self->add_bib1_modifier_map( 'authorityserver' => 'Relevance' => { '2' => '102' } );
+    $self->add_bib1_modifier_map('HeadingAsc' => 'authorityserver' => { '7' => '1', '1' => 'Heading', '' => '0', 'op' => '@or' } );
+    $self->add_bib1_modifier_map('HeadingDsc' => 'authorityserver' => { '7' => '2', '1' => 'Heading', '' => '0', 'op' => '@or' } );
+    $self->add_bib1_modifier_map('AuthidAsc' => 'authorityserver' => { '7' => '1', '1' => 'Local-Number', '' => '0', 'op' => '@or' } );
+    $self->add_bib1_modifier_map('AuthidDsc' => 'authorityserver' => { '7' => '2', '1' => 'Local-Number', '' => '0', 'op' => '@or' } );
+    $self->add_bib1_modifier_map('Relevance' => 'authorityserver' => { '2' => '102' } );
 
     return $self;
 }

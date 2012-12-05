@@ -1,0 +1,1937 @@
+---
+field_mappings:
+  author:
+    "":
+      aliases: []
+
+      author:
+        "":
+          aliases:
+            - ''
+            - au
+      bib1_mapping:
+        biblioserver:
+          1: 1003
+      enabled: 1
+      index: ''
+      label: ''
+    conference:
+      aliases: []
+
+      author:
+        conference:
+          aliases:
+            - conference
+            - cfn
+      bib1_mapping:
+        biblioserver:
+          1: 1006
+      enabled: 1
+      index: conference
+      label: Conference
+    corporate:
+      aliases: []
+
+      author:
+        corporate:
+          aliases:
+            - corporate
+            - cpn
+      bib1_mapping:
+        biblioserver:
+          1: 1005
+      enabled: 1
+      index: corporate
+      label: Corporate
+    exactauthor:
+      aliases: []
+
+      author:
+        exactauthor:
+          aliases:
+            - exactauthor
+            - au,ext
+      bib1_mapping:
+        biblioserver:
+          1: 1003
+          4: 1
+          6: 3
+      enabled: 1
+      index: exactauthor
+      label: Exactauthor
+    personal:
+      aliases: []
+
+      author:
+        personal:
+          aliases:
+            - personal
+      bib1_mapping:
+        biblioserver:
+          1: 1004
+      enabled: 1
+      index: personal
+      label: Personal
+  keyword:
+    "":
+      aliases: []
+
+      bib1_mapping:
+        authorityserver:
+          1: Any
+        biblioserver:
+          1: 1016
+      enabled: 1
+      index: ''
+      keyword:
+        "":
+          aliases:
+            - ''
+            - kw
+            - any
+      label: ''
+    abstract:
+      aliases: []
+
+      bib1_mapping:
+        biblioserver:
+          1: 62
+      enabled: 1
+      index: abstract
+      keyword:
+        abstract:
+          aliases:
+            - abstract
+            - ab
+      label: Abstract
+    acqsource:
+      aliases: []
+
+      bib1_mapping:
+        biblioserver:
+          1: 8015
+      enabled: 1
+      index: acqsource
+      keyword:
+        acqsource:
+          aliases:
+            - acqsource
+      label: Acqsource
+    alwaysmatch:
+      aliases: []
+
+      bib1_mapping:
+        authorityserver:
+          1: _ALLRECORDS
+          2: 103
+        biblioserver:
+          1: _ALLRECORDS
+          2: 103
+      enabled: 1
+      index: alwaysmatch
+      keyword:
+        alwaysmatch:
+          aliases:
+            - alwaysmatch
+            - all
+      label: Alwaysmatch
+    arl:
+      aliases: []
+
+      bib1_mapping:
+        biblioserver:
+          1: 9904 r=r
+      enabled: 1
+      index: arl
+      keyword:
+        arl:
+          aliases:
+            - arl
+      label: Arl
+    arp:
+      aliases: []
+
+      bib1_mapping:
+        biblioserver:
+          1: 9013 r=r
+      enabled: 1
+      index: arp
+      keyword:
+        arp:
+          aliases:
+            - arp
+      label: Arp
+    audience:
+      aliases: []
+
+      bib1_mapping:
+        biblioserver:
+          1: 8822
+      enabled: 1
+      index: audience
+      keyword:
+        audience:
+          aliases:
+            - audience
+            - aud
+      label: Audience
+    authtype:
+      aliases: []
+
+      bib1_mapping:
+        authorityserver:
+          1: authtype
+          5: 100
+      enabled: 1
+      index: authtype
+      keyword:
+        authtype:
+          aliases:
+            - authtype
+            - at
+      label: Authtype
+    barcode:
+      aliases: []
+
+      bib1_mapping:
+        biblioserver:
+          1: 8023
+      enabled: 1
+      index: barcode
+      keyword:
+        barcode:
+          aliases:
+            - barcode
+            - bc
+      label: Barcode
+    bib-level:
+      aliases: []
+
+      bib1_mapping:
+        biblioserver:
+          1: 1021
+      enabled: 1
+      index: bib-level
+      keyword:
+        bib-level:
+          aliases:
+            - bib-level
+      label: Bib-level
+    biblionumber:
+      aliases: []
+
+      bib1_mapping:
+        biblioserver:
+          1: 9002
+          5: 100
+      enabled: 1
+      index: biblionumber
+      keyword:
+        biblionumber:
+          aliases:
+            - biblionumber
+      label: Biblionumber
+    biography:
+      aliases: []
+
+      bib1_mapping:
+        biblioserver:
+          1: 8834
+      enabled: 1
+      index: biography
+      keyword:
+        biography:
+          aliases:
+            - biography
+            - bio
+      label: Biography
+    biography-code:
+      aliases: []
+
+      bib1_mapping:
+        biblioserver:
+          1: Biography-code
+      enabled: 1
+      index: biography-code
+      keyword:
+        biography-code:
+          aliases:
+            - biography-code
+      label: Biography-code
+    ccode:
+      aliases: []
+
+      bib1_mapping:
+        biblioserver:
+          1: 8009
+      enabled: 1
+      index: ccode
+      keyword:
+        ccode:
+          aliases:
+            - ccode
+            - mc-ccode
+      label: Ccode
+    classification-source:
+      aliases: []
+
+      bib1_mapping:
+        biblioserver:
+          1: 8003
+      enabled: 1
+      index: classification-source
+      keyword:
+        classification-source:
+          aliases:
+            - classification-source
+      label: Classification-source
+    cn-bib-sort:
+      aliases: []
+
+      bib1_mapping:
+        biblioserver:
+          1: 9005
+      enabled: 1
+      index: cn-bib-sort
+      keyword:
+        cn-bib-sort:
+          aliases:
+            - cn-bib-sort
+      label: Cn-bib-sort
+    cn-bib-source:
+      aliases: []
+
+      bib1_mapping:
+        biblioserver:
+          1: 9004
+      enabled: 1
+      index: cn-bib-source
+      keyword:
+        cn-bib-source:
+          aliases:
+            - cn-bib-source
+      label: Cn-bib-source
+    cn-class:
+      aliases: []
+
+      bib1_mapping:
+        biblioserver:
+          1: 9007
+      enabled: 1
+      index: cn-class
+      keyword:
+        cn-class:
+          aliases:
+            - cn-class
+      label: Cn-class
+    cn-item:
+      aliases: []
+
+      bib1_mapping:
+        biblioserver:
+          1: 9008
+      enabled: 1
+      index: cn-item
+      keyword:
+        cn-item:
+          aliases:
+            - cn-item
+      label: Cn-item
+    cn-prefix:
+      aliases: []
+
+      bib1_mapping:
+        biblioserver:
+          1: 9009
+      enabled: 1
+      index: cn-prefix
+      keyword:
+        cn-prefix:
+          aliases:
+            - cn-prefix
+      label: Cn-prefix
+    cn-sort:
+      aliases: []
+
+      bib1_mapping:
+        biblioserver:
+          1: 8007
+      enabled: 1
+      index: cn-sort
+      keyword:
+        cn-sort:
+          aliases:
+            - cn-sort
+      label: Cn-sort
+    cn-suffix:
+      aliases: []
+
+      bib1_mapping:
+        biblioserver:
+          1: 9010
+      enabled: 1
+      index: cn-suffix
+      keyword:
+        cn-suffix:
+          aliases:
+            - cn-suffix
+      label: Cn-suffix
+    code-institution:
+      aliases: []
+
+      bib1_mapping:
+        biblioserver:
+          1: 56
+      enabled: 1
+      index: code-institution
+      keyword:
+        code-institution:
+          aliases:
+            - code-institution
+      label: Code-institution
+    coded-location-qualifier:
+      aliases: []
+
+      bib1_mapping:
+        biblioserver:
+          1: 8016
+      enabled: 1
+      index: coded-location-qualifier
+      keyword:
+        coded-location-qualifier:
+          aliases:
+            - coded-location-qualifier
+      label: Coded-location-qualifier
+    content-type:
+      aliases: []
+
+      bib1_mapping:
+        biblioserver:
+          1: 1034
+      enabled: 1
+      index: content-type
+      keyword:
+        content-type:
+          aliases:
+            - content-type
+            - ctype
+      label: Content-type
+    control-number:
+      aliases: []
+
+      bib1_mapping:
+        biblioserver:
+          1: 9001
+      enabled: 1
+      index: control-number
+      keyword:
+        control-number:
+          aliases:
+            - control-number
+      label: Control-number
+    copynumber:
+      aliases: []
+
+      bib1_mapping:
+        biblioserver:
+          1: 8027
+      enabled: 1
+      index: copynumber
+      keyword:
+        copynumber:
+          aliases:
+            - copynumber
+      label: Copynumber
+    curriculum:
+      aliases: []
+
+      bib1_mapping:
+        biblioserver:
+          1: 9658
+      enabled: 1
+      index: curriculum
+      keyword:
+        curriculum:
+          aliases:
+            - curriculum
+      label: Curriculum
+    damaged:
+      aliases: []
+
+      bib1_mapping:
+        biblioserver:
+          1: 8005
+      enabled: 1
+      index: damaged
+      keyword:
+        damaged:
+          aliases:
+            - damaged
+      label: Damaged
+    date-entered-on-file:
+      aliases: []
+
+      bib1_mapping:
+        biblioserver:
+          1: date-entered-on-file
+      enabled: 1
+      index: date-entered-on-file
+      keyword:
+        date-entered-on-file:
+          aliases:
+            - date-entered-on-file
+      label: Date-entered-on-file
+    datelastborrowed:
+      aliases: []
+
+      bib1_mapping:
+        biblioserver:
+          1: 8026
+      enabled: 1
+      index: datelastborrowed
+      keyword:
+        datelastborrowed:
+          aliases:
+            - datelastborrowed
+      label: Datelastborrowed
+    datelastseen:
+      aliases: []
+
+      bib1_mapping:
+        biblioserver:
+          1: 8025
+      enabled: 1
+      index: datelastseen
+      keyword:
+        datelastseen:
+          aliases:
+            - datelastseen
+      label: Datelastseen
+    dt-bks:
+      aliases: []
+
+      bib1_mapping:
+        biblioserver:
+          1: 8700
+      enabled: 1
+      index: dt-bks
+      keyword:
+        dt-bks:
+          aliases:
+            - dt-bks
+      label: Dt-bks
+    dt-cf:
+      aliases: []
+
+      bib1_mapping:
+        biblioserver:
+          1: 8700
+      enabled: 1
+      index: dt-cf
+      keyword:
+        dt-cf:
+          aliases:
+            - dt-cf
+      label: Dt-cf
+    dt-map:
+      aliases: []
+
+      bib1_mapping:
+        biblioserver:
+          1: 8700
+      enabled: 1
+      index: dt-map
+      keyword:
+        dt-map:
+          aliases:
+            - dt-map
+      label: Dt-map
+    dt-sr:
+      aliases: []
+
+      bib1_mapping:
+        biblioserver:
+          1: 8700
+      enabled: 1
+      index: dt-sr
+      keyword:
+        dt-sr:
+          aliases:
+            - dt-sr
+      label: Dt-sr
+    dt-vis:
+      aliases: []
+
+      bib1_mapping:
+        biblioserver:
+          1: 8700
+      enabled: 1
+      index: dt-vis
+      keyword:
+        dt-vis:
+          aliases:
+            - dt-vis
+      label: Dt-vis
+    ean:
+      aliases: []
+
+      bib1_mapping:
+        biblioserver:
+          1: EAN
+      enabled: 1
+      index: ean
+      keyword:
+        ean:
+          aliases:
+            - ean
+      label: Ean
+    extent:
+      aliases: []
+
+      bib1_mapping:
+        biblioserver:
+          1: Extent
+      enabled: 1
+      index: extent
+      keyword:
+        extent:
+          aliases:
+            - extent
+      label: Extent
+    ff8-22:
+      aliases: []
+
+      bib1_mapping:
+        biblioserver:
+          1: 8822
+      enabled: 1
+      index: ff8-22
+      keyword:
+        ff8-22:
+          aliases:
+            - ff8-22
+      label: Ff8-22
+    ff8-23:
+      aliases: []
+
+      bib1_mapping:
+        biblioserver:
+          1: 8823
+      enabled: 1
+      index: ff8-23
+      keyword:
+        ff8-23:
+          aliases:
+            - ff8-23
+      label: Ff8-23
+    ff8-34:
+      aliases: []
+
+      bib1_mapping:
+        biblioserver:
+          1: 8834
+      enabled: 1
+      index: ff8-34
+      keyword:
+        ff8-34:
+          aliases:
+            - ff8-34
+      label: Ff8-34
+    fiction:
+      aliases: []
+
+      bib1_mapping:
+        biblioserver:
+          1: 8833
+      enabled: 1
+      index: fiction
+      keyword:
+        fiction:
+          aliases:
+            - fiction
+            - fic
+      label: Fiction
+    format:
+      aliases: []
+
+      bib1_mapping:
+        biblioserver:
+          1: 8823
+      enabled: 1
+      index: format
+      keyword:
+        format:
+          aliases:
+            - format
+      label: Format
+    graphics-support:
+      aliases: []
+
+      bib1_mapping:
+        biblioserver:
+          1: Graphic-support
+      enabled: 1
+      index: graphics-support
+      keyword:
+        graphics-support:
+          aliases:
+            - graphics-support
+      label: Graphics-support
+    graphics-type:
+      aliases: []
+
+      bib1_mapping:
+        biblioserver:
+          1: Graphic-type
+      enabled: 1
+      index: graphics-type
+      keyword:
+        graphics-type:
+          aliases:
+            - graphics-type
+      label: Graphics-type
+    holdingbranch:
+      aliases: []
+
+      bib1_mapping:
+        biblioserver:
+          1: 8012
+      enabled: 1
+      index: holdingbranch
+      keyword:
+        holdingbranch:
+          aliases:
+            - holdingbranch
+      label: Holdingbranch
+    homebranch:
+      aliases: []
+
+      bib1_mapping:
+        biblioserver:
+          1: homebranch
+      enabled: 1
+      index: homebranch
+      keyword:
+        homebranch:
+          aliases:
+            - homebranch
+            - branch
+      label: Homebranch
+    host-item:
+      aliases: []
+
+      bib1_mapping:
+        biblioserver:
+          1: 1033
+      enabled: 1
+      index: host-item
+      keyword:
+        host-item:
+          aliases:
+            - host-item
+      label: Host-item
+    host-item-number:
+      aliases: []
+
+      bib1_mapping:
+        biblioserver:
+          1: 8911
+      enabled: 1
+      index: host-item-number
+      keyword:
+        host-item-number:
+          aliases:
+            - host-item-number
+            - hi
+      label: Host-item-number
+    id-other:
+      aliases: []
+
+      bib1_mapping:
+        biblioserver:
+          1: 9012
+      enabled: 1
+      index: id-other
+      keyword:
+        id-other:
+          aliases:
+            - id-other
+      label: Id-other
+    identifier-standard:
+      aliases: []
+
+      bib1_mapping:
+        biblioserver:
+          1: 1007
+      enabled: 1
+      index: identifier-standard
+      keyword:
+        identifier-standard:
+          aliases:
+            - identifier-standard
+            - ident
+      label: Identifier-standard
+    illustration-code:
+      aliases: []
+
+      bib1_mapping:
+        biblioserver:
+          1: "Illustration-code "
+      enabled: 1
+      index: illustration-code
+      keyword:
+        illustration-code:
+          aliases:
+            - illustration-code
+      label: Illustration-code
+    isbn:
+      aliases: []
+
+      bib1_mapping:
+        biblioserver:
+          1: 7
+      enabled: 1
+      index: isbn
+      keyword:
+        isbn:
+          aliases:
+            - isbn
+            - nb
+      label: Isbn
+    issn:
+      aliases: []
+
+      bib1_mapping:
+        biblioserver:
+          1: 8
+      enabled: 1
+      index: issn
+      keyword:
+        issn:
+          aliases:
+            - issn
+            - ns
+      label: Issn
+    issues:
+      aliases: []
+
+      bib1_mapping:
+        biblioserver:
+          1: 8019
+      enabled: 1
+      index: issues
+      keyword:
+        issues:
+          aliases:
+            - issues
+      label: Issues
+    item:
+      aliases: []
+
+      bib1_mapping:
+        biblioserver:
+          1: 9520
+      enabled: 1
+      index: item
+      keyword:
+        item:
+          aliases:
+            - item
+      label: Item
+    itemnumber:
+      aliases: []
+
+      bib1_mapping:
+        biblioserver:
+          1: 8010
+      enabled: 1
+      index: itemnumber
+      keyword:
+        itemnumber:
+          aliases:
+            - itemnumber
+      label: Itemnumber
+    itemtype:
+      aliases: []
+
+      bib1_mapping:
+        biblioserver:
+          1: 9006
+      enabled: 1
+      index: itemtype
+      keyword:
+        itemtype:
+          aliases:
+            - itemtype
+            - mc-itemtype
+      label: Itemtype
+    itype:
+      aliases: []
+
+      bib1_mapping:
+        biblioserver:
+          1: 8031
+      enabled: 1
+      index: itype
+      keyword:
+        itype:
+          aliases:
+            - itype
+            - mc-itype
+      label: Itype
+    l-format:
+      aliases: []
+
+      bib1_mapping:
+        biblioserver:
+          1: 8703
+      enabled: 1
+      index: l-format
+      keyword:
+        l-format:
+          aliases:
+            - l-format
+      label: L-format
+    language:
+      aliases: []
+
+      bib1_mapping:
+        biblioserver:
+          1: 54
+      enabled: 1
+      index: language
+      keyword:
+        language:
+          aliases:
+            - language
+            - ln
+      label: Language
+    lc-card-number:
+      aliases: []
+
+      bib1_mapping:
+        biblioserver:
+          1: 9
+      enabled: 1
+      index: lc-card-number
+      keyword:
+        lc-card-number:
+          aliases:
+            - lc-card-number
+            - lc-card
+      label: Lc-card-number
+    lex:
+      aliases: []
+
+      bib1_mapping:
+        biblioserver:
+          1: 9903 r=r
+      enabled: 1
+      index: lex
+      keyword:
+        lex:
+          aliases:
+            - lex
+      label: Lex
+    literature-code:
+      aliases: []
+
+      bib1_mapping:
+        biblioserver:
+          1: Literature-Code
+      enabled: 1
+      index: literature-code
+      keyword:
+        literature-code:
+          aliases:
+            - literature-code
+      label: Literature-code
+    llength:
+      aliases: []
+
+      bib1_mapping:
+        biblioserver:
+          1: llength
+      enabled: 1
+      index: llength
+      keyword:
+        llength:
+          aliases:
+            - llength
+      label: Llength
+    local-classification:
+      aliases: []
+
+      bib1_mapping:
+        biblioserver:
+          1: 8022
+      enabled: 1
+      index: local-classification
+      keyword:
+        local-classification:
+          aliases:
+            - local-classification
+            - lcn
+            - callnum
+      label: Local-classification
+    local-number:
+      aliases: []
+
+      bib1_mapping:
+        biblioserver:
+          1: 12
+      enabled: 1
+      index: local-number
+      keyword:
+        local-number:
+          aliases:
+            - local-number
+            - sn
+      label: Local-number
+    location:
+      aliases: []
+
+      bib1_mapping:
+        biblioserver:
+          1: 8013
+      enabled: 1
+      index: location
+      keyword:
+        location:
+          aliases:
+            - location
+            - mc-loc
+      label: Location
+    lost:
+      aliases: []
+
+      bib1_mapping:
+        biblioserver:
+          1: 8002
+      enabled: 1
+      index: lost
+      keyword:
+        lost:
+          aliases:
+            - lost
+      label: Lost
+    match:
+      aliases: []
+
+      bib1_mapping:
+        authorityserver:
+          1: Match
+      enabled: 1
+      index: match
+      keyword:
+        match:
+          aliases:
+            - match
+      label: Match
+    material-type:
+      aliases: []
+
+      bib1_mapping:
+        biblioserver:
+          1: Material-type
+      enabled: 1
+      index: material-type
+      keyword:
+        material-type:
+          aliases:
+            - material-type
+      label: Material-type
+    materials-specified:
+      aliases: []
+
+      bib1_mapping:
+        biblioserver:
+          1: 8004
+      enabled: 1
+      index: materials-specified
+      keyword:
+        materials-specified:
+          aliases:
+            - materials-specified
+      label: Materials-specified
+    music:
+      aliases: []
+
+      bib1_mapping:
+        biblioserver:
+          1: Music-number
+      enabled: 1
+      index: music
+      keyword:
+        music:
+          aliases:
+            - music
+      label: Music
+    name:
+      aliases: []
+
+      bib1_mapping:
+        biblioserver:
+          1: 1002
+      enabled: 1
+      index: name
+      keyword:
+        name:
+          aliases:
+            - name
+      label: Name
+    note:
+      aliases: []
+
+      bib1_mapping:
+        biblioserver:
+          1: 63
+      enabled: 1
+      index: note
+      keyword:
+        note:
+          aliases:
+            - note
+            - nt
+      label: Note
+    notforloan:
+      aliases: []
+
+      bib1_mapping:
+        biblioserver:
+          1: 8008
+          4: 109
+      enabled: 1
+      index: notforloan
+      keyword:
+        notforloan:
+          aliases:
+            - notforloan
+      label: Notforloan
+    onloan:
+      aliases: []
+
+      bib1_mapping:
+        biblioserver:
+          1: 8024
+      enabled: 1
+      index: onloan
+      keyword:
+        onloan:
+          aliases:
+            - onloan
+      label: Onloan
+    personal-name:
+      aliases: []
+
+      bib1_mapping:
+        biblioserver:
+          1: Personal-name
+      enabled: 1
+      index: personal-name
+      keyword:
+        personal-name:
+          aliases:
+            - personal-name
+            - pn
+      label: Personal-name
+    place-publication:
+      aliases: []
+
+      bib1_mapping:
+        biblioserver:
+          1: 59
+      enabled: 1
+      index: place-publication
+      keyword:
+        place-publication:
+          aliases:
+            - place-publication
+            - pl
+      label: Place-publication
+    popularity:
+      aliases: []
+
+      bib1_mapping:
+        biblioserver:
+          1: issues
+      enabled: 1
+      index: popularity
+      keyword:
+        popularity:
+          aliases:
+            - popularity
+      label: Popularity
+    price:
+      aliases: []
+
+      bib1_mapping:
+        biblioserver:
+          1: 8017
+      enabled: 1
+      index: price
+      keyword:
+        price:
+          aliases:
+            - price
+      label: Price
+    publisher:
+      aliases: []
+
+      bib1_mapping:
+        biblioserver:
+          1: 1018
+      enabled: 1
+      index: publisher
+      keyword:
+        publisher:
+          aliases:
+            - publisher
+            - pb
+      label: Publisher
+    record-control-number:
+      aliases: []
+
+      bib1_mapping:
+        biblioserver:
+          1: 1045
+      enabled: 1
+      index: record-control-number
+      keyword:
+        record-control-number:
+          aliases:
+            - record-control-number
+            - rcn
+      label: Record-control-number
+    record-type:
+      aliases: []
+
+      bib1_mapping:
+        biblioserver:
+          1: 1001
+      enabled: 1
+      index: record-type
+      keyword:
+        record-type:
+          aliases:
+            - record-type
+            - rtype
+            - mc-rtype
+            - mus
+      label: Record-type
+    regularity-code:
+      aliases: []
+
+      bib1_mapping:
+        biblioserver:
+          1: Regularity-code
+      enabled: 1
+      index: regularity-code
+      keyword:
+        regularity-code:
+          aliases:
+            - regularity-code
+      label: Regularity-code
+    renewals:
+      aliases: []
+
+      bib1_mapping:
+        biblioserver:
+          1: 8020
+      enabled: 1
+      index: renewals
+      keyword:
+        renewals:
+          aliases:
+            - renewals
+      label: Renewals
+    replacementprice:
+      aliases: []
+
+      bib1_mapping:
+        biblioserver:
+          1: 8029
+      enabled: 1
+      index: replacementprice
+      keyword:
+        replacementprice:
+          aliases:
+            - replacementprice
+      label: Replacementprice
+    replacementpricedate:
+      aliases: []
+
+      bib1_mapping:
+        biblioserver:
+          1: 8030
+      enabled: 1
+      index: replacementpricedate
+      keyword:
+        replacementpricedate:
+          aliases:
+            - replacementpricedate
+      label: Replacementpricedate
+    reserves:
+      aliases: []
+
+      bib1_mapping:
+        biblioserver:
+          1: 8021
+      enabled: 1
+      index: reserves
+      keyword:
+        reserves:
+          aliases:
+            - reserves
+      label: Reserves
+    restricted:
+      aliases: []
+
+      bib1_mapping:
+        biblioserver:
+          1: 8006
+      enabled: 1
+      index: restricted
+      keyword:
+        restricted:
+          aliases:
+            - restricted
+      label: Restricted
+    stack:
+      aliases: []
+
+      bib1_mapping:
+        biblioserver:
+          1: 8018
+      enabled: 1
+      index: stack
+      keyword:
+        stack:
+          aliases:
+            - stack
+      label: Stack
+    stock-number:
+      aliases: []
+
+      bib1_mapping:
+        biblioserver:
+          1: 1028
+      enabled: 1
+      index: stock-number
+      keyword:
+        stock-number:
+          aliases:
+            - stock-number
+      label: Stock-number
+    stocknumber:
+      aliases: []
+
+      bib1_mapping:
+        biblioserver:
+          1: 1062
+      enabled: 1
+      index: stocknumber
+      keyword:
+        stocknumber:
+          aliases:
+            - stocknumber
+            - inv
+      label: Stocknumber
+    summary:
+      aliases: []
+
+      bib1_mapping:
+        biblioserver:
+          1: Summary
+      enabled: 1
+      index: summary
+      keyword:
+        summary:
+          aliases:
+            - summary
+      label: Summary
+    suppress:
+      aliases: []
+
+      bib1_mapping:
+        biblioserver:
+          1: 9011
+      enabled: 1
+      index: suppress
+      keyword:
+        suppress:
+          aliases:
+            - suppress
+      label: Suppress
+    thesaurus:
+      aliases: []
+
+      bib1_mapping:
+        authorityserver:
+          1: Subject-heading-thesaurus
+      enabled: 1
+      index: thesaurus
+      keyword:
+        thesaurus:
+          aliases:
+            - thesaurus
+      label: Thesaurus
+    totalissues:
+      aliases: []
+
+      bib1_mapping:
+        biblioserver:
+          1: 9003
+      enabled: 1
+      index: totalissues
+      keyword:
+        totalissues:
+          aliases:
+            - totalissues
+      label: Totalissues
+    type-of-serial:
+      aliases: []
+
+      bib1_mapping:
+        biblioserver:
+          1: Type-Of-Serial
+      enabled: 1
+      index: type-of-serial
+      keyword:
+        type-of-serial:
+          aliases:
+            - type-of-serial
+      label: Type-of-serial
+    upc:
+      aliases: []
+
+      bib1_mapping:
+        biblioserver:
+          1: UPC
+      enabled: 1
+      index: upc
+      keyword:
+        upc:
+          aliases:
+            - upc
+      label: Upc
+    uri:
+      aliases: []
+
+      bib1_mapping:
+        biblioserver:
+          1: 8028
+      enabled: 1
+      index: uri
+      keyword:
+        uri:
+          aliases:
+            - uri
+      label: Uri
+    video-mt:
+      aliases: []
+
+      bib1_mapping:
+        biblioserver:
+          1: Video-mt
+      enabled: 1
+      index: video-mt
+      keyword:
+        video-mt:
+          aliases:
+            - video-mt
+      label: Video-mt
+    withdrawn:
+      aliases: []
+
+      bib1_mapping:
+        biblioserver:
+          1: 8001
+      enabled: 1
+      index: withdrawn
+      keyword:
+        withdrawn:
+          aliases:
+            - withdrawn
+      label: Withdrawn
+  subject:
+    "":
+      aliases: []
+
+      bib1_mapping:
+        authorityserver:
+          1: Match-heading
+        biblioserver:
+          1: 21
+      enabled: 1
+      index: ''
+      label: ''
+      subject:
+        "":
+          aliases:
+            - ''
+            - su
+            - su-to
+            - su-geo
+            - su-ut
+    authority-number:
+      aliases: []
+
+      bib1_mapping:
+        biblioserver:
+          1: Koha-Auth-Number
+      enabled: 1
+      index: authority-number
+      label: Authority-number
+      subject:
+        authority-number:
+          aliases:
+            - authority-number
+            - an
+    complete:
+      aliases: []
+
+      bib1_mapping:
+        biblioserver:
+          1: 21
+          3: 1
+          4: 1
+          5: 100
+          6: 3
+      enabled: 1
+      index: complete
+      label: Complete
+      subject:
+        complete:
+          aliases:
+            - complete
+    exact:
+      aliases: []
+
+      bib1_mapping:
+        authorityserver:
+          4: 1
+          5: 100
+          6: 3
+      enabled: 1
+      index: exact
+      label: Exact
+      subject:
+        exact:
+          aliases:
+            - exact
+    heading:
+      aliases: []
+
+      bib1_mapping:
+        authorityserver:
+          1: Heading
+      enabled: 1
+      index: heading
+      label: Heading
+      subject:
+        heading:
+          aliases:
+            - heading
+            - mainentry
+            - he
+    headingmain:
+      aliases: []
+
+      bib1_mapping:
+        authorityserver:
+          1: Heading-Main
+      enabled: 1
+      index: headingmain
+      label: Headingmain
+      subject:
+        headingmain:
+          aliases:
+            - headingmain
+            - mainmainentry
+    matchheading:
+      aliases: []
+
+      bib1_mapping:
+        authorityserver:
+          1: Match-heading
+      enabled: 1
+      index: matchheading
+      label: Matchheading
+      subject:
+        matchheading:
+          aliases:
+            - matchheading
+            - match-heading
+    name-personal:
+      aliases: []
+
+      bib1_mapping:
+        biblioserver:
+          1: 1009
+      enabled: 1
+      index: name-personal
+      label: Name-personal
+      subject:
+        name-personal:
+          aliases:
+            - name-personal
+            - su-na
+    seefrom:
+      aliases: []
+
+      bib1_mapping:
+        authorityserver:
+          1: Match-heading-see-from
+      enabled: 1
+      index: seefrom
+      label: Seefrom
+      subject:
+        seefrom:
+          aliases:
+            - seefrom
+            - see-from
+    start:
+      aliases: []
+
+      bib1_mapping:
+        authorityserver:
+          3: 2
+          4: 1
+          5: 1
+      enabled: 1
+      index: start
+      label: Start
+      subject:
+        start:
+          aliases:
+            - start
+  title:
+    "":
+      aliases: []
+
+      bib1_mapping:
+        biblioserver:
+          1: 4
+      enabled: 1
+      index: ''
+      label: ''
+      title:
+        "":
+          aliases:
+            - ''
+            - ti
+    cover:
+      aliases: []
+
+      bib1_mapping:
+        biblioserver:
+          1: 36
+      enabled: 1
+      index: cover
+      label: Cover
+      title:
+        cover:
+          aliases:
+            - cover
+            - title-cover
+    exacttitle:
+      aliases: []
+
+      bib1_mapping:
+        biblioserver:
+          1: 4
+          4: 1
+          6: 3
+      enabled: 1
+      index: exacttitle
+      label: Exacttitle
+      title:
+        exacttitle:
+          aliases:
+            - exacttitle
+            - ti,ext
+    series:
+      aliases: []
+
+      bib1_mapping:
+        biblioserver:
+          1: 5
+      enabled: 1
+      index: series
+      label: Series
+      title:
+        series:
+          aliases:
+            - series
+            - title-series
+            - se
+    uniform:
+      aliases: []
+
+      bib1_mapping:
+        biblioserver:
+          1: Title-uniform
+      enabled: 1
+      index: uniform
+      label: Uniform
+      title:
+        uniform:
+          aliases:
+            - uniform
+            - title-uniform
+filter_mappings:
+  acqdate:
+    bib1_mapping:
+      biblioserver:
+        1: Date-of-acquisition
+        4: 4
+        target_syntax_callback: &1 !!perl/code: '{ "DUMMY" }'
+    enabled: 1
+    label: Acqdate
+  copydate:
+    bib1_mapping:
+      biblioserver:
+        1: 30
+        4: 4
+        target_syntax_callback: *1
+    enabled: 1
+    label: Copydate
+  pubdate:
+    bib1_mapping:
+      biblioserver:
+        1: pubdate
+        4: 4
+        target_syntax_callback: *1
+    enabled: 1
+    label: Pubdate
+modifier_mappings:
+  AuthidAsc:
+    bib1_mapping:
+      authorityserver:
+        "": 0
+        1: Local-Number
+        7: 1
+        op: "@or"
+    enabled: 1
+    label: AuthidAsc
+  AuthidDsc:
+    bib1_mapping:
+      authorityserver:
+        "": 0
+        1: Local-Number
+        7: 2
+        op: "@or"
+    enabled: 1
+    label: AuthidDsc
+  HeadingAsc:
+    bib1_mapping:
+      authorityserver:
+        "": 0
+        1: Heading
+        7: 1
+        op: "@or"
+    enabled: 1
+    label: HeadingAsc
+  HeadingDsc:
+    bib1_mapping:
+      authorityserver:
+        "": 0
+        1: Heading
+        7: 2
+        op: "@or"
+    enabled: 1
+    label: HeadingDsc
+  Relevance:
+    bib1_mapping:
+      authorityserver:
+        2: 102
+    enabled: 1
+    label: Relevance
+  acqdate_asc:
+    bib1_mapping:
+      biblioserver:
+        "": 0
+        1: 32
+        7: 2
+        op: "@or"
+    enabled: 1
+    label: Acqdate_asc
+  acqdate_dsc:
+    bib1_mapping:
+      biblioserver:
+        "": 0
+        1: 32
+        7: 1
+        op: "@or"
+    enabled: 1
+    label: Acqdate_dsc
+  ascending:
+    bib1_mapping:
+      biblioserver:
+        7: 1
+    enabled: 1
+    label: Ascending
+  author_asc:
+    bib1_mapping:
+      biblioserver:
+        "": 0
+        1: 1003
+        7: 2
+        op: "@or"
+    enabled: 1
+    label: Author_asc
+  author_az:
+    bib1_mapping:
+      biblioserver:
+        "": 0
+        1: 1003
+        7: 1
+        op: "@or"
+    enabled: 1
+    label: Author_az
+  author_dsc:
+    bib1_mapping:
+      biblioserver:
+        "": 0
+        1: 1003
+        7: 1
+        op: "@or"
+    enabled: 1
+    label: Author_dsc
+  author_za:
+    bib1_mapping:
+      biblioserver:
+        "": 0
+        1: 1003
+        7: 2
+        op: "@or"
+    enabled: 1
+    label: Author_za
+  call_number_asc:
+    bib1_mapping:
+      biblioserver:
+        "": 0
+        1: 8007
+        7: 2
+        op: "@or"
+    enabled: 1
+    label: Call_number_asc
+  call_number_dsc:
+    bib1_mapping:
+      biblioserver:
+        "": 0
+        1: 8007
+        7: 1
+        op: "@or"
+    enabled: 1
+    label: Call_number_dsc
+  descending:
+    bib1_mapping:
+      biblioserver:
+        7: 2
+    enabled: 1
+    label: Descending
+  popularity_asc:
+    bib1_mapping:
+      biblioserver:
+        "": 0
+        1: 9003
+        7: 2
+        op: "@or"
+    enabled: 1
+    label: Popularity_asc
+  popularity_dsc:
+    bib1_mapping:
+      biblioserver:
+        "": 0
+        1: 9003
+        7: 1
+        op: "@or"
+    enabled: 1
+    label: Popularity_dsc
+  pubdate_asc:
+    bib1_mapping:
+      biblioserver:
+        "": 0
+        1: 31
+        7: 2
+        op: "@or"
+    enabled: 1
+    label: Pubdate_asc
+  pubdate_dsc:
+    bib1_mapping:
+      biblioserver:
+        "": 0
+        1: 31
+        7: 1
+        op: "@or"
+    enabled: 1
+    label: Pubdate_dsc
+  relevance:
+    bib1_mapping:
+      biblioserver:
+        2: 102
+    enabled: 1
+    label: Relevance
+  relevance_dsc:
+    bib1_mapping:
+      biblioserver:
+        2: 102
+    enabled: 1
+    label: Relevance_dsc
+  title-sort-az:
+    bib1_mapping:
+      biblioserver:
+        "": 0
+        1: 36
+        7: 1
+        op: "@or"
+    enabled: 1
+    label: Title-sort-az
+  title-sort-za:
+    bib1_mapping:
+      biblioserver:
+        "": 0
+        1: 36
+        7: 2
+        op: "@or"
+    enabled: 1
+    label: Title-sort-za
+  title_asc:
+    bib1_mapping:
+      biblioserver:
+        "": 0
+        1: 4
+        7: 1
+        op: "@or"
+    enabled: 1
+    label: Title_asc
+  title_az:
+    bib1_mapping:
+      biblioserver:
+        "": 0
+        1: 4
+        7: 1
+        op: "@or"
+    enabled: 1
+    label: Title_az
+  title_dsc:
+    bib1_mapping:
+      biblioserver:
+        "": 0
+        1: 4
+        7: 2
+        op: "@or"
+    enabled: 1
+    label: Title_dsc
+  title_za:
+    bib1_mapping:
+      biblioserver:
+        "": 0
+        1: 4
+        7: 2
+        op: "@or"
+    enabled: 1
+    label: Title_za
+relevance_bumps: {}
