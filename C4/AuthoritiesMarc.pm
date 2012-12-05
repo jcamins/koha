@@ -230,8 +230,8 @@ sub SearchAuthorities {
         } else {
             $query .= " #$sortby";
         }
-        require QueryParser::PQF;
-        my $QParser = QueryParser::PQF->new();
+        require OpenILS::QueryParser::Driver::PQF;
+        my $QParser = OpenILS::QueryParser::Driver::PQF->new();
         $QParser->TEST_SETUP;
 
         $QParser->parse( $query );

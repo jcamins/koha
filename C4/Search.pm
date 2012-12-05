@@ -36,7 +36,7 @@ use URI::Escape;
 use Business::ISBN;
 use MARC::Record;
 use MARC::Field;
-use QueryParser::PQF;
+use OpenILS::QueryParser::Driver::PQF;
 
 use vars qw($VERSION @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS $DEBUG);
 
@@ -230,7 +230,7 @@ sub SimpleSearch {
         # Initialize & Search Zebra
         for ( my $i = 0 ; $i < @servers ; $i++ ) {
             eval {
-                my $QParser = QueryParser::PQF->new();
+                my $QParser = OpenILS::QueryParser::Driver::PQF->new();
                 $QParser->TEST_SETUP;
 
                 $QParser->parse( $query );
@@ -1184,7 +1184,7 @@ sub parseQuery {
 
     $query = 'qp=' . $query if ( $query =~ m/^(?!qp=).*(su-br|su-na|su-rl)/ );
     if ( $query =~ m/^qp=(.*)$/ ) {
-        my $QParser = QueryParser::PQF->new();
+        my $QParser = OpenILS::QueryParser::Driver::PQF->new();
         $QParser->TEST_SETUP;
         if ( C4::Context->preference("QueryWeightFields") ) {
         }
