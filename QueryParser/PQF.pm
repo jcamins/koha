@@ -360,10 +360,70 @@ following format:
 =cut
 
 sub initialize {
-    my ($self, $args) = @_;
+    my ( $self, $args ) = @_;
 
-    foreach my $mapping (@{$args->{'bib1_field_mappings'}}) {
-        $self->add_bib1_field_map($mapping->{'server'} => $mapping->{'class'} => $mapping->{'field'} => $mapping->{'mapping'});
+    my $field_mappings    = $args->{'field_mappings'};
+    my $modifier_mappings = $args->{'modifier_mappings'};
+    my $filter_mappings   = $args->{'filter_mappings'};
+    my $relbumps          = $args->{'relevance_bumps'};
+    my ( $server, $bib1_mapping );
+    foreach my $class ( keys %$field_mappings ) {
+        foreach my $field ( keys %{ $field_mappings->{$class} } ) {
+            if ( $field_mappings->{$class}->{$field}->{'enabled'} ) {
+                while ( ( $server, $bib1_mapping ) =
+                    each
+                    %{ $field_mappings->{$class}->{$field}->{'bib1_mapping'} } )
+                {
+                    $self->add_bib1_field_map(
+                        $server => $class => $field => $bib1_mapping );
+                }
+                $self->add_search_field_alias( $class => $field =>
+                      $field_mappings->{$class}->{$field}->{'index'} );
+                foreach my $alias (
+                    @{ $field_mappings->{$class}->{$field}->{'aliases'} } )
+                {
+                    $self->add_search_field_alias( $class => $field => $alias );
+                }
+            }
+        }
+    }
+    foreach my $modifier ( keys %$modifier_mappings ) {
+        if ( $modifier_mappings->{$modifier}->{'enabled'} ) {
+            while ( ( $server, $bib1_mapping ) =
+                each %{ $modifier_mappings->{$modifier}->{'bib1_mapping'} } )
+            {
+                $self->add_bib1_modifier_map(
+                    $server => $modifier => $bib1_mapping );
+            }
+        }
+    }
+    foreach my $filter ( keys %$filter_mappings ) {
+        if ( $filter_mappings->{$filter}->{'enabled'} ) {
+            while ( ( $server, $bib1_mapping ) =
+                each %{ $filter_mappings->{$filter}->{'bib1_mapping'} } )
+            {
+                if ( $filter_mappings->{$filter}->{'target_syntax_callback'} eq
+                    'date_filter_target_callback' )
+                {
+                    $bib1_mapping->{'target_syntax_callback'} =
+                      \&QueryParser::PQF::date_filter_target_callback;
+                }
+                $self->add_bib1_filter_map(
+                    $server => $filter => $bib1_mapping );
+            }
+        }
+    }
+    foreach my $class ( keys %$relbumps ) {
+        foreach my $field ( keys %{ $relbumps->{$class} } ) {
+            while ( ( $server, $bib1_mapping ) =
+                each %{ $relbumps->{$class}->{$field}->{'bib1_mapping'} } )
+            {
+                $self->add_relevance_bump(
+                    $server => $class => $field => $bib1_mapping,
+                    $relbumps->{$class}->{$field}->{'enabled'}
+                );
+            }
+        }
     }
     return $self;
 }

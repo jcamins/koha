@@ -1,31 +1,49 @@
 ---
-bib1_field_mappings:
-    - server: biblioserver
-      class: keyword
-      field: keyword
-      mapping:
-        1: 1016
+field_mappings: {
+    keyword: {
+        keyword: {
+            index: keyword,
+            label: Keyword,
+            enabled: 1,
+            aliases: [
+                - kw
+            ],
+            bib1_mapping: {
+                biblioserver: { 1: 1016 }
+            }
+        }
+    }
+}
 
-search_field_alias_mappings:
-    - alias: kw
-      class: keyword
-      field: keyword
+modifier_mappings: {
+    relevance: {
+        label: Relevance,
+        enabled: 1,
+        bib1_mapping: {
+            biblioserver: { 2: 102 }
+        }
+    }
+}
 
-bib1_modifier_mappings:
-    - server: biblioserver
-      modifier: relevance
-      mapping:
-        2: 102
+filter_mappings: {
+    pubdate: {
+        label: Publication date,
+        enabled: 1,
+        target_syntax_callback: date_filter_target_callback,
+        bib1_mapping: {
+            biblioserver: { 1: pubdate, 4: 4 }
+        }
+    }
+}
 
-bib1_filter_mappings:
-    - server: biblioserver
-      filter: pubdate
-      mapping:
-        1: pubdate
-        4: 4
-
-relevance_bumps:
-    - server: biblioserver
-      class: keyword
-      field: title
-      bump: 34
+relevance_bumps: {
+    keyword: {
+        title: {
+            label: Title for keyword searches,
+            enabled: 1,
+            bib1_mapping: {
+                biblioserver: 34
+            }
+        }
+    }
+}
