@@ -36,7 +36,7 @@ use URI::Escape;
 use Business::ISBN;
 use MARC::Record;
 use MARC::Field;
-use QueryParser::PQF;
+use OpenILS::QueryParser::Driver::PQF;
 
 use vars qw($VERSION @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS $DEBUG);
 
@@ -230,7 +230,7 @@ sub SimpleSearch {
         # Initialize & Search Zebra
         for ( my $i = 0 ; $i < @servers ; $i++ ) {
             eval {
-                my $QParser = QueryParser::PQF->new();
+                my $QParser = OpenILS::QueryParser::Driver::PQF->new();
                 $QParser->TEST_SETUP;
 
                 $QParser->parse( $query );
@@ -1184,7 +1184,7 @@ sub parseQuery {
 
     $query = 'qp=' . $query if ( $query =~ m/^(?!qp=).*(su-br|su-na|su-rl)/ );
     if ( $query =~ m/^qp=(.*)$/ ) {
-        my $QParser = QueryParser::PQF->new();
+        my $QParser = OpenILS::QueryParser::Driver::PQF->new();
         $QParser->TEST_SETUP;
         if ( C4::Context->preference("QueryWeightFields") ) {
         }
@@ -1193,7 +1193,7 @@ sub parseQuery {
         $QParser->add_bib1_filter_map( 'biblioserver', 'su-rl', { 'callback' => \&_handle_exploding_index });
         $QParser->parse( $1 );
         $operands[0] = "pqf=" . $QParser->target_syntax('biblioserver');
-        $operands[1] = QueryParser::Canonicalize::abstract_query2str_impl($QParser->parse_tree()->to_abstract_query());
+        $operands[1] = OpenILS::QueryParser::Canonicalize::abstract_query2str_impl($QParser->parse_tree()->to_abstract_query());
 # TODO: once we are using QueryParser, all this special case code for
 #       exploded search indexes will be replaced by a callback to
 #       _handle_exploding_index

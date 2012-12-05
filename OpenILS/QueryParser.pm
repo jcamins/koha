@@ -1,17 +1,17 @@
 use strict;
 use warnings;
 
-package QueryParser;
+package OpenILS::QueryParser;
 use JSON;
 
 =head1 NAME
 
-QueryParser - basic QueryParser class
+OpenILS::QueryParser - basic QueryParser class
 
 =head1 SYNOPSIS
 
-use QueryParser;
-my $QParser = QueryParser->new(%args);
+use OpenILS::QueryParser;
+my $QParser = OpenILS::QueryParser->new(%args);
 
 =head1 DESCRIPTION
 
@@ -23,7 +23,7 @@ Main entrypoint into the QueryParser functionality.
 
 # Note that the first key must match the name of the package.
 our %parser_config = (
-    QueryParser => {
+    'OpenILS::QueryParser' => {
         filters => [],
         modifiers => [],
         operators => {
@@ -43,7 +43,7 @@ our %parser_config = (
 
 sub canonicalize {
     my $self = shift;
-    return QueryParser::Canonicalize::abstract_query2str_impl(
+    return OpenILS::QueryParser::Canonicalize::abstract_query2str_impl(
         $self->parse_tree->to_abstract_query(@_)
     );
 }
@@ -173,7 +173,7 @@ sub modifiers {
 
 =head2 new
 
-    $QParser = QueryParser->new(%args);
+    $QParser = OpenILS::QueryParser->new(%args);
 
 Creates a new QueryParser object.
 =cut
@@ -186,8 +186,8 @@ sub new {
 
     my $self = bless {} => $class;
 
-    for my $o (keys %{QueryParser->operators}) {
-        $class->operator($o => QueryParser->operator($o)) unless ($class->operator($o));
+    for my $o (keys %{OpenILS::QueryParser->operators}) {
+        $class->operator($o => OpenILS::QueryParser->operator($o)) unless ($class->operator($o));
     }
 
     for my $opt ( keys %opts) {
@@ -472,9 +472,9 @@ sub default_search_class {
     my $pkg = shift;
     $pkg = ref($pkg) || $pkg;
     my $class = shift;
-    $QueryParser::parser_config{$pkg}{default_class} = $pkg->add_search_class( $class ) if $class;
+    $OpenILS::QueryParser::parser_config{$pkg}{default_class} = $pkg->add_search_class( $class ) if $class;
 
-    return $QueryParser::parser_config{$pkg}{default_class};
+    return $OpenILS::QueryParser::parser_config{$pkg}{default_class};
 }
 
 =head2 remove_facet_class
@@ -492,7 +492,7 @@ sub remove_facet_class {
     return $class if (!grep { $_ eq $class } @{$pkg->facet_classes});
 
     $pkg->facet_classes( [ grep { $_ ne $class } @{$pkg->facet_classes} ] );
-    delete $QueryParser::parser_config{$pkg}{facet_fields}{$class};
+    delete $OpenILS::QueryParser::parser_config{$pkg}{facet_fields}{$class};
 
     return $class;
 }
@@ -512,7 +512,7 @@ sub remove_search_class {
     return $class if (!grep { $_ eq $class } @{$pkg->search_classes});
 
     $pkg->search_classes( [ grep { $_ ne $class } @{$pkg->search_classes} ] );
-    delete $QueryParser::parser_config{$pkg}{fields}{$class};
+    delete $OpenILS::QueryParser::parser_config{$pkg}{fields}{$class};
 
     return $class;
 }
@@ -1288,7 +1288,7 @@ sub superpage_size {
 
 
 #-------------------------------
-package QueryParser::_util;
+package OpenILS::QueryParser::_util;
 
 # At this level, joiners are always & or |.  This is not
 # the external, configurable representation of joiners that
@@ -1316,12 +1316,12 @@ sub compare_abstract_atoms {
 sub fake_abstract_atom_from_phrase {
     my $phrase = shift;
     my $neg = shift;
-    my $qp_class = shift || 'QueryParser';
+    my $qp_class = shift || 'OpenILS::QueryParser';
 
     my $prefix = '"';
     if ($neg) {
         $prefix =
-            $QueryParser::parser_config{$qp_class}{operators}{disallowed} .
+            $OpenILS::QueryParser::parser_config{$qp_class}{operators}{disallowed} .
             $prefix;
     }
 
@@ -1348,13 +1348,13 @@ sub find_arrays_in_abstract {
 }
 
 #-------------------------------
-package QueryParser::Canonicalize;  # not OO
+package OpenILS::QueryParser::Canonicalize;  # not OO
 use Data::Dumper;
 
 sub _abstract_query2str_filter {
     my $f = shift;
-    my $qp_class = shift || 'QueryParser';
-    my $qpconfig = $QueryParser::parser_config{$qp_class};
+    my $qp_class = shift || 'OpenILS::QueryParser';
+    my $qpconfig = $OpenILS::QueryParser::parser_config{$qp_class};
 
     return sprintf(
         '%s%s(%s)',
@@ -1366,8 +1366,8 @@ sub _abstract_query2str_filter {
 
 sub _abstract_query2str_modifier {
     my $f = shift;
-    my $qp_class = shift || 'QueryParser';
-    my $qpconfig = $QueryParser::parser_config{$qp_class};
+    my $qp_class = shift || 'OpenILS::QueryParser';
+    my $qpconfig = $OpenILS::QueryParser::parser_config{$qp_class};
 
     return $qpconfig->{operators}{modifier} . $f;
 }
@@ -1385,9 +1385,9 @@ sub abstract_query2str_impl {
     my $abstract_query  = shift;
     my $depth = shift || 0;
 
-    my $qp_class ||= shift || 'QueryParser';
+    my $qp_class ||= shift || 'OpenILS::QueryParser';
     my $force_qp_node = shift || 0;
-    my $qpconfig = $QueryParser::parser_config{$qp_class};
+    my $qpconfig = $OpenILS::QueryParser::parser_config{$qp_class};
 
     my $fs = $qpconfig->{operators}{float_start};
     my $fe = $qpconfig->{operators}{float_end};
@@ -1482,7 +1482,7 @@ sub abstract_query2str_impl {
 }
 
 #-------------------------------
-package QueryParser::query_plan;
+package OpenILS::QueryParser::query_plan;
 
 sub QueryParser {
     my $self = shift;
@@ -1581,7 +1581,7 @@ sub collapse_filters {
     while (@subquery) {
         my $blob = shift @subquery;
         shift @subquery; # joiner
-        next unless $blob->isa('QueryParser::query_plan');
+        next unless $blob->isa('OpenILS::QueryParser::query_plan');
         my $sub_filter = $blob->collapse_filters($name);
         $cur_filter = _merge_filters($cur_filter, $sub_filter, $self->joiner);
     }
@@ -1632,7 +1632,7 @@ sub classed_node {
 
     my $node;
     for my $n (@{$self->{query}}) {
-        next unless (ref($n) && $n->isa( 'QueryParser::query_plan::node' ));
+        next unless (ref($n) && $n->isa( 'OpenILS::QueryParser::query_plan::node' ));
         if ($n->requested_class eq $requested_class) {
             $node = $n;
             last;
@@ -1693,7 +1693,7 @@ sub plan_level {
     if (defined $level) {
         $self->{level} = $level;
         for (@{$self->query_nodes}) {
-            $_->plan_level($level + 1) if (ref and $_->isa('QueryParser::query_plan'));
+            $_->plan_level($level + 1) if (ref and $_->isa('OpenILS::QueryParser::query_plan'));
         }
     }
 
@@ -1794,7 +1794,7 @@ sub to_abstract_query {
 
     if ($opts{with_config}) {
         $opts{with_config} = 0;
-        $abstract_query->{config} = $QueryParser::parser_config{$pkg};
+        $abstract_query->{config} = $OpenILS::QueryParser::parser_config{$pkg};
     }
 
     my $kids = [];
@@ -1802,7 +1802,7 @@ sub to_abstract_query {
     for my $qnode (@{$self->query_nodes}) {
         # Remember: qnode can be a joiner string, a node, or another query_plan
 
-        if (QueryParser::_util::is_joiner($qnode)) {
+        if (OpenILS::QueryParser::_util::is_joiner($qnode)) {
             if ($abstract_query->{children}) {
                 my $open_joiner = (keys(%{$abstract_query->{children}}))[0];
                 next if $open_joiner eq $qnode;
@@ -1818,13 +1818,13 @@ sub to_abstract_query {
         }
     }
 
-    $abstract_query->{children} ||= { QueryParser::_util::default_joiner() => $kids };
+    $abstract_query->{children} ||= { OpenILS::QueryParser::_util::default_joiner() => $kids };
     return $abstract_query;
 }
 
 
 #-------------------------------
-package QueryParser::query_plan::node;
+package OpenILS::QueryParser::query_plan::node;
 use Data::Dumper;
 $Data::Dumper::Indent = 0;
 
@@ -1990,7 +1990,7 @@ sub replace_phrase_in_abstract_query {
     for (my $i = 0; $i < scalar (@$long_list); $i++) {
         my $right = $long_list->[$i];
 
-        if (QueryParser::_util::compare_abstract_atoms(
+        if (OpenILS::QueryParser::_util::compare_abstract_atoms(
             $short_list->[scalar @already], $right
         )) {
             push @already, $i;
@@ -2026,7 +2026,7 @@ sub to_abstract_query {
     my $kids = [];
 
     for my $qatom (@{$self->query_atoms}) {
-        if (QueryParser::_util::is_joiner($qatom)) {
+        if (OpenILS::QueryParser::_util::is_joiner($qatom)) {
             if ($abstract_query->{children}) {
                 my $open_joiner = (keys(%{$abstract_query->{children}}))[0];
                 next if $open_joiner eq $qatom;
@@ -2042,7 +2042,7 @@ sub to_abstract_query {
         }
     }
 
-    $abstract_query->{children} ||= { QueryParser::_util::default_joiner() => $kids };
+    $abstract_query->{children} ||= { OpenILS::QueryParser::_util::default_joiner() => $kids };
 
     if ($self->{phrases} and not $opts{no_phrases}) {
         for my $phrase (@{$self->{phrases}}) {
@@ -2052,7 +2052,7 @@ sub to_abstract_query {
             # sequences of atoms from our abstract query.
 
             my $tmp_prefix = '';
-            $tmp_prefix = $QueryParser::parser_config{$pkg}{operators}{disallowed} if ($self->{negate});
+            $tmp_prefix = $OpenILS::QueryParser::parser_config{$pkg}{operators}{disallowed} if ($self->{negate});
 
             my $tmptree = $self->{plan}->{QueryParser}->new(query => $tmp_prefix.'"'.$phrase.'"')->parse->parse_tree;
             if ($tmptree) {
@@ -2071,12 +2071,12 @@ sub to_abstract_query {
                     next if $@;
 
                     foreach (
-                        QueryParser::_util::find_arrays_in_abstract($abstract_query->{children})
+                        OpenILS::QueryParser::_util::find_arrays_in_abstract($abstract_query->{children})
                     ) {
                         last if $self->replace_phrase_in_abstract_query(
                             $tmplist,
                             $_,
-                            QueryParser::_util::fake_abstract_atom_from_phrase($phrase, $self->{negate}, $pkg)
+                            OpenILS::QueryParser::_util::fake_abstract_atom_from_phrase($phrase, $self->{negate}, $pkg)
                         );
                     }
                 }
@@ -2084,12 +2084,12 @@ sub to_abstract_query {
         }
     }
 
-    $abstract_query->{children} ||= { QueryParser::_util::default_joiner() => $kids };
+    $abstract_query->{children} ||= { OpenILS::QueryParser::_util::default_joiner() => $kids };
     return $abstract_query;
 }
 
 #-------------------------------
-package QueryParser::query_plan::node::atom;
+package OpenILS::QueryParser::query_plan::node::atom;
 
 sub new {
     my $pkg = shift;
@@ -2132,7 +2132,7 @@ sub to_abstract_query {
     };
 }
 #-------------------------------
-package QueryParser::query_plan::filter;
+package OpenILS::QueryParser::query_plan::filter;
 
 sub new {
     my $pkg = shift;
@@ -2171,7 +2171,7 @@ sub to_abstract_query {
 }
 
 #-------------------------------
-package QueryParser::query_plan::facet;
+package OpenILS::QueryParser::query_plan::facet;
 
 sub new {
     my $pkg = shift;
@@ -2211,7 +2211,7 @@ sub to_abstract_query {
 }
 
 #-------------------------------
-package QueryParser::query_plan::modifier;
+package OpenILS::QueryParser::query_plan::modifier;
 
 sub new {
     my $pkg = shift;

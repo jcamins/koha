@@ -1,20 +1,28 @@
+package OpenILS::QueryParser::Driver::PQF;
+use base qw(OpenILS::QueryParser Class::Accessor);
+
 use strict;
 use warnings;
 
-package QueryParser::PQF;
-use base qw(QueryParser Class::Accessor);
-
 use Module::Load::Conditional qw(can_load);
+use OpenILS::QueryParser::Driver::PQF::Util;
+use OpenILS::QueryParser::Driver::PQF::query_plan;
+use OpenILS::QueryParser::Driver::PQF::query_plan::facet;
+use OpenILS::QueryParser::Driver::PQF::query_plan::filter;
+use OpenILS::QueryParser::Driver::PQF::query_plan::modifier;
+use OpenILS::QueryParser::Driver::PQF::query_plan::node;
+use OpenILS::QueryParser::Driver::PQF::query_plan::node::atom;
+use OpenILS::QueryParser::Driver::PQF::query_plan::node::atom;
 
 
 =head1 NAME
 
-QueryParser::PQF - QueryParser driver for PQF
+OpenILS::QueryParser::Driver::PQF - QueryParser driver for PQF
 
 =head1 SYNOPSIS
 
-    use QueryParser::PQF;
-    my $QParser = QueryParser::PQF->new(%args);
+    use OpenILS::QueryParser::Driver::PQF;
+    my $QParser = OpenILS::QueryParser::Driver::PQF->new(%args);
 
 =head1 DESCRIPTION
 
@@ -175,7 +183,7 @@ sub target_syntax {
 
 =head2 date_filter_target_callback
 
-    $QParser->add_bib1_filter_map($server, { 'target_syntax_callback' => \&QueryParser::PQF::date_filter_target_callback, '1' => 'pubdate' });
+    $QParser->add_bib1_filter_map($server, { 'target_syntax_callback' => \&OpenILS::QueryParser::Driver::PQF::date_filter_target_callback, '1' => 'pubdate' });
 
 Callback for date filters. Note that although the first argument is the QParser
 object, this is technically not an object-oriented routine. This has no
@@ -234,7 +242,7 @@ Adds a mapping. Note that this is not used for mappings relating to fields.
 sub _add_mapping {
     my ($self, $map, $name, $server, $attributes) = @_;
 
-    my $attr_string = QueryParser::PQF::_util::attributes_to_attr_string($attributes);
+    my $attr_string = OpenILS::QueryParser::Driver::PQF::Util::attributes_to_attr_string($attributes);
     $attributes->{'attr_string'} = $attr_string;
 
     $map->{'by_name'}{$name}{$server} = $attributes;
@@ -253,7 +261,7 @@ Adds a mapping for field-related data.
 
 sub _add_field_mapping {
     my ($self, $map, $class, $field, $server, $attributes) = @_;
-    my $attr_string = QueryParser::PQF::_util::attributes_to_attr_string($attributes);
+    my $attr_string = OpenILS::QueryParser::Driver::PQF::Util::attributes_to_attr_string($attributes);
     $attributes->{'attr_string'} = $attr_string;
 
     $map->{'by_name'}{$class}{$field}{$server} = $attributes;
@@ -300,7 +308,7 @@ sub bib1_mapping_by_attr {
     my ($self, $type, $server, $attributes) = @_;
     return unless ($server && $attributes);
 
-    my $attr_string = QueryParser::PQF::_util::attributes_to_attr_string($attributes);
+    my $attr_string = OpenILS::QueryParser::Driver::PQF::Util::attributes_to_attr_string($attributes);
 
     return $self->bib1_mapping_by_attr_string($type, $server, $attr_string);
 }
@@ -495,7 +503,7 @@ sub initialize {
                     'date_filter_target_callback' )
                 {
                     $bib1_mapping->{'target_syntax_callback'} =
-                      \&QueryParser::PQF::date_filter_target_callback;
+                      \&OpenILS::QueryParser::Driver::PQF::date_filter_target_callback;
                 }
                 $self->add_bib1_filter_map(
                     $filter => $server => $bib1_mapping );
@@ -523,7 +531,7 @@ sub TEST_SETUP {
     my ($self) = @_;
 
     require YAML::Any;
-    my $config = YAML::Any::LoadFile('/home/jcamins/kohaclone/QueryParser/AutoKohaPQF.yaml');
+    my $config = YAML::Any::LoadFile('/home/jcamins/kohaclone/OpenILS/QueryParser/AutoKohaPQF.yaml');
     $self->initialize($config);
     return $self;
     $self->default_search_class( 'keyword' );
@@ -556,12 +564,12 @@ sub TEST_SETUP {
     $self->add_search_field_alias( 'keyword' => 'lc-card-number' => 'lc-card' );
     $self->add_bib1_field_map('keyword' => 'local-number' => 'biblioserver' => { '1' => '12' } );
     $self->add_search_field_alias( 'keyword' => 'local-number' => 'sn' );
-    $self->add_bib1_filter_map( 'biblioserver', 'copydate', { 'target_syntax_callback' => \&QueryParser::PQF::date_filter_target_callback, '1' => '30', '4' => '4' });
-    $self->add_bib1_filter_map( 'biblioserver', 'pubdate', { 'target_syntax_callback' => \&QueryParser::PQF::date_filter_target_callback, '1' => 'pubdate', '4' => '4' });
+    $self->add_bib1_filter_map( 'biblioserver', 'copydate', { 'target_syntax_callback' => \&OpenILS::QueryParser::Driver::PQF::date_filter_target_callback, '1' => '30', '4' => '4' });
+    $self->add_bib1_filter_map( 'biblioserver', 'pubdate', { 'target_syntax_callback' => \&OpenILS::QueryParser::Driver::PQF::date_filter_target_callback, '1' => 'pubdate', '4' => '4' });
 #    $self->add_bib1_field_map('keyword' => 'date-of-publication' => 'biblioserver' => { '1' => 'pubdate' } );
 #    $self->add_search_field_alias( 'keyword' => 'date-of-publication' => 'yr' );
 #    $self->add_search_field_alias( 'keyword' => 'date-of-publication' => 'pubdate' );
-    $self->add_bib1_filter_map( 'biblioserver', 'acqdate', { 'target_syntax_callback' => \&QueryParser::PQF::date_filter_target_callback, '1' => 'Date-of-acquisition', '4' => '4' });
+    $self->add_bib1_filter_map( 'biblioserver', 'acqdate', { 'target_syntax_callback' => \&OpenILS::QueryParser::Driver::PQF::date_filter_target_callback, '1' => 'Date-of-acquisition', '4' => '4' });
     $self->add_bib1_field_map('keyword' => 'isbn' => 'biblioserver' => { '1' => '7' } );
     $self->add_search_field_alias( 'keyword' => 'isbn' => 'nb' );
     $self->add_bib1_field_map('keyword' => 'issn' => 'biblioserver' => { '1' => '8' } );
@@ -784,225 +792,6 @@ sub TEST_SETUP {
     $self->add_bib1_modifier_map('Relevance' => 'authorityserver' => { '2' => '102' } );
 
     return $self;
-}
-
-#-------------------------------
-package QueryParser::PQF::query_plan;
-use base 'QueryParser::query_plan';
-
-=head2 QueryParser::PQF::query_plan::target_syntax
-
-    my $pqf = $query_plan->target_syntax($server);
-
-Transforms a QueryParser::query_plan object into PQF. Do not use directly.
-
-=cut
-
-sub target_syntax {
-    my ($self, $server) = @_;
-    my $pqf = '';
-    my $node_pqf;
-    my $node_count = 0;
-
-    for my $node ( @{$self->query_nodes} ) {
-
-        if (ref($node)) {
-            $node_pqf = $node->target_syntax($server);
-            $node_count++ if $node_pqf;
-            $pqf .= $node_pqf;
-        }
-    }
-    $pqf = ($self->joiner eq '|' ? ' @or ' : ' @and ') x ($node_count - 1) . $pqf;
-    $node_count = ($node_count ? '1' : '0');
-    for my $node ( @{$self->filters} ) {
-        if (ref($node)) {
-            $node_pqf = $node->target_syntax($server);
-            $node_count++ if $node_pqf;
-            $pqf .= $node_pqf;
-        }
-    }
-    $pqf = ($self->joiner eq '|' ? ' @or ' : ' @and ') x ($node_count - 1) . $pqf;
-    foreach my $modifier ( @{$self->modifiers} ) {
-        my $modifierpqf = $modifier->target_syntax($server, $self);
-        $pqf = $modifierpqf . ' ' . $pqf if $modifierpqf;
-    }
-    return ($self->negate ? '@not @attr 1=_ALLRECORDS @attr 2=103 "" ' : '') . $pqf;
-}
-
-#-------------------------------
-package QueryParser::PQF::query_plan::filter;
-use base 'QueryParser::query_plan::filter';
-
-=head2 QueryParser::PQF::query_plan::filter::target_syntax
-
-    my $pqf = $filter->target_syntax($server);
-
-Transforms a QueryParser::query_plan::filter object into PQF. Do not use
-directly.
-
-=cut
-
-sub target_syntax {
-    my ($self, $server) = @_;
-    my $attributes = $self->plan->QueryParser->bib1_mapping_by_name( 'filter', $server, $self->name );
-
-    if ($attributes->{'target_syntax_callback'}) {
-        return $attributes->{'target_syntax_callback'}->($self->plan->QueryParser, $self->name, $self->args, $self->negate, $server);
-    } else {
-        return '';
-    }
-}
-
-#-------------------------------
-package QueryParser::PQF::query_plan::facet;
-use base 'QueryParser::query_plan::facet';
-
-=head2 QueryParser::PQF::query_plan::facet::target_syntax
-
-    my $pqf = $facet->target_syntax($server);
-
-Transforms a QueryParser::query_plan::facet object into PQF. Do not use
-directly.
-
-=cut
-
-sub target_syntax {
-    my ($self, $server) = @_;
-
-    return '';
-}
-
-#-------------------------------
-package QueryParser::PQF::query_plan::modifier;
-use base 'QueryParser::query_plan::modifier';
-
-=head2 QueryParser::PQF::query_plan::modifier::target_syntax
-
-    my $pqf = $modifier->target_syntax($server, $query_plan);
-
-Transforms a QueryParser::query_plan::modifier object into PQF. Do not use
-directly. The second argument points ot the query_plan, since modifiers do
-not have a reference to their parent query_plan.
-
-=cut
-
-sub target_syntax {
-    my ($self, $server, $query_plan) = @_;
-    my $pqf = '';
-    my @fields;
-
-    my $attributes = $query_plan->QueryParser->bib1_mapping_by_name('modifier', $server, $self->name);
-    $pqf = ($attributes->{'op'} ? $attributes->{'op'} . ' ' : '') . ($self->negate ? '@not @attr 1=_ALLRECORDS @attr 2=103 "" ' : '') . $attributes->{'attr_string'};
-    return $pqf;
-}
-
-#-------------------------------
-package QueryParser::PQF::query_plan::node::atom;
-use base 'QueryParser::query_plan::node::atom';
-
-=head2 QueryParser::PQF::query_plan::node::atom::target_syntax
-
-    my $pqf = $atom->target_syntax($server);
-
-Transforms a QueryParser::query_plan::node::atom object into PQF. Do not use
-directly.
-
-=cut
-
-sub target_syntax {
-    my ($self, $server) = @_;
-
-    return ' "' .  $self->content . '" ';
-}
-
-#-------------------------------
-package QueryParser::PQF::query_plan::node;
-use base 'QueryParser::query_plan::node';
-
-=head2 QueryParser::query_plan::node::target_syntax
-
-    my $pqf = $node->target_syntax($server);
-
-Transforms a QueryParser::query_plan::node object into PQF. Do not use directly.
-
-=cut
-
-sub target_syntax {
-    my ($self, $server) = @_;
-    my $pqf = '';
-    my $atom_content;
-    my $atom_count = 0;
-    my @fields;
-    my $fieldobj;
-    my $relbump;
-
-    if (scalar(@{$self->fields})) {
-        foreach my $field (@{$self->fields}) {
-            $fieldobj = $self->plan->QueryParser->bib1_mapping_by_name('field', $server, $self->classname, $field);
-            $relbump = $self->plan->QueryParser->bib1_mapping_by_name('relevance_bump', $server, $self->classname, $field);
-            if ($relbump) {
-                $fieldobj->{'attr_string'} .= ' ' . $relbump->{'attr_string'};
-            }
-            push @fields, $fieldobj;
-        }
-    } else {
-        $fieldobj = $self->plan->QueryParser->bib1_mapping_by_name('field', $server, $self->classname, '');
-        my $relbumps = $self->plan->QueryParser->bib1_mapping_by_name('relevance_bump', $server, $self->classname, '');
-        push @fields, $fieldobj;
-        if ($relbumps) {
-            foreach my $field (keys %$relbumps) {
-                $relbump = $relbumps->{$field};
-                $fieldobj = $self->plan->QueryParser->bib1_mapping_by_name('field', $server, $relbump->{'classname'}, $relbump->{'field'});
-                $fieldobj->{'attr_string'} .= ' ' . $relbump->{'attr_string'};
-                push @fields, $fieldobj;
-            }
-        }
-    }
-
-    if (@{$self->phrases}) {
-        foreach my $phrase (@{$self->phrases}) {
-            if ($phrase) {
-                $pqf .= ' @or ' x (scalar(@fields) - 1);
-                foreach my $attributes (@fields) {
-                    $pqf .= $attributes->{'attr_string'} . ($attributes->{'4'} ? '' : ' @attr 4=1') . ' "' . $phrase . '" ';
-                }
-                $atom_count++;
-            }
-        }
-    } else {
-        foreach my $atom (@{$self->query_atoms}) {
-            if (ref($atom)) {
-                $atom_content = $atom->target_syntax($server);
-                if ($atom_content) {
-                    $pqf .= ' @or ' x (scalar(@fields) - 1);
-                    foreach my $attributes (@fields) {
-                        $pqf .= $attributes->{'attr_string'} . ($attributes->{'4'} ? '' : ' @attr 4=6 ') . $atom_content . ' ';
-                    }
-                    $atom_count++;
-                }
-            }
-        }
-    }
-    $pqf = (QueryParser::_util::default_joiner eq '|' ? ' @or ' : ' @and ') x ($atom_count - 1) . $pqf;
-    return ($self->negate ? '@not @attr 1=_ALLRECORDS @attr 2=103 "" ' : '') . $pqf;
-}
-
-package QueryParser::PQF::_util;
-use Scalar::Util qw(looks_like_number);
-
-sub attributes_to_attr_string {
-    my ($attributes) = @_;
-    my $attr_string = '';
-    my $key;
-    my $value;
-    while (($key, $value) = each(%$attributes)) {
-        next unless looks_like_number($key);
-        $attr_string .= ' @attr ' . $key . '=' . $value . ' ';
-    }
-    $attr_string =~ s/^\s*//;
-    $attr_string =~ s/\s*$//;
-    $attr_string .= ' ' . $attributes->{''} if defined $attributes->{''};
-    return $attr_string;
 }
 
 1;
