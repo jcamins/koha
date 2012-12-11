@@ -970,10 +970,10 @@ getting in anyone's way.
 sub _new_queryparser {
     my $qpmodules = {
         'OpenILS::QueryParser'           => undef,
-        'OpenILS::QueryParser::Driver::PQF' => undef
+        'Koha::QueryParser::Driver::PQF' => undef
     };
     if ( can_load( 'modules' => $qpmodules ) ) {
-        my $QParser     = OpenILS::QueryParser::Driver::PQF->new();
+        my $QParser     = Koha::QueryParser::Driver::PQF->new();
         my $config_file = $context->config('queryparser_config');
         $config_file ||= '/etc/koha/searchengine/queryparser.yaml';
         if ( $QParser->load_config($config_file) ) {
