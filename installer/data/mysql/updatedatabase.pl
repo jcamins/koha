@@ -6097,6 +6097,26 @@ if (C4::Context->preference("Version") < TransformToNum($DBversion)) {
     SetVersion ($DBversion);
 }
 
+$DBversion = "3.11.00.XXX";
+if (C4::Context->preference("Version") < TransformToNum($DBversion)) {
+    print "Upgrade to $DBversion done (Bug 9240: Make search operators configurable)\n";
+    $dbh->do(
+        q/CREATE TABLE search_operators (
+            operator VARCHAR(16),
+            value VARCHAR(4),
+            PRIMARY KEY (operator),
+            UNIQUE KEY (value)
+          ) ENGINE=InnoDB DEFAULT CHARSET=utf8/
+    ) unless TableExists('searc_operators');
+    $dbh->do(
+        q/INSERT INTO search_operators( operator, value ) VALUES( 'and', '&&' ),
+            ( 'or',          '||' ), ( 'float_start', '{{' ), ( 'float_end', '}}' ),
+            ( 'group_start', '{' ),  ( 'group_end',   '}' ),  ( 'required',  '+' ),
+            ( 'disallowed',  '-' ),  ( 'modifier',    '#' ),  ( 'negated',   '!' )/
+    );
+    SetVersion ($DBversion);
+}
+
 =head1 FUNCTIONS
 
 =head2 TableExists($table)
