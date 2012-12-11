@@ -388,3 +388,4 @@ INSERT INTO systempreferences (variable, value, options, explanation, type) VALU
 INSERT INTO systempreferences (variable,value,explanation,options,type) VALUES('HoldsToPullStartDate','2','Set the default start date for the Holds to pull list to this many days ago',NULL,'Integer');
 INSERT INTO systempreferences (variable,value,explanation,options,type) VALUES('alphabet','A B C D E F G H I J K L M N O P Q R S T U V W X Y Z','Alphabet than can be expanded into browse links, e.g. on Home > Patrons',NULL,'free');
 INSERT INTO systempreferences (variable,value,explanation,options,type) VALUES('RefundLostItemFeeOnReturn', '1', 'If enabled, the lost item fee charged to a borrower will be refunded when the lost item is returned.', NULL, 'YesNo');
+INSERT INTO systempreferences (variable,value,explanation,options,type) VALUES('UseQueryParser', '1', 'If enabled, try to use QueryParser for queries.', NULL, 'YesNo');
