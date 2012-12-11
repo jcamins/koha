@@ -201,6 +201,8 @@ sub SearchAuthorities {
         }
     } else {
         my $query;
+        my $qpquery;
+        my $QParser = C4::Context->queryparser if (C4::Context->preference('UseQueryParser'));
         my $attr = '';
             # the marclist may contain "mainentry". In this case, search the tag_to_report, that depends on
             # the authtypecode. Then, search on $a of this tag_to_report
@@ -218,6 +220,9 @@ sub SearchAuthorities {
             }
             if ($n>1){
                 while ($n>1){$query= "\@or ".$query;$n--;}
+            }
+            if ($QParser) {
+                $qpquery .= '(authtype:' . join('authtype:', @auths) . ')';
             }
         }
         
@@ -276,6 +281,9 @@ sub SearchAuthorities {
                 $q2 .=$attr;
                 $dosearch=1;
                 ++$attr_cnt;
+                if ($QParser) {
+                    $qpquery .= " @$tags[$i]:@$value[$i]";
+                }
             }#if value
         }
         ##Add how many queries generated
@@ -296,8 +304,21 @@ sub SearchAuthorities {
         } elsif ($sortby eq 'AuthidDsc') {
             $orderstring = '@attr 7=2 @attr 4=109 @attr 1=Local-Number 0';
         }
-        $query=($query?$query:"\@attr 1=_ALLRECORDS \@attr 2=103 ''");
-        $query="\@or $orderstring $query" if $orderstring;
+        if ($QParser) {
+            $qpquery .= ' all:all' unless $value->[0];
+
+            if ( $value->[0] =~ m/^qp=(.*)$/ ) {
+                $qpquery = $1;
+            }
+
+            $qpquery .= " #$sortby";
+
+            $QParser->parse( $qpquery );
+            $query = $QParser->target_syntax('authority');
+        } else {
+            $query=($query?$query:"\@attr 1=_ALLRECORDS \@attr 2=103 ''");
+            $query="\@or $orderstring $query" if $orderstring;
+        }
 
         $offset=0 unless $offset;
         my $counter = $offset;
