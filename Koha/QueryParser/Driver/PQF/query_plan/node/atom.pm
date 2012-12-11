@@ -1,14 +1,14 @@
-package OpenILS::QueryParser::Driver::PQF::query_plan::node::atom;
+package Koha::QueryParser::Driver::PQF::query_plan::node::atom;
 use base 'OpenILS::QueryParser::query_plan::node::atom';
 
 use strict;
 use warnings;
 
-=head2 OpenILS::QueryParser::Driver::PQF::query_plan::node::atom::target_syntax
+=head2 Koha::QueryParser::Driver::PQF::query_plan::node::atom::target_syntax
 
     my $pqf = $atom->target_syntax($server);
 
-Transforms a QueryParser::query_plan::node::atom object into PQF. Do not use
+Transforms an OpenILS::QueryParser::query_plan::node::atom object into PQF. Do not use
 directly.
 
 =cut

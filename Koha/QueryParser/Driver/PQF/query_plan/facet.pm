@@ -1,14 +1,14 @@
-package OpenILS::QueryParser::Driver::PQF::query_plan::facet;
+package Koha::QueryParser::Driver::PQF::query_plan::facet;
 use base 'OpenILS::QueryParser::query_plan::facet';
 
 use strict;
 use warnings;
 
-=head2 OpenILS::QueryParser::Driver::PQF::query_plan::facet::target_syntax
+=head2 Koha::QueryParser::Driver::PQF::query_plan::facet::target_syntax
 
     my $pqf = $facet->target_syntax($server);
 
-Transforms a QueryParser::query_plan::facet object into PQF. Do not use
+Transforms an OpenILS::QueryParser::query_plan::facet object into PQF. Do not use
 directly.
 
 =cut

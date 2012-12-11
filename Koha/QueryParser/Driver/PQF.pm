@@ -1,28 +1,28 @@
-package OpenILS::QueryParser::Driver::PQF;
+package Koha::QueryParser::Driver::PQF;
 use base qw(OpenILS::QueryParser Class::Accessor);
 
 use strict;
 use warnings;
 
 use Module::Load::Conditional qw(can_load);
-use OpenILS::QueryParser::Driver::PQF::Util;
-use OpenILS::QueryParser::Driver::PQF::query_plan;
-use OpenILS::QueryParser::Driver::PQF::query_plan::facet;
-use OpenILS::QueryParser::Driver::PQF::query_plan::filter;
-use OpenILS::QueryParser::Driver::PQF::query_plan::modifier;
-use OpenILS::QueryParser::Driver::PQF::query_plan::node;
-use OpenILS::QueryParser::Driver::PQF::query_plan::node::atom;
-use OpenILS::QueryParser::Driver::PQF::query_plan::node::atom;
+use Koha::QueryParser::Driver::PQF::Util;
+use Koha::QueryParser::Driver::PQF::query_plan;
+use Koha::QueryParser::Driver::PQF::query_plan::facet;
+use Koha::QueryParser::Driver::PQF::query_plan::filter;
+use Koha::QueryParser::Driver::PQF::query_plan::modifier;
+use Koha::QueryParser::Driver::PQF::query_plan::node;
+use Koha::QueryParser::Driver::PQF::query_plan::node::atom;
+use Koha::QueryParser::Driver::PQF::query_plan::node::atom;
 
 
 =head1 NAME
 
-OpenILS::QueryParser::Driver::PQF - QueryParser driver for PQF
+Koha::QueryParser::Driver::PQF - QueryParser driver for PQF
 
 =head1 SYNOPSIS
 
-    use OpenILS::QueryParser::Driver::PQF;
-    my $QParser = OpenILS::QueryParser::Driver::PQF->new(%args);
+    use Koha::QueryParser::Driver::PQF;
+    my $QParser = Koha::QueryParser::Driver::PQF->new(%args);
 
 =head1 DESCRIPTION
 
@@ -183,7 +183,7 @@ sub target_syntax {
 
 =head2 date_filter_target_callback
 
-    $QParser->add_bib1_filter_map($server, { 'target_syntax_callback' => \&OpenILS::QueryParser::Driver::PQF::date_filter_target_callback, '1' => 'pubdate' });
+    $QParser->add_bib1_filter_map($server, { 'target_syntax_callback' => \&Koha::QueryParser::Driver::PQF::date_filter_target_callback, '1' => 'pubdate' });
 
 Callback for date filters. Note that although the first argument is the QParser
 object, this is technically not an object-oriented routine. This has no
@@ -242,7 +242,7 @@ Adds a mapping. Note that this is not used for mappings relating to fields.
 sub _add_mapping {
     my ($self, $map, $name, $server, $attributes) = @_;
 
-    my $attr_string = OpenILS::QueryParser::Driver::PQF::Util::attributes_to_attr_string($attributes);
+    my $attr_string = Koha::QueryParser::Driver::PQF::Util::attributes_to_attr_string($attributes);
     $attributes->{'attr_string'} = $attr_string;
 
     $map->{'by_name'}{$name}{$server} = $attributes;
@@ -261,7 +261,7 @@ Adds a mapping for field-related data.
 
 sub _add_field_mapping {
     my ($self, $map, $class, $field, $server, $attributes) = @_;
-    my $attr_string = OpenILS::QueryParser::Driver::PQF::Util::attributes_to_attr_string($attributes);
+    my $attr_string = Koha::QueryParser::Driver::PQF::Util::attributes_to_attr_string($attributes);
     $attributes->{'attr_string'} = $attr_string;
 
     $map->{'by_name'}{$class}{$field}{$server} = $attributes;
@@ -308,7 +308,7 @@ sub bib1_mapping_by_attr {
     my ($self, $type, $server, $attributes) = @_;
     return unless ($server && $attributes);
 
-    my $attr_string = OpenILS::QueryParser::Driver::PQF::Util::attributes_to_attr_string($attributes);
+    my $attr_string = Koha::QueryParser::Driver::PQF::Util::attributes_to_attr_string($attributes);
 
     return $self->bib1_mapping_by_attr_string($type, $server, $attr_string);
 }
@@ -503,7 +503,7 @@ sub initialize {
                     'date_filter_target_callback' )
                 {
                     $bib1_mapping->{'target_syntax_callback'} =
-                      \&OpenILS::QueryParser::Driver::PQF::date_filter_target_callback;
+                      \&Koha::QueryParser::Driver::PQF::date_filter_target_callback;
                 }
                 $self->add_bib1_filter_map(
                     $filter => $server => $bib1_mapping );
@@ -577,12 +577,9 @@ sub TEST_SETUP {
     $self->add_search_field_alias( 'keyword' => 'lc-card-number' => 'lc-card' );
     $self->add_bib1_field_map('keyword' => 'local-number' => 'biblioserver' => { '1' => '12' } );
     $self->add_search_field_alias( 'keyword' => 'local-number' => 'sn' );
-    $self->add_bib1_filter_map( 'biblioserver', 'copydate', { 'target_syntax_callback' => \&OpenILS::QueryParser::Driver::PQF::date_filter_target_callback, '1' => '30', '4' => '4' });
-    $self->add_bib1_filter_map( 'biblioserver', 'pubdate', { 'target_syntax_callback' => \&OpenILS::QueryParser::Driver::PQF::date_filter_target_callback, '1' => 'pubdate', '4' => '4' });
-#    $self->add_bib1_field_map('keyword' => 'date-of-publication' => 'biblioserver' => { '1' => 'pubdate' } );
-#    $self->add_search_field_alias( 'keyword' => 'date-of-publication' => 'yr' );
-#    $self->add_search_field_alias( 'keyword' => 'date-of-publication' => 'pubdate' );
-    $self->add_bib1_filter_map( 'biblioserver', 'acqdate', { 'target_syntax_callback' => \&OpenILS::QueryParser::Driver::PQF::date_filter_target_callback, '1' => 'Date-of-acquisition', '4' => '4' });
+    $self->add_bib1_filter_map( 'biblioserver', 'copydate', { 'target_syntax_callback' => \&Koha::QueryParser::Driver::PQF::date_filter_target_callback, '1' => '30', '4' => '4' });
+    $self->add_bib1_filter_map( 'biblioserver', 'pubdate', { 'target_syntax_callback' => \&Koha::QueryParser::Driver::PQF::date_filter_target_callback, '1' => 'pubdate', '4' => '4' });
+    $self->add_bib1_filter_map( 'biblioserver', 'acqdate', { 'target_syntax_callback' => \&Koha::QueryParser::Driver::PQF::date_filter_target_callback, '1' => 'Date-of-acquisition', '4' => '4' });
     $self->add_bib1_field_map('keyword' => 'isbn' => 'biblioserver' => { '1' => '7' } );
     $self->add_search_field_alias( 'keyword' => 'isbn' => 'nb' );
     $self->add_bib1_field_map('keyword' => 'issn' => 'biblioserver' => { '1' => '8' } );
@@ -769,9 +766,6 @@ sub TEST_SETUP {
     $self->add_search_field_alias( 'title' => 'exacttitle' => 'ti,ext' );
     $self->add_bib1_field_map('author' => 'exactauthor' => 'biblioserver' => { '1' => '1003', '4' => '1', '6' => '3' } );
     $self->add_search_field_alias( 'author' => 'exactauthor' => 'au,ext' );
-    #$self->add_bib1_field_map('keyword' => 'titlekw' => 'biblioserver' => { '1' => '4' } );
-    #$self->add_relevance_bump( 'biblioserver' => 'keyword' => 'publisher' => 34, 1 );
-    #$self->add_relevance_bump( 'biblioserver' => 'keyword' => 'titlekw' => 14, 1 );
 
     $self->add_bib1_field_map('subject' => 'headingmain' => 'authorityserver' => { '1' => 'Heading-Main' } );
     $self->add_bib1_field_map('subject' => 'heading' => 'authorityserver' => { '1' => 'Heading' } );

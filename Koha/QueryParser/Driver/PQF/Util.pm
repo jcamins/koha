@@ -1,4 +1,4 @@
-package OpenILS::QueryParser::Driver::PQF::Util;
+package Koha::QueryParser::Driver::PQF::Util;
 use Scalar::Util qw(looks_like_number);
 
 use strict;

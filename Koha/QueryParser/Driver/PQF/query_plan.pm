@@ -1,14 +1,14 @@
-package OpenILS::QueryParser::Driver::PQF::query_plan;
+package Koha::QueryParser::Driver::PQF::query_plan;
 use base 'OpenILS::QueryParser::query_plan';
 
 use strict;
 use warnings;
 
-=head2 OpenILS::QueryParser::Driver::PQF::query_plan::target_syntax
+=head2 Koha::QueryParser::Driver::PQF::query_plan::target_syntax
 
     my $pqf = $query_plan->target_syntax($server);
 
-Transforms a QueryParser::query_plan object into PQF. Do not use directly.
+Transforms an OpenILS::QueryParser::query_plan object into PQF. Do not use directly.
 
 =cut
 
