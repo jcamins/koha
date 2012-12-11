@@ -227,17 +227,20 @@ sub SimpleSearch {
         my $results = [];
         my $total_hits = 0;
 
+        my $QParser = C4::Context->queryparser if (C4::Context->preference('UseQueryParser') && ! ($query =~ m/\w,\w/));
+
         # Initialize & Search Zebra
         for ( my $i = 0 ; $i < @servers ; $i++ ) {
             eval {
-                my $QParser = OpenILS::QueryParser::Driver::PQF->new();
-                $QParser->TEST_SETUP;
-
-                $QParser->parse( $query );
-                $query = $QParser->target_syntax($servers[$i]);
-
                 $zconns[$i] = C4::Context->Zconn( $servers[$i], 1 );
-                $zoom_queries[$i] = new ZOOM::Query::PQF( $query, $zconns[$i]);
+                if ($QParser) {
+                    $query =~ s/=/:/g;
+                    $QParser->parse( $query );
+                    $query = $QParser->target_syntax($servers[$i]);
+                    $zoom_queries[$i] = new ZOOM::Query::PQF( $query, $zconns[$i]);
+                } else {
+                    $zoom_queries[$i] = new ZOOM::Query::CCL2RPN( $query, $zconns[$i]);
+                }
                 $tmpresults[$i] = $zconns[$i]->search( $zoom_queries[$i] );
 
                 # error handling
@@ -1158,12 +1161,12 @@ sub parseQuery {
     my $query = $operands[0];
     my $index;
     my $term;
+    my $query_desc;
 
-    my $useQueryParser = 1;
+    my $QParser = C4::Context->queryparser if (C4::Context->preference('UseQueryParser') || $query =~ s/^qp=//);
+    undef $QParser if ($query =~ m/^(ccl=|pqf=|cql=)/ || grep (/\w,\w/, @operands) );
 
-    unless ( $query =~ m/^(ccl=|pqf=|cql=|qp=)/
-        || !$useQueryParser
-        || grep( /,/, @operands ) )
+    if ($QParser)
     {
         $query = '';
         for ( my $ii = 0 ; $ii <= @operands ; $ii++ ) {
@@ -1178,28 +1181,23 @@ sub parseQuery {
         foreach my $modifier (@sort_by) {
             $query .= " #$modifier";
         }
-        $query = "qp=$query";
-        warn $query
     }
 
-    $query = 'qp=' . $query if ( $query =~ m/^(?!qp=).*(su-br|su-na|su-rl)/ );
-    if ( $query =~ m/^qp=(.*)$/ ) {
-        my $QParser = OpenILS::QueryParser::Driver::PQF->new();
-        $QParser->TEST_SETUP;
+    if ( $QParser ) {
+        $query_desc = $query;
         if ( C4::Context->preference("QueryWeightFields") ) {
         }
         $QParser->add_bib1_filter_map( 'biblioserver', 'su-br', { 'callback' => \&_handle_exploding_index });
         $QParser->add_bib1_filter_map( 'biblioserver', 'su-na', { 'callback' => \&_handle_exploding_index });
         $QParser->add_bib1_filter_map( 'biblioserver', 'su-rl', { 'callback' => \&_handle_exploding_index });
-        $QParser->parse( $1 );
+        $QParser->parse( $query );
         $operands[0] = "pqf=" . $QParser->target_syntax('biblioserver');
-        $operands[1] = OpenILS::QueryParser::Canonicalize::abstract_query2str_impl($QParser->parse_tree()->to_abstract_query());
 # TODO: once we are using QueryParser, all this special case code for
 #       exploded search indexes will be replaced by a callback to
 #       _handle_exploding_index
     }
 
-    return ( $operators, \@operands, $indexes, $limits, $sort_by, $scan, $lang);
+    return ( $operators, \@operands, $indexes, $limits, $sort_by, $scan, $lang, $query_desc);
 }
 
 =head2 buildQuery
@@ -1223,7 +1221,8 @@ sub buildQuery {
 
     warn "---------\nEnter buildQuery\n---------" if $DEBUG;
 
-    ( $operators, $operands, $indexes, $limits, $sort_by, $scan, $lang) = parseQuery($operators, $operands, $indexes, $limits, $sort_by, $scan, $lang);
+    my $query_desc;
+    ( $operators, $operands, $indexes, $limits, $sort_by, $scan, $lang, $query_desc) = parseQuery($operators, $operands, $indexes, $limits, $sort_by, $scan, $lang);
 
     # dereference
     my @operators = $operators ? @$operators : ();
@@ -1251,7 +1250,6 @@ sub buildQuery {
 
     # initialize the variables we're passing back
     my $query_cgi;
-    my $query_desc;
     my $query_type;
 
     my $limit;
@@ -1286,10 +1284,13 @@ sub buildQuery {
         return ( undef, $', $', "q=cql=$'", $', '', '', '', '', 'cql' );
     }
     if ( $query =~ /^pqf=/ ) {
-        $query_desc = $';
-        $query_desc = $operands[1] if $operands[1];
-        warn "Query desc: $query_desc\n";
-        return ( undef, $', $query_desc, "q=pqf=$'", $', '', '', '', '', 'pqf' );
+        if ($query_desc) {
+            $query_cgi = "q=$query_desc";
+        } else {
+            $query_desc = $';
+            $query_cgi = "q=pqf=$'";
+        }
+        return ( undef, $', $', $query_cgi, $query_desc, '', '', '', '', 'pqf' );
     }
 
     # pass nested queries directly
