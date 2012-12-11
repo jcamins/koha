@@ -23,21 +23,21 @@ sub target_syntax {
 
     if (scalar(@{$self->fields})) {
         foreach my $field (@{$self->fields}) {
-            $fieldobj = $self->plan->QueryParser->bib1_mapping_by_name('field', $server, $self->classname, $field);
-            $relbump = $self->plan->QueryParser->bib1_mapping_by_name('relevance_bump', $server, $self->classname, $field);
+            $fieldobj = $self->plan->QueryParser->bib1_mapping_by_name('field', $self->classname, $field, $server);
+            $relbump = $self->plan->QueryParser->bib1_mapping_by_name('relevance_bump', $self->classname, $field, $server);
             if ($relbump) {
                 $fieldobj->{'attr_string'} .= ' ' . $relbump->{'attr_string'};
             }
             push @fields, $fieldobj;
         }
     } else {
-        $fieldobj = $self->plan->QueryParser->bib1_mapping_by_name('field', $server, $self->classname, '');
-        my $relbumps = $self->plan->QueryParser->bib1_mapping_by_name('relevance_bump', $server, $self->classname, '');
+        $fieldobj = $self->plan->QueryParser->bib1_mapping_by_name('field', $self->classname, '', $server);
+        my $relbumps = $self->plan->QueryParser->bib1_mapping_by_name('relevance_bump', $self->classname, '', $server);
         push @fields, $fieldobj;
         if ($relbumps) {
             foreach my $field (keys %$relbumps) {
                 $relbump = $relbumps->{$field};
-                $fieldobj = $self->plan->QueryParser->bib1_mapping_by_name('field', $server, $relbump->{'classname'}, $relbump->{'field'});
+                $fieldobj = $self->plan->QueryParser->bib1_mapping_by_name('field', $relbump->{'classname'}, $relbump->{'field'}, $server);
                 $fieldobj->{'attr_string'} .= ' ' . $relbump->{'attr_string'};
                 push @fields, $fieldobj;
             }

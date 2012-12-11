@@ -19,7 +19,7 @@ sub target_syntax {
     my $pqf = '';
     my @fields;
 
-    my $attributes = $query_plan->QueryParser->bib1_mapping_by_name('modifier', $server, $self->name);
+    my $attributes = $query_plan->QueryParser->bib1_mapping_by_name('modifier', $self->name, $server);
     $pqf = ($attributes->{'op'} ? $attributes->{'op'} . ' ' : '') . ($self->negate ? '@not @attr 1=_ALLRECORDS @attr 2=103 "" ' : '') . $attributes->{'attr_string'};
     return $pqf;
 }
