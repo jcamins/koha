@@ -3056,6 +3056,18 @@ CREATE TABLE IF NOT EXISTS `borrower_modifications` (
   KEY `borrowernumber` (`borrowernumber`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+--
+-- 'search_operators' table. This table stores user-configured search operators.
+--
+
+DROP TABLE IF EXISTS search_operators;
+CREATE TABLE search_operators (
+    operator VARCHAR(16), -- Operator identifier used by QueryParser
+    value VARCHAR(4), -- String to be used as operator by user
+    PRIMARY KEY (operator),
+    UNIQUE KEY (value)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
