@@ -798,6 +798,8 @@ sub parse {
 #        )
 #    );
 
+    undef $self->{_parse_tree};
+
     $self->decompose( $self->query( shift() ) );
 
     if ($self->floating_plan) {
