@@ -2977,6 +2977,16 @@ CREATE TABLE borrower_attribute_types_branches( -- association table between bor
     FOREIGN KEY (b_branchcode) REFERENCES branches(branchcode) ON DELETE CASCADE
 ) ENGINE=INNODB DEFAULT CHARSET=utf8;
 
+-- 'search_operators' table. This table stores user-configured search operators.
+--
+
+DROP TABLE IF EXISTS search_operators;
+CREATE TABLE search_operators (
+    operator VARCHAR(16),
+    value VARCHAR(4),
+    PRIMARY KEY (operator),
+    UNIQUE KEY (value)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
