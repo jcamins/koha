@@ -527,12 +527,25 @@ sub initialize {
     return $self;
 }
 
+=head2 load_config
+
+  $QParser->load_config($file_name);
+
+Load a YAML file with a parser configuration.
+
+=cut
+
+sub load_config {
+    my ($self, $file) = @_;
+    require YAML::Any;
+    my $config = YAML::Any::LoadFile($file);
+    $self->initialize($config);
+    return $self;
+}
+
 sub TEST_SETUP {
     my ($self) = @_;
 
-    require YAML::Any;
-    my $config = YAML::Any::LoadFile('/home/jcamins/kohaclone/OpenILS/QueryParser/AutoKohaPQF.yaml');
-    $self->initialize($config);
     return $self;
     $self->default_search_class( 'keyword' );
 
