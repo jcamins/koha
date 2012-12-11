@@ -36,7 +36,6 @@ use URI::Escape;
 use Business::ISBN;
 use MARC::Record;
 use MARC::Field;
-use OpenILS::QueryParser::Driver::PQF;
 
 use vars qw($VERSION @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS $DEBUG);
 
@@ -1181,9 +1180,7 @@ sub parseQuery {
         foreach my $modifier (@sort_by) {
             $query .= " #$modifier";
         }
-    }
 
-    if ( $QParser ) {
         $query_desc = $query;
         if ( C4::Context->preference("QueryWeightFields") ) {
         }
