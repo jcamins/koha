@@ -15,10 +15,12 @@ sub usage {
 my $verbose   = 0;
 my $want_help = 0;
 my $timeout   = 60;
+my $add_local = 1;
 
 my $result = GetOptions(
     'v|verbose' => \$verbose,
     'h|help'    => \$want_help,
+    'local!'    => \$add_local,
     't|timeout' => \$timeout,
 );
 
@@ -28,7 +30,11 @@ if ( not $result or $want_help ) {
     usage();
 }
 
-die "A domain must be specified" unless @ARGV;
+my @domains = @ARGV;
+
+push @domains, 'local' if $add_local;
+
+die "A domain must be specified" unless @domains;
 
 my $res = Net::DNS::Resolver->new(
     'tcp_timeout' => $timeout,
@@ -38,14 +44,14 @@ my $query;
 
 my %servers;
 
-foreach my $domain (@ARGV) {
-    print "Querying $domain" if $verbose;
+foreach my $domain (@domains) {
+    print "Querying for SRV records in _koha._tcp.$domain\n" if $verbose;
     $query = $res->search( "_koha._tcp.$domain", 'SRV' );
     if ($query) {
         my @answers = $query->answer;
 
         foreach my $rr (@answers) {
-            print "Adding " . $rr->target . " from $domain domain" if $verbose;
+            print "Adding peer " . $rr->target . " from $domain domain\n" if $verbose;
             $servers{ $rr->target } = {
                 'domain'   => $domain,
                 'priority' => $rr->priority,
@@ -115,6 +121,29 @@ locate-ill-peers.pl
 
 This cron job searches for peers in the specified domain and puts their
 information in the ill_peers table in the Koha database.
+
+=head1 OPTIONS
+
+=over 8
+
+=item --verbose, -v
+
+Print verbose logging information.
+
+=item --help, -h
+
+Print this help.
+
+=item --local, --no-local
+
+Enable or disable the automatic inclusion of the .local domain. Defaults to
+including .local.
+
+=item --timeout, -t
+
+Set timeout on DNS queries. Defaults to 60 seconds.
+
+=back
 
 =head1 AUTHOR
 
