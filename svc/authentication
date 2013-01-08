@@ -1,6 +1,7 @@
 #!/usr/bin/perl
 
 # Copyright 2007 LibLime
+# Parts copyright 2012 C & P Bibliography Services
 #
 # This file is part of Koha.
 #
@@ -31,8 +32,11 @@ my $query = new CGI;
 # services is as follows.
 # 
 # 1. biblios POSTs to the authenticate API with URL-encoded
-# form parameters 'userid' and 'password'.  If the credentials
-# belong to a valid user with the 'editcatalogue' privilege,
+# form parameters 'userid' and 'password'. Koha privileges are
+# requested with the flags parameter in the format
+# "editcatalogue:edit_catalogue;circulate". If flags is not set,
+# the script will look for the editcatalogue privilege. If the
+# credentials belong to a valid user with the desired privilege,
 # a session cookie is returned and a Koha session created.  Otherwise, an 
 # appropriate error is returned.
 # 2. For subsequent calls to the biblios APIs, the user agent
@@ -42,8 +46,16 @@ my $query = new CGI;
 # 3. The session cookie should not be (directly) sent back to the user's
 # web browser, but instead should be stored and submitted by biblios.
 
+my @flags = split(/;/, $query->param('flags') || 'editcatalogue:edit_catalogue');
 
-my ($status, $cookie, $sessionID) = check_api_auth($query, { editcatalogue => 'edit_catalogue'} );
+my %flagsrequired;
+
+foreach my $flag (@flags) {
+    $flag =~ m/^([^:]+):?(.*)$/;
+    $flagsrequired{$1} = $2;
+}
+
+my ($status, $cookie, $sessionID) = check_api_auth($query, \%flagsrequired );
 
 if ($status eq "ok") {
     print $query->header(-type => 'text/xml', cookie => $cookie);
