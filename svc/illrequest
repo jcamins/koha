@@ -1,0 +1,68 @@
+#!/usr/bin/perl
+
+# Copyright 2013 C & P Bibliography Services
+#
+# This file is part of Koha.
+#
+# Koha is free software; you can redistribute it and/or modify it under the
+# terms of the GNU General Public License as published by the Free Software
+# Foundation; either version 3 of the License, or (at your option) any later
+# version.
+#
+# Koha is distributed in the hope that it will be useful, but WITHOUT ANY
+# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+# A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with Koha; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+# Data structures:
+#illitem ( # used to map items and reserves to a particular ILL request
+#    illrequest_id VARCHAR(40)
+#    item_level BOOL
+#    biblionumber INT
+#    itemnumber INT
+#    reserve_id INT
+#)
+#
+#illrequest ( # ILL requests for both the originator and the handler
+#    illrequest_id VARCHAR(40) # SHA-1 identifier, hash of originator IP, originator host, and timestamp
+#    local_id INT AUTO_INCREMENT
+#    origination_timestamp TIMESTAMP # Timestamp from the origination server
+#    last_change TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+#    query VARCHAR # CQL query
+#    borrowernumber INT
+#    status ENUM ('active', 'closed')
+#)
+#
+#illsendqueue ( # outgoing requests
+#    illtransaction_id INT AUTO_INCREMENT
+#    illrequest_id VARCHAR(40)
+#    transaction_timestamp TIMESTAMP
+#    handler VARCHAR
+#    handler_ip VARCHAR
+#    status ENUM ('pending', 'sent', 'accepted', 'rejected')
+#    item_level BOOL
+#    biblionumber INT
+#    itemnumber INT
+#)
+
+
+use strict;
+use warnings;
+
+use CGI;
+
+my $query = new CGI;
+binmode STDOUT, ':encoding(UTF-8)';
+
+my ($status, $cookie, $sessionID) = check_api_auth($query, { 'reserveforothers' => 'place_holds'} );
+unless ($status eq "ok") {
+    print $query->header(-type => 'text/xml', -status => '403 Forbidden');
+    print XMLout({ auth_status => $status }, NoAttr => 1, RootName => 'response', XMLDecl => 1);
+    exit 0;
+}
+
+my $action = $query->param('action');
+

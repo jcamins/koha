@@ -79,6 +79,11 @@
                     </li>
                     [% END %]
 
+                    <li>
+                        <a class="icon_general" href="/cgi-bin/koha/ill/ill-home.pl">Interlibrary Loan</a>
+                        <span class="biglink"></span>
+                    </li>
+
                     [% IF ( CAN_user_reports ) %]
                     <li>
                         <a class="icon_general icon_reports" href="/cgi-bin/koha/reports/reports-home.pl">Reports</a>
@@ -108,7 +113,7 @@
             [% IF ( ( CAN_user_tools_moderate_comments  && pendingcomments ) 
                     || ( CAN_user_tools_moderate_tags && pendingtags )
                     || ( CAN_user_borrowers && pending_borrower_modifications )
-                    || ( CAN_user_acquisition && pendingsuggestions ) ) %]
+                    || ( CAN_user_acquisition && pendingsuggestions ) || 1 ) %]
                 <div id="area-pending">
                     [% IF ( CAN_user_acquisition && pendingsuggestions ) %]
                     <div class="pending-info" id="suggestions_pending">
@@ -139,6 +144,16 @@
                         <span class="pending-number-link">[% pending_borrower_modifications %]</span>
                     </div>
                     [% END %]
+
+                    <div class="pending-info" id="ill_patron_pending">
+                        <a href="/cgi-bin/koha/ill/patron-requests.pl">Pending patron ILL requests</a>:
+                        <span class="pending-number-link">2</span>
+                    </div>
+
+                    <div class="pending-info" id="ill_outside_pending">
+                        <a href="/cgi-bin/koha/ill/outside-requests.pl">Pending outside ILL requests</a>:
+                        <span class="pending-number-link">2</span>
+                    </div>
 
                 </div>
 

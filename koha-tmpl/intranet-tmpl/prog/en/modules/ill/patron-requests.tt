@@ -1,0 +1,64 @@
+[% INCLUDE 'doc-head-open.inc' %]
+<title>Koha &rsaquo; Interlibrary loan patron requests</title>
+<link rel="stylesheet" type="text/css" href="[% themelang %]/css/datatables.css" />
+[% INCLUDE 'doc-head-close.inc' %]
+<script type="text/javascript" src="[% themelang %]/lib/jquery/plugins/jquery.dataTables.min.js"></script>
+[% INCLUDE 'datatables-strings.inc' %]
+<script type="text/javascript" src="[% themelang %]/js/datatables.js"></script>
+<script language="JavaScript" type="text/javascript">
+//<![CDATA[
+function Help() {
+    newin=window.open("/cgi-bin/koha/help.pl","KohaHelp",'width=600,height=600,toolbar=false,scrollbars=yes');
+}
+$(document).ready(function() {
+  var my_table = $("#requestlist").dataTable($.extend(true, {}, dataTablesDefaults, {
+    // dataTablesDefaults contain default options and strings defined in datables-strings.inc
+    // You can put your specific datatables options here
+  }));
+});
+//]]>
+</script>
+</head>
+<body id="ill_patron_requests" class="ill">
+[% INCLUDE 'header.inc' %]
+[% INCLUDE 'cat-search.inc' %]
+
+<div id="breadcrumbs"><a href="/cgi-bin/koha/mainpage.pl">Home</a> &rsaquo; <a href="/cgi-bin/koha/ill/ill-home.pl">Interlibrary loan</a> &rsaquo; Patron requests</div>
+
+<div id="doc3" class="yui-t2">
+  <div id="bd">
+    <div id="yui-main">
+    <div class="yui-b">
+    [% INCLUDE 'ill-toolbar.inc' %]
+
+    <h1>Patron requests</h1>
+
+    <table id="requestlist">
+      <thead>
+        <tr>
+          <th>&nbsp;</th>
+          <th>Item</th>
+          <th>Requestor</th>
+          <th>Date submitted</th>
+          <th>Date filled</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr>
+          <td><input type="checkbox"></td>
+          <td>Something</td>
+          <td>Jared</td>
+          <td>1/5/2013</td>
+          <td>1/8/2013</td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+    </div>
+    <div class="yui-b">
+    [% INCLUDE 'ill-menu.inc' %]
+    </div>
+  </div>
+[% INCLUDE 'intranet-bottom.inc' %]
+

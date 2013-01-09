@@ -1,0 +1,90 @@
+[% INCLUDE 'doc-head-open.inc' %]
+<title>Koha &rsaquo; Interlibrary loan peers</title>
+<link rel="stylesheet" type="text/css" href="[% themelang %]/css/datatables.css" />
+[% INCLUDE 'doc-head-close.inc' %]
+<script type="text/javascript" src="[% themelang %]/lib/jquery/plugins/jquery.dataTables.min.js"></script>
+[% INCLUDE 'datatables-strings.inc' %]
+<script type="text/javascript" src="[% themelang %]/js/datatables.js"></script>
+<script language="JavaScript" type="text/javascript">
+//<![CDATA[
+function Help() {
+    newin=window.open("/cgi-bin/koha/help.pl","KohaHelp",'width=600,height=600,toolbar=false,scrollbars=yes');
+}
+$(document).ready(function() {
+  var my_table = $("#peerlist").dataTable($.extend(true, {}, dataTablesDefaults, {
+    // dataTablesDefaults contain default options and strings defined in datables-strings.inc
+    // You can put your specific datatables options here
+  }));
+});
+//]]>
+</script>
+</head>
+<body id="ill_peers" class="ill">
+[% INCLUDE 'header.inc' %]
+[% INCLUDE 'cat-search.inc' %]
+
+<div id="breadcrumbs"><a href="/cgi-bin/koha/mainpage.pl">Home</a> &rsaquo; <a href="/cgi-bin/koha/ill/ill-home.pl">Interlibrary loan</a> &rsaquo; Peers</div>
+
+<div id="doc3" class="yui-t2">
+  <div id="bd">
+    <div id="yui-main">
+    <div class="yui-b">
+    [% INCLUDE 'ill-toolbar.inc' %]
+
+    <h1>Peers</h1>
+
+    <fieldset style="float:left" id="peertable">
+    <table id="peerlist">
+      <thead>
+        <tr>
+          <th>Active</th>
+          <th>Host</th>
+          <th>Priority</th>
+          <th>Domain</th>
+          <th>Last connection</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr>
+          <td><input type="checkbox" name="kohadevcpbibliographycom" /></td>
+          <td>kohadev.cpbibliography.com</td>
+          <td>8</td>
+          <td>cpbibliography.com</td>
+          <td>1/5/2013</td>
+          <td><a href="?op=edit">Edit</a> <a href="?op=delete_confirm">Delete</a></td>
+        </tr>
+        <tr>
+          <td><input type="checkbox" name="illercpbibliographycom" /></td>
+          <td>iller.cpbibliography.com</td>
+          <td>6</td>
+          <td>cpbibliography.com</td>
+          <td>1/5/2013</td>
+          <td><a href="?op=edit">Edit</a> <a href="?op=delete_confirm">Delete</a></td>
+        </tr>
+      </tbody>
+    </table>
+    <input type="submit" value="Record active peer settings" />
+    </fieldset>
+
+    <fieldset id="editpeer">
+    <legend>Add new peer</legend>
+    <form>
+    <div><label for="edit_host">Host: </label><input id="edit_host" name="host" type="text" /></div>
+    <div><label for="edit_priority">Priority: </label><input id="edit_priority" name="priority" type="text" size="3" /></div>
+    <div><label for="edit_weight">Weight: </label><input id="edit_weight" name="weight" type="text" size="3" /></div>
+    <div><label for="edit_domain">Domain: </label><input id="edit_domain" name="domain" type="text" /></div>
+    <div><label for="edit_active">Active: </label><input id="edit_active" name="active" type="checkbox" /></div>
+    <div><input type="submit" value="Save" /><input type="reset" value="Clear" /></div>
+    </form>
+    </fieldset>
+
+    </div>
+    </div>
+    <div class="yui-b">
+    [% INCLUDE 'ill-menu.inc' %]
+    </div>
+  </div>
+[% INCLUDE 'intranet-bottom.inc' %]
+
