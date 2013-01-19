@@ -189,7 +189,7 @@ if ($op eq ""){
             SetImportRecordStatus( $biblio->{'import_record_id'}, 'imported' );
         }
         # 3rd add order
-        my $patron = C4::Members->GetMember( borrowernumber => $loggedinuser );
+        my $patron = C4::Members::GetMember( borrowernumber => $loggedinuser );
         my $branch = C4::Branch->GetBranchDetail( $patron->{branchcode} );
         # get quantity in the MARC record (1 if none)
         my $quantity = GetMarcQuantity($marcrecord, C4::Context->preference('marcflavour')) || 1;
@@ -429,11 +429,11 @@ sub batch_info {
                                               'current_matcher_description' => $matcher->description());
         }
     }
-    add_matcher_list($batch->{'matcher_id'});
+    add_matcher_list($batch->{'matcher_id'}, $template);
 }
 
 sub add_matcher_list {
-    my $current_matcher_id = shift;
+    my ($current_matcher_id, $template) = @_;
     my @matchers = C4::Matcher::GetMatcherList();
     if (defined $current_matcher_id) {
         for (my $i = 0; $i <= $#matchers; $i++) {
