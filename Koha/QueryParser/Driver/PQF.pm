@@ -338,7 +338,7 @@ sub bib1_mapping_by_attr_string {
 }
 
 =head2 clear_all_configuration
-    
+
     $QParser->clear_all_configuration
 
 Clear all configuration. This is a highly destructive method. You may
@@ -370,7 +370,7 @@ sub clear_all_configuration {
 }
 
 =head2 clear_all_mappings
-    
+
     $QParser->clear_all_mappings
 
 Clear all bib-1 mappings.
