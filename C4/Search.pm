@@ -36,6 +36,7 @@ use URI::Escape;
 use Business::ISBN;
 use MARC::Record;
 use MARC::Field;
+use Koha::SearchEngine::Zebra;
 
 use vars qw($VERSION @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS $DEBUG);
 
@@ -255,7 +256,7 @@ sub SimpleSearch {
             }
         }
 
-        _ZOOM_event_loop(
+        Koha::SearchEngine::Zebra->_ZOOM_event_loop(
             \@zconns,
             \@tmpresults,
             sub {
@@ -411,7 +412,7 @@ sub getRecords {
     }    # finished looping through servers
 
     # The big moment: asynchronously retrieve results from all servers
-        _ZOOM_event_loop(
+        Koha::SearchEngine::Zebra->_ZOOM_event_loop(
             \@zconns,
             \@results,
             sub {
@@ -2862,7 +2863,7 @@ sub GetDistinctValues {
 		}
 		# The big moment: asynchronously retrieve results from all servers
 		my @elements;
-        _ZOOM_event_loop(
+        Koha::SearchEngine::Zebra->_ZOOM_event_loop(
             \@zconns,
             \@results,
             sub {
@@ -2877,36 +2878,6 @@ sub GetDistinctValues {
         );
 		return \@elements;
    }
-}
-
-=head2 _ZOOM_event_loop
-
-    _ZOOM_event_loop(\@zconns, \@results, sub {
-        my ( $i, $size ) = @_;
-        ....
-    } );
-
-Processes a ZOOM event loop and passes control to a closure for
-processing the results, and destroying the resultsets.
-
-=cut
-
-sub _ZOOM_event_loop {
-    my ($zconns, $results, $callback) = @_;
-    while ( ( my $i = ZOOM::event( $zconns ) ) != 0 ) {
-        my $ev = $zconns->[ $i - 1 ]->last_event();
-        if ( $ev == ZOOM::Event::ZEND ) {
-            next unless $results->[ $i - 1 ];
-            my $size = $results->[ $i - 1 ]->size();
-            if ( $size > 0 ) {
-                $callback->($i, $size);
-            }
-        }
-    }
-
-    foreach my $result (@$results) {
-        $result->destroy();
-    }
 }
 
 
