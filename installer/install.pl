@@ -20,6 +20,15 @@ my $step  = $query->param('step');
 my $language = $query->param('language');
 my ( $template, $loggedinuser, $cookie );
 
+eval {
+    my $dbh = C4::Context->dbh;
+};
+
+if ($@) {
+    print "Unable to connect to database. Please check your database configuration in koha-conf.xml";
+    exit;
+}
+
 my $all_languages = getAllLanguages();
 
 if ( defined($language) ) {
