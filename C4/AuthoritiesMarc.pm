@@ -1382,11 +1382,15 @@ Then we should add some new parameter : bibliotargettag, authtargettag
 =cut
 
 sub merge {
-    my ($mergefrom,$MARCfrom,$mergeto,$MARCto) = @_;
+    my ($mergefrom, $MARCfrom, $mergeto, $MARCto) = @_;
     my @editedbiblios;
-    my $dbh=C4::Context->dbh;
+    my $dbh = C4::Context->dbh;
     my $authtypecodefrom = GetAuthTypeCode($mergefrom);
     my $authtypecodeto = GetAuthTypeCode($mergeto);
+
+    $MARCfrom ||= GetAuthority($mergefrom);
+    $MARCto ||= GetAuthority($mergeto);
+
 #     warn "mergefrom : $authtypecodefrom $mergefrom mergeto : $authtypecodeto $mergeto ";
     # return if authority does not exist
     return "error MARCFROM not a marcrecord ".Data::Dumper::Dumper($MARCfrom) if scalar($MARCfrom->fields()) == 0;
