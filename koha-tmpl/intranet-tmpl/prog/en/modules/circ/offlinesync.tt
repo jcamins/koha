@@ -7,7 +7,14 @@
 var start;
 
 $(document).ready(function () {
-    kohadb.initialize();
+    kohadb.initialize(function () {
+        $.indexedDB("koha").transaction(["offline_settings"]).then(function(){
+        }, function(err, e){
+        }, function(transaction){
+            transaction.objectStore("offline_settings").put({ "key" : "userid", "value" : "[% loggedinusername %]" });
+            transaction.objectStore("offline_settings").put({ "key" : "branchcode", "value" : "[% LoginBranchcode %]" });
+        })
+    });
     $('#reload-records').click(function () {
         start = new Date().getTime();
         $.indexedDB("koha").transaction(["patrons", "items", "issues"]).then(function(){
@@ -20,14 +27,32 @@ $(document).ready(function () {
         });
         return false;
     });
+    $('#upload-transactions').click(function () {
+        $.indexeddb("koha").objectStore("transactions").openCursor().each(recordTransaction);
+    });
 });
 
-var nextChunk;
+function recordTransaction(transaction) {
+    $.ajax({
+        type: "GET",
+        url: "/cgi-bin/koha/offline_circ/service.pl",
+        data: { "userid" : "",
+                "branchcode" : "",
+                "timestamp" : "",
+                "action" : "",
+                "barcode" : "",
+                "cardnumber" : "",
+                "pending" : true,
+              },
+    }).done(function () {
+        transaction.delete();
+    });
+}
 
 function finishedLoading() {
     var end = new Date().getTime();
     var total = end - start;
-    alert("Done in " + total + "ms");
+    console.log("Done in " + total + "ms");
 }
 
 function loadRecords(page) {
@@ -39,28 +64,26 @@ function loadRecords(page) {
               },
         dataType: "json",
     }).done(function (data) {
-        kohadb.initialize(function () {
-            $.indexedDB("koha").transaction(["patrons", "items", "issues"]).then(function(){
-                if ($.isEmptyObject(data.patrons) && $.isEmptyObject(data.items)) {
-                    finishedLoading();
-                } else {
-                    setTimeout(function () { loadRecords(page + 1); }, 200);
-                }
-            }, function(err, e){
-            }, function(transaction){
-                if (data.patrons) {
-                    var patrons = transaction.objectStore("patrons");
-                    $.each(data.patrons, function () {
-                        patrons.put(this);
-                    });
-                }
-                if (data.items) {
-                    var items = transaction.objectStore("items");
-                    $.each(data.items, function () {
-                        items.put(this);
-                    });
-                }
-            });
+        $.indexedDB("koha").transaction(["patrons", "items", "issues"]).then(function(){
+            if ($.isEmptyObject(data.patrons) && $.isEmptyObject(data.items)) {
+                finishedLoading();
+            } else {
+                setTimeout(function () { loadRecords(page + 1); }, 200);
+            }
+        }, function(err, e){
+        }, function(transaction){
+            if (data.patrons) {
+                var patrons = transaction.objectStore("patrons");
+                $.each(data.patrons, function () {
+                    patrons.put(this);
+                });
+            }
+            if (data.items) {
+                var items = transaction.objectStore("items");
+                $.each(data.items, function () {
+                    items.put(this);
+                });
+            }
         });
     });
 }
