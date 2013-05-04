@@ -1,0 +1,109 @@
+[% INCLUDE 'doc-head-open.inc' %]
+<title>Koha &rsaquo; Circulation</title>
+[% INCLUDE 'doc-head-close.inc' %]
+<script type="text/javascript" src="/intranet-tmpl/lib/jquery/plugins/jquery.indexeddb.js"></script>
+<script type="text/javascript" src="/intranet-tmpl/prog/en/js/offlinecirc.js"></script>
+<script type="text/javascript">
+var start;
+
+$(document).ready(function () {
+    kohadb.initialize();
+    $('#reload-records').click(function () {
+        start = new Date().getTime();
+        $.indexedDB("koha").transaction(["patrons", "items", "issues"]).then(function(){
+            loadRecords(0);
+        }, function(err, e){
+        }, function(transaction){
+            transaction.objectStore("patrons").clear();
+            transaction.objectStore("items").clear();
+            transaction.objectStore("issues").clear();
+        });
+        return false;
+    });
+});
+
+var nextChunk;
+
+function finishedLoading() {
+    var end = new Date().getTime();
+    var total = end - start;
+    alert("Done in " + total + "ms");
+}
+
+function loadRecords(page) {
+    $.ajax({
+        type: "GET",
+        url: "/cgi-bin/koha/circ/offlinesync.pl",
+        data: { "data": "all",
+                "page": page
+              },
+        dataType: "json",
+    }).done(function (data) {
+        kohadb.initialize(function () {
+            $.indexedDB("koha").transaction(["patrons", "items", "issues"]).then(function(){
+                if ($.isEmptyObject(data.patrons) && $.isEmptyObject(data.items)) {
+                    finishedLoading();
+                } else {
+                    setTimeout(function () { loadRecords(page + 1); }, 200);
+                }
+            }, function(err, e){
+            }, function(transaction){
+                if (data.patrons) {
+                    var patrons = transaction.objectStore("patrons");
+                    $.each(data.patrons, function () {
+                        patrons.put(this);
+                    });
+                }
+                if (data.items) {
+                    var items = transaction.objectStore("items");
+                    $.each(data.items, function () {
+                        items.put(this);
+                    });
+                }
+            });
+        });
+    });
+}
+</script>
+</head>
+<body id="circ_circulation-home" class="circ">
+[% INCLUDE 'header.inc' %]
+[% INCLUDE 'circ-search.inc' %]
+
+<div id="breadcrumbs"><a href="/cgi-bin/koha/mainpage.pl">Home</a> &rsaquo; <a href="/cgi-bin/koha/circ/circulation-home.pl">Circulation</a> &rsaquo; Offline circulation synchronization</div>
+
+<div id="doc" class="yui-t7">
+    <div id="bd">
+        <div id="toolbar" class="btn-toolbar">
+            <a href="#" id="download-records" class="btn btn-small"><i class="icon-arrow-down"></i>Download records</a>
+            <a href="#" id="reload-records" class="btn btn-small"><i class="icon-repeat"></i>Re-download all records</a>
+            <a href="#" id="upload-transactions" class="btn btn-small"><i class="icon-arrow-up"></i>Upload transactions</a>
+        </div>
+        <div class="yui-g">
+
+            <h1>Offline circulation</h1>
+
+            <div class="yui-u first">
+
+                <div id="download-message">
+                    You have records in the offline circulation database on this
+                    computer, but they may not be current:
+                    <ul>
+                        <li>Patron records were last synced on April 28, 2013 08:30:52</li>
+                        <li>Item records were last synced on April 28, 2013 08:32:52</li>
+                        <li>Circulation records were last synced on April 28, 2013 08:38:52</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="yui-u">
+                <div id="upload-message">You have transactions in the offline
+                    circulation database on this computer that have not been
+                    uploaded.
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+[% INCLUDE 'intranet-bottom.inc' %]
