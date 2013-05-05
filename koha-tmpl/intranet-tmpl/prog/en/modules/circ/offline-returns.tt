@@ -11,6 +11,7 @@
     var ALERT_NOT_CHECKED_OUT = _("Item not listed as checked out in offline database (transaction recorded anyway)");
 
 function checkin(barcode, item, error) {
+    var alerts = checkAlerts(barcode, item);
     if (typeof item === 'undefined') {
         item = { };
     }
@@ -20,13 +21,19 @@ function checkin(barcode, item, error) {
     item.holdingbranch = item.holdingbranch || "";
     item.callnumber = item.callnumber || "";
     item.itemtype = item.itemtype || "";
-    var alerts = checkAlerts(barcode, item);
     var trans = { "timestamp" : new Date().toMySQLString(),
                   "barcode" : barcode,
                   "action" : "return"
                 };
+    $('#alerts').empty();
     kohadb.recordTransaction(trans, function () {
         $('#already-checked-in tbody').prepend('<tr><td>' + item.title + '</td><td>' + item.author + '</td><td>' + barcode + '</td><td>' + item.homebranch + '</td><td>' + item.holdingbranch + '</td><td></td><td>' + item.callnumber + '</td><td>' + item.itemtype + '</td></tr>');
+        if (alerts.length > 0) {
+            $('#alerts').append('<div class="dialog alert"><h3>Check in message</h3></div>');
+            for (var msg in alerts) {
+                $('#alerts .dialog').append('<p>' + alerts[msg] + '</p');
+            }
+        }
     });
 }
 
