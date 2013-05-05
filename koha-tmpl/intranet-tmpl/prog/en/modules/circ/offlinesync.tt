@@ -8,12 +8,8 @@ var start;
 
 $(document).ready(function () {
     kohadb.initialize(function () {
-        $.indexedDB("koha").transaction(["offline_settings"]).then(function(){
-        }, function(err, e){
-        }, function(transaction){
-            transaction.objectStore("offline_settings").put({ "key" : "userid", "value" : "[% loggedinusername %]" });
-            transaction.objectStore("offline_settings").put({ "key" : "branchcode", "value" : "[% LoginBranchcode %]" });
-        })
+        kohadb.saveSetting("userid", "[% loggedinusername %]");
+        kohadb.saveSetting("branchcode", "[% LoginBranchcode %]");
     });
     $('#reload-records').click(function () {
         start = new Date().getTime();
@@ -28,7 +24,7 @@ $(document).ready(function () {
         return false;
     });
     $('#upload-transactions').click(function () {
-        $.indexeddb("koha").objectStore("transactions").openCursor().each(recordTransaction);
+        $.indexedDB("koha").objectStore("transactions").each(recordTransaction);
     });
 });
 
@@ -36,12 +32,12 @@ function recordTransaction(transaction) {
     $.ajax({
         type: "GET",
         url: "/cgi-bin/koha/offline_circ/service.pl",
-        data: { "userid" : "",
-                "branchcode" : "",
-                "timestamp" : "",
-                "action" : "",
-                "barcode" : "",
-                "cardnumber" : "",
+        data: { "userid" : kohadb.settings.userid,
+                "branchcode" : kohadb.settings.branchcode,
+                "timestamp" : transaction.value.timestamp,
+                "action" : transaction.value.action,
+                "barcode" : transaction.value.barcode,
+                "cardnumber" : transaction.value.cardnumber,
                 "pending" : true,
               },
     }).done(function () {

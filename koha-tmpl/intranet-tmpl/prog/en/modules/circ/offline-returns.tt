@@ -1,0 +1,102 @@
+[% INCLUDE 'doc-head-open.inc' %]
+<title>Koha &rsaquo; Circulation &rsaquo; Check in</title>
+[% INCLUDE 'doc-head-close.inc' %]
+<script type="text/javascript" src="/intranet-tmpl/lib/jquery/plugins/jquery.indexeddb.js"></script>
+<script type="text/javascript" src="/intranet-tmpl/prog/en/js/offlinecirc.js"></script>
+<script type="text/javascript">
+//<![CDATA[
+    var ALERT_MATERIALS = _("Note about the accompanying materials: ");
+    var ALERT_RESTRICTED = _("Patron is RESTRICTED");
+    var ALERT_NO_MATCHING_ITEM = _("No item with barcode in offline database (transaction recorded anyway): ");
+    var ALERT_NOT_CHECKED_OUT = _("Item not listed as checked out in offline database (transaction recorded anyway)");
+
+function checkin(barcode, item, error) {
+    if (typeof item === 'undefined') {
+        item = { };
+    }
+    item.title = item.title || "";
+    item.author = item.author || "";
+    item.homebranch = item.homebranch || "";
+    item.holdingbranch = item.holdingbranch || "";
+    item.callnumber = item.callnumber || "";
+    item.itemtype = item.itemtype || "";
+    var alerts = checkAlerts(barcode, item);
+    var trans = { "timestamp" : new Date().toMySQLString(),
+                  "barcode" : barcode,
+                  "action" : "return"
+                };
+    kohadb.recordTransaction(trans, function () {
+        $('#already-checked-in tbody').prepend('<tr><td>' + item.title + '</td><td>' + item.author + '</td><td>' + barcode + '</td><td>' + item.homebranch + '</td><td>' + item.holdingbranch + '</td><td></td><td>' + item.callnumber + '</td><td>' + item.itemtype + '</td></tr>');
+    });
+}
+
+function checkAlerts(barcode, item) {
+    var alerts = [];
+    if (typeof item === 'undefined') {
+        alerts.push(ALERT_NO_MATCHING_ITEM + barcode);
+    } else {
+        if (typeof item.materials !== 'undefined' && item.materials != null) {
+            alerts.push(ALERT_MATERIALS + item.materials);
+        }
+    }
+    return alerts;
+}
+
+$(document).ready(function () {
+    kohadb.initialize();
+    $('#checkin-form').submit(function (event) {
+        event.preventDefault();
+        var barcode = $('#barcode').val();
+        $.indexedDB("koha").transaction(["items"]).then(function() {
+        }, function(err, e){
+        }, function(transaction){
+            var items = transaction.objectStore("items");
+            items.get(barcode).done(function (item, error) {
+                checkin(barcode, item, error);
+            });
+        });
+    });
+});
+//]]>
+</script>
+</head>
+<body id="offline_returns" class="circ">
+
+[% INCLUDE 'header.inc' %]
+[% INCLUDE 'checkin-search.inc' %]
+
+<div id="breadcrumbs"><a href="/cgi-bin/koha/mainpage.pl">Home</a> &rsaquo; <a href="/cgi-bin/koha/circ/circulation-home.pl">Circulation</a> &rsaquo; Check in</div>
+
+<div id="doc" class="yui-t7">
+
+<div id="bd">
+    <div id="yui-main">
+        <audio id="alert_sound" src="/intranet-tmpl/prog/sound/critical.ogg" autobuffer="autobuffer"></audio>
+        <audio id="success_sound" src="/intranet-tmpl/prog/sound/beep.ogg" autobuffer="autobuffer"></audio>
+
+        <div id="alerts" class="yui-g">
+        </div>
+
+        <div class="yui-g">
+            <form id="checkin-form" method="post" action="/cgi-bin/koha/circ/returns.pl" autocomplete="off" >
+                <div class="yui-u first">
+                    <fieldset>
+                        <legend>Check In</legend>
+                        <label for="barcode">Enter item barcode: </label>
+                        <input name="barcode" id="barcode" size="14" class="focus"/>
+                        <input type="submit" class="submit" value="Submit" />
+                    </fieldset>
+                </div>
+            </form>
+        </div>
+
+        <h2>Checked-in items</h2>
+        <table id="already-checked-in">
+            <thead>
+                <tr><th>Title</th><th>Author</th><th>Barcode</th><th>Home library</th><th>Holding library</th><th>Shelving location</th><th>Call number</th><th>Type</th></tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table></div>
+    </div>
+[% INCLUDE 'intranet-bottom.inc' %]

@@ -52,7 +52,7 @@ if ( $req_data eq 'all' ) {
 
 # NOTE: we can't fit very long titles on the interface so there isn't really any point in transferring them
             'items' => get_data(
-"SELECT items.barcode AS barcode, items.itemnumber AS itemnumber, items.itemcallnumber AS callnumber, items.homebranch AS homebranch, items.holdingbranch AS holdingbranch, items.itype AS itemtype, LEFT(biblio.title, 60) AS title, biblio.author AS author, biblio.biblionumber AS biblionumber FROM items JOIN biblio ON biblio.biblionumber = items.biblionumber LIMIT $startrec, 5000;",
+"SELECT items.barcode AS barcode, items.itemnumber AS itemnumber, items.itemcallnumber AS callnumber, items.homebranch AS homebranch, items.holdingbranch AS holdingbranch, items.itype AS itemtype, items.materials AS materials, LEFT(biblio.title, 60) AS title, biblio.author AS author, biblio.biblionumber AS biblionumber FROM items JOIN biblio ON biblio.biblionumber = items.biblionumber LIMIT $startrec, 5000;",
                 'barcode'
             ),
         }

@@ -61,5 +61,45 @@
             });
         });
     };
+    kohadb.saveSetting = function (key, value) {
+        $.indexedDB("koha").transaction(["offline_settings"]).then(function(){
+        }, function(err, e){
+        }, function(transaction){
+            var settings = transaction.objectStore("offline_settings");
+            settings.put({ "key" : key, "value" : value });
+        });
+    };
+    kohadb.recordTransaction = function (newtrans, callback) {
+        $.indexedDB("koha").transaction(["transactions"]).then(function(){
+            callback(newtrans);
+        }, function(err, e){
+        }, function(dbtransaction) {
+            var transactions = dbtransaction.objectStore("transactions");
+            transactions.put(newtrans);
+        });
+    };
 }( window.kohadb = window.bndb || {}, jQuery ));
 
+if ( !Date.prototype.toMySQLString ) {
+  ( function() {
+
+    function pad(number) {
+      var r = String(number);
+      if ( r.length === 1 ) {
+        r = '0' + r;
+      }
+      return r;
+    }
+
+    Date.prototype.toMySQLString = function() {
+      return this.getFullYear()
+        + '-' + pad( this.getMonth() + 1 )
+        + '-' + pad( this.getDate() )
+        + ' ' + pad( this.getHours() )
+        + ':' + pad( this.getMinutes() )
+        + ':' + pad( this.getSeconds() )
+        + '.' + String( (this.getMilliseconds()/1000).toFixed(3) ).slice( 2, 5 );
+    };
+
+  }() );
+}
