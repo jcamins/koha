@@ -1,0 +1,818 @@
+[% USE KohaDates %]
+[% IF ( export_remove_fields OR export_with_csv_profile ) %]
+   [% SET exports_enabled = 1 %]
+[% END %]
+[% USE KohaAuthorisedValues %]
+[% INCLUDE 'doc-head-open.inc' %]
+[% SET destination = "circ" %]
+<title>Koha &rsaquo; Circulation
+[% IF borrowernumber %]
+  &rsaquo; Checking out to [% INCLUDE 'patron-title.inc' invert_name = 1 %]
+[% END %]
+</title>
+[% INCLUDE 'doc-head-close.inc' %]
+[% INCLUDE 'calendar.inc' %]
+[% IF ( UseTablesortForCirc ) %]<link rel="stylesheet" type="text/css" href="[% themelang %]/css/datatables.css" />
+<script type="text/javascript" src="[% themelang %]/lib/jquery/plugins/jquery.dataTables.min.js"></script>
+[% INCLUDE 'datatables-strings.inc' %]
+<script type="text/javascript" src="[% themelang %]/js/datatables.js"></script>[% END %]
+<script type="text/javascript" src="[% themelang %]/lib/jquery/plugins/jquery.checkboxes.min.js"></script>
+<script type="text/javascript" src="[% themelang %]/lib/jquery/plugins/jquery-ui-timepicker-addon.js"></script>
+<script type="text/javascript">
+//<![CDATA[
+    var ALERT_PATRON_RESTRICTED = _("Patron is restricted");
+
+    var ALERT_MATERIALS = _("Note about the accompanying materials: ");
+    var ALERT_NO_MATCHING_ITEM = _("No item with barcode in offline database (transaction recorded anyway): ");
+    var ALERT_NOT_CHECKED_OUT = _("Item not listed as checked out in offline database (transaction recorded anyway)");
+    var ALERT_ITEM_WITHDRAWN = _("Item has been withdrawn (transaction recorded anyway)");
+    var ALERT_ITEM_RESTRICTED = _("Item is restricted (transaction recorded anyway)");
+    var ALERT_PATRON_GONE_NO_ADDRESS = _("Patron's address is in doubt (transaction recorded anyway)");
+    var ALERT_PATRON_CARD_LOST = _("Patron's card is lost");
+    var ALERT_PATRON_EXPIRED = _("Patron's card is expired");
+    var ALERT_PATRON_BLOCKED_TEMPORARY = _("Patron has had overdue items and is restricted for: ");
+    window.onload=function(){ $('#findborrower').focus(); };
+$(document).ready(function() {
+
+    $('#patronsearch').submit(function (event) {
+        event.preventDefault();
+    });
+
+    $('#patronlists').tabs();
+
+    var allcheckboxes = $(".checkboxed");
+    $("#renew_all").click(function(){
+        $(allcheckboxes).checkCheckboxes(":input[name*=items]");
+        $(allcheckboxes).unCheckCheckboxes(":input[name*=barcodes]");
+    });
+    $("#CheckAllitems").click(function(){
+        $(allcheckboxes).checkCheckboxes(":input[name*=items]");
+        $(allcheckboxes).unCheckCheckboxes(":input[name*=barcodes]"); return false;
+    });
+    $("#CheckNoitems").click(function(){
+        $(allcheckboxes).unCheckCheckboxes(":input[name*=items]"); return false;
+    });
+    $("#CheckAllreturns").click(function(){
+        $(allcheckboxes).checkCheckboxes(":input[name*=barcodes]");
+        $(allcheckboxes).unCheckCheckboxes(":input[name*=items]"); return false;
+    });
+    $("#CheckNoreturns" ).click(function(){
+        $(allcheckboxes).unCheckCheckboxes(":input[name*=barcodes]"); return false;
+    });
+
+    $("#CheckAllexports").click(function(){
+        $(".checkboxed").checkCheckboxes(":input[name*=biblionumbers]");
+        $(".checkboxed").unCheckCheckboxes(":input[name*=items]");
+        return false;
+    });
+    $("#CheckNoexports").click(function(){
+        $(".checkboxed").unCheckCheckboxes(":input[name*=biblionumbers]");
+        return false;
+    });
+
+    $("#relrenew_all").click(function(){
+        $(allcheckboxes).checkCheckboxes(":input[name*=items]");
+        $(allcheckboxes).unCheckCheckboxes(":input[name*=barcodes]");
+    });
+    $("#relCheckAllitems").click(function(){
+        $(allcheckboxes).checkCheckboxes(":input[name*=items]");
+        $(allcheckboxes).unCheckCheckboxes(":input[name*=barcodes]"); return false;
+    });
+    $("#relCheckNoitems").click(function(){
+        $(allcheckboxes).unCheckCheckboxes(":input[name*=items]"); return false;
+    });
+    $("#relCheckAllreturns").click(function(){
+        $(allcheckboxes).checkCheckboxes(":input[name*=barcodes]");
+        $(allcheckboxes).unCheckCheckboxes(":input[name*=items]"); return false;
+    });
+    $("#relCheckNoreturns").click(function(){
+        $(allcheckboxes).unCheckCheckboxes(":input[name*=barcodes]"); return false;
+    });
+
+    $("#newduedate").datetimepicker({
+        minDate: 1, // require that renewal date is after today
+        hour: 23,
+        minute: 59
+    });
+    $("#duedatespec").datetimepicker({
+        onClose: function(dateText, inst) { $("#barcode").focus(); },
+        hour: 23,
+        minute: 59
+    });
+ });
+
+function validate1(date) {
+    var today = new Date();
+    if ( date < today ) {
+        return true;
+     } else {
+        return false;
+     }
+};
+//]]>
+</script>
+</head>
+<body id="circ_circulation" class="circ">
+
+[% INCLUDE 'header.inc' %]
+[% INCLUDE 'circ-search.inc' %]
+
+<div id="breadcrumbs"><a href="/cgi-bin/koha/mainpage.pl">Home</a> &rsaquo; <a href="/cgi-bin/koha/circ/circulation-home.pl">Circulation</a> &rsaquo;
+[% IF ( borrowernumber ) %]
+    <a href="/cgi-bin/koha/circ/offline-circulation.pl">Checkouts</a> &rsaquo; [% INCLUDE 'patron-title.inc' %]
+[% ELSE %]
+    <strong>Checkouts</strong>
+[% END %]
+</div>
+[% IF ( CGIselectborrower ) %]
+<div id="doc" class="yui-t7">
+
+   <div id="bd">
+    <div id="yui-main">
+    <div class="yui-g">
+[% ELSE %]
+<div id="doc3" class="yui-t2">
+
+   <div id="bd">
+    <div id="yui-main">
+    <div class="yui-b">
+[% END %]
+
+[% IF ( borrowernumber ) %]
+[% INCLUDE 'members-toolbar.inc' %]
+[% END %]
+
+<!--  INITIAL BLOC : PARAMETERS & BORROWER INFO -->
+<div style="display: none;" id="add_message_form">
+<form method="post" action="/cgi-bin/koha/circ/add_message.pl" id="message_form" name="message_f">
+<fieldset id="borrower_messages" class="brief">
+<legend>Leave a message</legend>
+    <ol>
+    <li>
+            <label for="message_type">Add a message for:</label>
+          <select name="message_type" id="message_type">
+            <option value="L">Other librarians</option>
+            <option value="B">[% firstname %]</option>
+        </select>
+    </li>
+    <li>
+        <textarea rows="3" cols="60" name="borrower_message" id="borrower_message" ></textarea>
+    </li>
+    </ol>
+    <fieldset class="action">
+        <input type="submit" value="Save" /> <a href="#" class="cancel">Cancel</a>
+    </fieldset>
+
+        <input type="hidden" name="borrowernumber" value="[% borrowernumber %]" />
+        <input type="hidden" name="branchcode" value="[% branch %]" />
+</fieldset>
+</form>
+</div>
+
+[% IF ( was_renewed ) %]<div class="dialog message">Patron's account has been renewed until [% expiry %]</div>[% END %]
+
+[% IF ( alert.ITEM_LOST ) %]
+    <div class="dialog message">This item has been lost with a status of "[% alert.ITEM_LOST %]".</div>
+[% END %]
+
+[% IF ( alert.OTHER_CHARGES ) %]
+    <div class="dialog message">The patron has unpaid charges for reserves, rentals etc of [% alert.OTHER_CHARGES %]</div>
+[% END %]
+
+[% IF ( NEEDSCONFIRMATION ) %]
+<div class="yui-g">
+
+<div id="circ_needsconfirmation" class="dialog alert">
+<h3>Please confirm checkout</h3>
+
+<ul>
+[%IF ( AGE_RESTRICTION ) %]
+    <li>Age restriction [% AGE_RESTRICTION %]. Check out anyway?</li>
+[% END %]
+
+[% IF ( DEBT ) %]
+    <li>The patron has a debt of [% DEBT %]</li>
+[% END %]
+
+[% IF ( RENEW_ISSUE ) %]
+    <li>Item <i>[% getTitleMessageIteminfo %]</i> ([% getBarcodeMessageIteminfo %]) is currently checked out to this patron.  Renew?</li>
+[% END %]
+
+[% IF ( RESERVE_WAITING ) %]
+    <li>Item <i>[% getTitleMessageIteminfo %]</i> ([% getBarcodeMessageIteminfo %]) has been waiting for <a href="/cgi-bin/koha/members/moremember.pl?borrowernumber=[% resborrowernumber %]">[% resfirstname %] [% ressurname %]</a> ([% rescardnumber %]) at [% resbranchname %] since [% reswaitingdate %]</li>
+[% END %]
+
+[% IF ( RESERVED ) %]
+    <li>Item <i>[% getTitleMessageIteminfo %]</i> ([% getBarcodeMessageIteminfo %]) has been on hold for <a href="/cgi-bin/koha/members/moremember.pl?borrowernumber=[% resborrowernumber %]">[% resfirstname %] [% ressurname %]</a> ([% rescardnumber %]) at [% resbranchname %] since [% resreservedate %]</li>
+[% END %]
+
+[% IF ( ISSUED_TO_ANOTHER ) %]
+    <li>Item <i>[% getTitleMessageIteminfo %]</i> ([% getBarcodeMessageIteminfo %]) is checked out to <a href="/cgi-bin/koha/members/moremember.pl?borrowernumber=[% issued_borrowernumber %]">[% issued_firstname %] [% issued_surname %]</a> ([% issued_cardnumber %]). Check in and check out?</li>
+[% END %]
+
+[% IF ( TOO_MANY ) %]
+    <li>Too many checked out. [% current_loan_count %] checked out, only [% max_loans_allowed %] are allowed.</li>
+[% END %]
+
+[% IF ( BORRNOTSAMEBRANCH ) %]
+    <li>This patrons is from a different library ([% BORRNOTSAMEBRANCH %])</li>
+[% END %]
+
+[% IF ( PATRON_CANT ) %]
+    <li>This patron can't check out this item per library circulation policy</li>
+[% END %]
+
+[% IF ( NOT_FOR_LOAN_FORCING ) %]
+    <li>
+    [% IF ( itemtype_notforloan ) %]
+        Item type is normally not for loan.
+    [% ELSIF ( item_notforloan ) %]
+        [% item_notforloan_lib = KohaAuthorisedValues.GetByCode( authvalcode_notforloan, item_notforloan, 0 ) %]
+        Item is normally not for loan [% IF (item_notforloan_lib) %]([% item_notforloan_lib %])[% END %].
+    [% END %]
+        Check out anyway?
+    </li>
+[% END %]
+
+[% IF ( USERBLOCKEDOVERDUE ) %]
+    <li>Patron has [% USERBLOCKEDOVERDUE %] overdue item(s).  Check out anyway?</li>
+[% END %]
+
+[% IF ( ITEM_LOST ) %]
+    <li>This item has been lost with a status of "[% ITEM_LOST %]". Check out anyway?</li>
+[% END %]
+
+<form method="post" action="/cgi-bin/koha/circ/offline-circulation.pl" autocomplete="off">
+
+[% IF ( RESERVED ) %]
+    <p>
+    <input type="checkbox" id="cancelreserve" name="cancelreserve" value="cancel" />
+    <label for="cancelreserve">Cancel hold</label>
+    </p>
+[% END %]
+
+[% IF ( RESERVE_WAITING ) %]
+<p>
+    <label for="cancelreserve">Cancel hold</label>
+    <input type="radio" value="cancel" name="cancelreserve" id="cancelreserve" /><br />
+    <label for="revertreserve">Revert waiting status</label>
+    <input type="radio" value="revert" name="cancelreserve" id="revertreserve" checked="checked"/>
+</p>
+[% END %]
+
+    <input type="hidden" name="barcode" value="[% barcode |html %]" />
+    <input type="hidden" name="borrowernumber" value="[% borrowernumber %]" />
+    <input type="hidden" name="issueconfirmed" value="1" />
+    [% IF ( DEBT ) %]<input type="hidden" name="debt_confirmed" value="1" />[% END %]
+    [% IF ( INVALID_DATE ) %]
+    <p>
+    <input type="text" size="13" id="duedatespec" name="duedatespec" readonly="readonly" value="[% duedatespec %]" />
+    <label for="duedatespec">Due date</label>
+    </p>
+    [% ELSE %]
+    <input type="hidden" name="duedatespec" value="[% duedatespec %]" />
+    [% END %]
+    <input type="hidden" name="stickyduedate" value="[% stickyduedate %]" />
+    <input type="hidden" name="branch" value="[% branch %]" />
+    [% IF ( RENEW_ISSUE ) %]
+    <input type="submit" class="approve" value="Yes, Renew (Y)" accesskey="y" />
+    [% ELSE %]
+    <input type="submit" class="approve" value="Yes, Check Out (Y)" accesskey="y" />
+    [% END %]
+</form>
+
+<form method="get" action="/cgi-bin/koha/circ/offline-circulation.pl">
+    <input type="hidden" name="borrowernumber" value="[% borrowernumber %]" />
+    <input type="hidden" name="duedatespec" value="[% duedatespec %]" />
+    <input type="hidden" name="stickyduedate" value="[% stickyduedate %]" />
+    [% IF ( RENEW_ISSUE ) %]
+    <input type="submit" class="deny" value="No, Don't Renew (N)" accesskey="n" />
+    [% ELSE %]
+    <input type="submit" class="deny" value="No, Don't Check Out (N)" accesskey="n" />
+    [% END %]
+</form>
+
+</div></div>
+[% END %] <!-- NEEDSCONFIRMATION -->
+
+        [% IF ( IMPOSSIBLE ) %]
+
+[% IF ( soundon ) %]
+<audio src="/intranet-tmpl/prog/sound/critical.ogg" autoplay="autoplay" autobuffer="autobuffer"></audio>
+[% END %]
+
+<div class="yui-g">
+<div id="circ_impossible" class="dialog alert">
+<!-- RESULT OF ISSUING REQUEST -->
+        <ul>
+        [% IF ( STATS ) %]
+            <li>Local use recorded</li>
+        [% END %]
+
+        [% IF ( INVALID_DATE ) %]
+            <li>The due date &quot;[% INVALID_DATE %]&quot; is invalid</li>
+        [% END %]
+
+        [% IF ( UNKNOWN_BARCODE ) %]
+            <li>The barcode was not found [% barcode |html %]</li>
+        [% IF ( fast_cataloging ) %]
+            [% IF ( CAN_user_editcatalogue_fast_cataloging ) %]
+            <a href="/cgi-bin/koha/cataloguing/addbiblio.pl?frameworkcode=FA&amp;barcode=[% barcode |uri %]&amp;circborrowernumber=[% borrowernumber %]&amp;branch=[% branch %]&amp;duedatespec=[% duedatespec %]&amp;stickyduedate=[% stickyduedate %]">Fast cataloging</a>
+        [% END %]
+        [% END %]
+        [% END %]
+
+        [% IF ( NOT_FOR_LOAN ) %]
+            <li>
+            [% IF ( itemtype_notforloan ) %]
+                Item type not for loan.
+            [% ELSIF ( item_notforloan ) %]
+                [% item_notforloan_lib = KohaAuthorisedValues.GetByCode( authvalcode_notforloan, item_notforloan, 0 ) %]
+                Item not for loan [% IF (item_notforloan_lib) %]([% item_notforloan_lib %])[% END %].
+            [% END %]
+            </li>
+        [% END %]
+
+        </ul>
+
+</div></div>
+[% ELSE %]
+[% IF ( soundon ) %]
+<audio src="/intranet-tmpl/prog/sound/beep.ogg" autoplay="autoplay" autobuffer="autobuffer"></audio>
+[% END %]
+    [% END %] <!-- /impossible -->
+
+[% IF ( issued ) %]
+<p>Item checked out</p>
+[% END %]
+
+[% IF ( message ) %]
+[% INCLUDE 'patron-toolbar.inc' %]
+<h4>
+No patron matched <span class="ex">[% message %]</span>
+</h4>
+[% END %]
+
+
+[% IF ( CGIselectborrower ) %]
+[% INCLUDE 'patron-toolbar.inc' %]
+
+<form method="post" action="/cgi-bin/koha/circ/offline-circulation.pl" id="mainform" name="mainform" autocomplete="off">
+<fieldset id="circ_circulation_selectborrower" class="brief">
+    <legend>Patron selection</legend>
+
+    <input type="hidden" name="branch" value="[% branch %]" />
+    <input type="hidden" name="printer" value="[% printer %]" />
+    <input type="hidden" name="duedatespec" value="[% duedatespec %]" />
+    <input type="hidden" name="stickyduedate" value="[% stickyduedate %]" />
+
+<ol>    <li>
+    <label for="borrowernumber">Select a patron: </label>
+    [% CGIselectborrower %]
+    </li>
+</ol>
+<p><input type="submit" value="Select" /></p>
+</fieldset>
+</form>
+[% ELSE %] <!-- CGIselectborrower -->
+
+<!-- BARCODE ENTRY -->
+
+[% IF ( borrowernumber ) %]
+<div class="yui-g">
+[% UNLESS ( noissues ) %]
+[% IF ( flagged ) %]
+<div class="yui-u first">
+[% ELSE %]
+<div>
+
+[% END %]
+
+
+<form method="post" action="/cgi-bin/koha/circ/offline-circulation.pl" id="mainform" name="mainform" autocomplete="off">
+<fieldset id="circ_circulation_issue">
+    [% IF ( DisplayClearScreenButton ) %]
+        <span id="clearscreen"><a href="/cgi-bin/koha/circ/offline-circulation.pl" title="Clear screen">x</a></span>
+    [% END %]
+
+    <label for="barcode">Checking out to [% INCLUDE 'patron-title.inc' %]</label>
+
+    <div class="hint">Enter item barcode:</div>
+
+    [% IF ( NEEDSCONFIRMATION ) %]
+        <input type="text" name="barcode" id="barcode" class="barcode focus" size="14" disabled="disabled" />
+    [% ELSE %]
+        <input type="text" name="barcode" id="barcode" class="barcode focus" size="14" />
+    [% END %]
+    <input type="submit" value="Check Out" />
+
+    [% IF ( SpecifyDueDate ) %]<div class="date-select">
+        <div class="hint">Specify due date [% INCLUDE 'date-format.inc' %]: </div>
+        [% IF ( duedatespec ) %]<input type="text" size="13" id="duedatespec" name="duedatespec" value="[% duedatespec %]" readonly="readonly" />[% ELSE %]<input type="text" size="13" id="duedatespec" name="duedatespec" value="" readonly="readonly" />
+[% END %]
+          <label for="stickyduedate"> Remember for session:</label>
+[% IF ( stickyduedate ) %]
+<input type="checkbox" id="stickyduedate" onclick="this.form.barcode.focus();" name="stickyduedate" checked="checked" />
+[% ELSE %]
+<input type="checkbox" id="stickyduedate" onclick="this.form.barcode.focus();" name="stickyduedate" />
+[% END %]
+          <input type="button" class="action" id="cleardate" value="Clear" name="cleardate" onclick="this.checked = false; this.form.duedatespec.value = ''; this.form.stickyduedate.checked = false; this.form.barcode.focus(); return false;" />
+</div>[% END %]
+          <input type="hidden" name="borrowernumber" id="borrowernumber" value="[% borrowernumber %]" />
+          <input type="hidden" name="branch" value="[% branch %]" />
+          <input type="hidden" name="printer" value="[% printer %]" />
+          <input type="hidden" name="print" value="maybe" />
+          <input type="hidden" name="debt_confirmed" value="[% debt_confirmed %]" />
+                [% IF ( CHARGES ) %]
+                        <input type="hidden" name="charges" value="yes" />
+                        <input type="hidden" name="oldamount" value="[% amountold %]" />
+                [% END %]
+</fieldset>
+</form></div>[% END %]<!-- /unless noissues -->
+
+[% IF ( noissues ) %]<div>[% ELSE %]<div class="yui-u">[% END %]
+
+    [% IF ( flagged ) %]
+        [% IF ( noissues ) %]
+        <h4>Checking out to [% INCLUDE 'patron-title.inc' %]</h4>
+        <div id="circmessages" class="circmessage warning">
+        [% ELSE %]
+        <div id="circmessages" class="circmessage attention">
+        [% END %]
+
+        <h3>[% IF ( noissues ) %]
+                Cannot check out!
+        [% ELSE %]Attention:[% END %]</h3>
+        <ul>
+
+            [% IF ( warndeparture ) %]
+            <li><span class="circ-hlt">Expiration:</span> Patron's card will expire soon.
+            Patron's card expires on [% expiry %] <a href="/cgi-bin/koha/members/setstatus.pl?borrowernumber=[% borrowernumber %]&amp;cardnumber=[% cardnumber %]&amp;destination=circ&amp;reregistration=y">Renew</a> or <a href="/cgi-bin/koha/members/memberentry.pl?op=modify&amp;destination=circ&amp;borrowernumber=[% borrowernumber %]&amp;categorycode=[% categorycode %]">Edit Details</a>
+
+            </li>
+            [% END %]
+
+            [% IF ( returnbeforeexpiry ) %]
+             <li><span class="circ-hlt">Set due date to expiry:</span> You have the ReturnBeforeExpiry system preference enabled this means if the
+             expiry date is before the date due, the date due will be set to the expiry date
+             </li>
+            [% END %]
+
+            [% IF ( expired ) %]
+            <li><span class="circ-hlt">Expiration:</span> Patron's card has expired.
+            [% IF ( expiry ) %]Patron's card expired on [% expiry %][% END %] <a href="/cgi-bin/koha/members/setstatus.pl?borrowernumber=[% borrowernumber %]&amp;cardnumber=[% cardnumber %]&amp;destination=circ&amp;reregistration=y">Renew</a> or <a href="/cgi-bin/koha/members/memberentry.pl?op=modify&amp;destination=circ&amp;borrowernumber=[% borrowernumber %]&amp;categorycode=[% categorycode %]">Edit Details</a>
+
+            </li>
+            [% END %]
+
+            [% IF ( gna ) %]
+            <li class="blocker"><span class="circ-hlt">Address:</span> Patron's address in doubt</li>
+            [% END %]
+
+            [% IF ( lost ) %]
+            <li class="blocker"><span class="circ-hlt">Lost: </span>Patron's card is lost</li>
+            [% END %]
+
+            [% IF ( userdebarred ) %]
+               <li class="blocker">
+               <span class="circ-hlt"> Restricted:</span> Patron's account is restricted [% IF (userdebarreddate ) %] until [% userdebarreddate %] [% END %] [% IF (debarredcomment ) %] with the comment "[% debarredcomment %]"[% END %]
+               <form class="inline compact" action="/cgi-bin/koha/members/setstatus.pl" method="post">
+                    <input type="hidden" name="borrowernumber" value="[% borrowernumber %]" />
+                    <input type="hidden" name="destination" value="circ" />
+                    <input type="hidden" name="cardnumber" value="[% cardnumber %]" />
+                    <input type="submit" value="Lift restriction" />
+               </form>
+            </li>[% END %]
+
+            [% IF ( odues ) %]<li>[% IF ( nonreturns ) %]<span class="circ-hlt">Overdues:</span> Patron has <span class="circ-hlt">ITEMS OVERDUE</span>. See highlighted items <a href="#checkouts">below</a>[% END %]</li>
+            [% END %]
+
+            [% IF ( charges ) %]
+                <li>
+            <span class="circ-hlt">Fees &amp; Charges:</span> Patron has  <a href="/cgi-bin/koha/members/boraccount.pl?borrowernumber=[% borrowernumber %]">Outstanding fees &amp; charges[% IF ( chargesamount ) %] of [% chargesamount %][% END %]</a>.
+                [% IF ( charges_is_blocker ) %]
+                    Checkouts are <span class="circ-hlt">BLOCKED</span> because fine balance is <span class="circ-hlt">OVER THE LIMIT</span>.
+                [% END %]
+            Make <a href="/cgi-bin/koha/members/pay.pl?borrowernumber=[% borrowernumber %]">Payment</a></li>
+            [% END %]
+
+            [% IF ( credits ) %]
+            <li>
+                <span class="circ-hlt">Credits:</span> Patron has a credit[% IF ( creditsamount ) %] of [% creditsamount %][% END %]
+            </li>
+            [% END %]
+
+
+
+            </ul>
+        </div>
+
+            [% IF ( WaitingReserveLoop ) %]
+            <div id="holdswaiting" class="circmessage">
+            <h4>Holds waiting:</h4>
+                    [% FOREACH WaitingReserveLoo IN WaitingReserveLoop %]
+                        <ul>
+                            <li> <a href="/cgi-bin/koha/reserve/request.pl?biblionumber=[% WaitingReserveLoo.biblionumber %]">[% WaitingReserveLoo.title |html %]</a> ([% WaitingReserveLoo.itemtype %]), [% IF ( WaitingReserveLoo.author ) %]by [% WaitingReserveLoo.author %][% END %] [% IF ( WaitingReserveLoo.itemcallnumber ) %][[% WaitingReserveLoo.itemcallnumber %]] [% END %]Hold placed on [% WaitingReserveLoo.reservedate %].
+                        [% IF ( WaitingReserveLoo.waitingat ) %]
+                            <br />[% IF ( WaitingReserveLoo.waitinghere ) %]<strong class="waitinghere">[% ELSE %]<strong>[% END %]Waiting at [% WaitingReserveLoo.waitingat %]</strong>
+                        [% END %]
+                            </li>
+                        </ul>
+                [% END %]
+            </div>
+            <!-- /If WaitingReserveLoop -->[% END %]
+    [% IF ( notes ) %]
+            <div id="circnotes" class="circmessage">
+            <h4>Notes:</h4>
+            <p><span class="circ-hlt">[% notesmsg %]</span></p>
+            </div>
+
+
+    <!-- /If notes -->[% END %]
+
+    <div id="messages" class="circmessage">
+        <h4>Messages:</h4>
+        <ul>
+            [% FOREACH lib_messages_loo IN lib_messages_loop %]
+                <li>
+                    <span class="circ-hlt">
+                        [% lib_messages_loo.message_date_formatted %]
+                        [% lib_messages_loo.branchcode %]
+                        <i>"[% lib_messages_loo.message %]"</i>
+                    </span>
+                    [% IF ( lib_messages_loo.can_delete ) %]
+                        <a href="/cgi-bin/koha/circ/del_message.pl?message_id=[% lib_messages_loo.message_id %]&amp;borrowernumber=[% lib_messages_loo.borrowernumber %]">[Delete]</a>
+                    [% ELSE %]
+                        [% IF ( all_messages_del ) %]
+                            <a href="/cgi-bin/koha/circ/del_message.pl?message_id=[% lib_messages_loo.message_id %]&amp;borrowernumber=[% lib_messages_loo.borrowernumber %]">[Delete]</a>
+                        [% END %]
+                    [% END %]
+                </li>
+            [% END %]
+            [% FOREACH bor_messages_loo IN bor_messages_loop %]
+                <li><span class="">[% bor_messages_loo.message_date_formatted %] [% bor_messages_loo.branchcode %] <i>"[% bor_messages_loo.message %]"</i></span> [% IF ( bor_messages_loo.can_delete ) %]<a href="/cgi-bin/koha/circ/del_message.pl?message_id=[% bor_messages_loo.message_id %]&amp;borrowernumber=[% bor_messages_loo.borrowernumber %]">[Delete]</a>
+                [% ELSIF ( all_messages_del ) %]
+                    <a href="/cgi-bin/koha/circ/del_message.pl?message_id=[% bor_messages_loo.message_id %]&amp;borrowernumber=[% bor_messages_loo.borrowernumber %]">[Delete]</a>
+                [% END %]</li>
+            [% END %]
+
+        </ul>
+    </div>
+
+     <!-- /If flagged -->[% END %]
+
+
+
+</div>
+</div>
+
+<div class="yui-g"><div id="patronlists" class="toptabs">
+
+<ul>
+<li>    [% IF ( issuecount ) %]
+            <a href="#checkouts">[% issuecount %] Checkout(s)</a>
+    [% ELSE %]
+            <a href="#checkouts">0 Checkouts</a>
+    [% END %]</li>
+</ul>
+
+<!-- SUMMARY : TODAY & PREVIOUS ISSUES -->
+<div id="checkouts">
+[% IF ( issuecount ) %]
+    <form name="issues" action="/cgi-bin/koha/reserve/renewscript.pl" method="post" class="checkboxed">
+    <input type="hidden" value="circ" name="destination" />
+    <input type="hidden" name="cardnumber" value="[% cardnumber %]" />
+    <input type="hidden" name="borrowernumber" value="[% borrowernumber %]" />
+    <input type="hidden" name="branch" value="[% branch %]" />
+        <table id="issuest">
+    <thead><tr>
+        <th scope="col">Due date</th>
+        <th scope="col">Title</th>
+        <th scope="col">Item type</th>
+        <th scope="col">Checked out on</th>
+        <th scope="col">Checked out from</th>
+        <th scope="col">Call no</th>
+        <th scope="col">Charge</th>
+        <th scope="col">Price</th>
+        <th scope="col">Renew <p class="column-tool"><a href="#" id="CheckAllitems">select all</a> | <a href="#" id="CheckNoitems">none</a></p></th>
+        <th scope="col">Check in <p class="column-tool"><a href="#" id="CheckAllreturns">select all</a> | <a href="#" id="CheckNoreturns">none</a></p></th>
+        [% IF ( exports_enabled ) %]
+          <th scope="col">Export <p class="column-tool"><a href="#" id="CheckAllexports">select all</a> | <a href="#" id="CheckNoexports">none</a></p></th>
+        [% END %]
+    </tr></thead>
+[% IF ( todayissues ) %]
+[% INCLUDE 'checkouts-table-footer.inc' %]
+    <tbody>
+
+    [% FOREACH todayissue IN todayissues %]
+    [% IF ( loop.odd ) %]
+    <tr>
+    [% ELSE %]
+    <tr class="highlight">
+    [% END %]
+        [% IF ( todayissue.od ) %]<td class="od">[% ELSE %]<td>[% END %]
+        <span title="[% todayissue.dd_sort %]">[% todayissue.dd %]</span>
+
+            [% IF ( todayissue.itemlost ) %]
+                <span class="lost">[% KohaAuthorisedValues.GetByCode( 'LOST', todayissue.itemlost ) %]</span>
+            [% END %]
+            [% IF ( todayissue.damaged ) %]
+                <span class="dmg">[% KohaAuthorisedValues.GetByCode( 'DAMAGED', todayissue.damaged ) %]</span>
+            [% END %]
+        </td>
+        <td><a href="/cgi-bin/koha/catalogue/detail.pl?biblionumber=[% todayissue.biblionumber %]&amp;type=intra"><strong>[% todayissue.title |html %]</strong></a>[% IF ( todayissue.author ) %], by [% todayissue.author %][% END %][% IF ( todayissue.itemnotes ) %]- <span class="circ-hlt">[% todayissue.itemnotes %]</span>[% END %] <a href="/cgi-bin/koha/catalogue/moredetail.pl?biblionumber=[% todayissue.biblionumber %]&amp;itemnumber=[% todayissue.itemnumber %]#item[% todayissue.itemnumber %]">[% todayissue.barcode %]</a></td>
+        <td>[% UNLESS ( noItemTypeImages ) %] [% IF ( todayissue.itemtype_image ) %]<img src="[% todayissue.itemtype_image %]" alt="" />[% END %][% END %][% todayissue.itemtype %]</td>
+        <td><span title="[% todayissue.displaydate_sort %]">[% todayissue.checkoutdate %]</span></td>
+        [% IF ( todayissue.multiple_borrowers ) %]<td>[% todayissue.firstname %] [% todayissue.surname %]</td>[% END %]
+        <td>[% todayissue.issuingbranchname %]</td>
+        <td>[% todayissue.itemcallnumber %]</td>
+            <td>[% todayissue.charge %]</td>
+            <td>[% todayissue.replacementprice %]</td>
+      [% IF ( todayissue.renew_failed ) %]
+            <td class="problem">Renewal failed</td>
+      [% ELSE %]
+        <td><span style="padding: 0 1em;">[% IF ( todayissue.renewals ) %][% todayissue.renewals %][% ELSE %]0[% END %]</span>
+        [% IF ( todayissue.can_renew ) %]
+        <input type="checkbox" name="all_items[]" value="[% todayissue.itemnumber %]" checked="checked" style="display: none;" />
+        [% IF ( todayissue.od ) %]
+            <input type="checkbox" class="radio" name="items[]" value="[% todayissue.itemnumber %]" checked="checked" />
+        [% ELSE %]
+            <input type="checkbox" class="radio" name="items[]" value="[% todayissue.itemnumber %]" />
+        [% END %]
+        [% ELSE %]
+            [% IF ( todayissue.can_confirm ) %]<span class="renewals-allowed" style="display: none">
+                <input type="checkbox" name="all_items[]" value="[% todayissue.itemnumber %]" checked="checked" style="display: none;" />
+                [% IF ( todayissue.od ) %]
+                    <input type="checkbox" class="radio" name="items[]" value="[% todayissue.itemnumber %]" checked="checked" />
+                [% ELSE %]
+                    <input type="checkbox" class="radio" name="items[]" value="[% todayissue.itemnumber %]" />
+                [% END %]
+                </span>
+                <span class="renewals-disabled">
+            [% END %]
+        [% IF ( todayissue.renew_error_on_reserve ) %]
+            <a href="/cgi-bin/koha/reserve/request.pl?biblionumber=[% todayissue.biblionumber %]">On hold</a>
+        [% END %]
+                [% IF ( todayissue.renew_error_too_many ) %]
+            Not renewable
+                [% END %]
+            [% IF ( todayissue.can_confirm ) %]
+                </span>
+            [% END %]
+        [% END %]
+        </td>
+        [% END %]
+        [% IF ( todayissue.return_failed ) %]
+            <td class="problem">Checkin failed</td>
+        [% ELSE %]
+            [% IF ( todayissue.renew_error_on_reserve ) %]
+               <td><a href="/cgi-bin/koha/reserve/request.pl?biblionumber=[% todayissue.biblionumber %]">On hold</a>
+                <input type="checkbox" name="all_barcodes[]" value="[% todayissue.barcode %]" checked="checked" style="display: none;" />
+                </td>
+            [% ELSE %]
+            <td><input type="checkbox" class="radio" name="barcodes[]"  value="[% todayissue.barcode %]" />
+                <input type="checkbox" name="all_barcodes[]" value="[% todayissue.barcode %]" checked="checked" style="display: none;" />
+            </td>
+            [% END %]
+        [% END %]
+        [% IF ( exports_enabled ) %]
+          <td style="text-align:center;">
+            <input type="checkbox" id="export_[% todayissue.biblionumber %]" name="biblionumbers" value="[% todayissue.biblionumber %]" />
+            <input type="checkbox" name="itemnumbers" value="[% todayissue.itemnumber %]" style="visibility:hidden;" />
+          </td>
+        [% END %]
+    </tr>
+    [% END %] <!-- /loop todayissues -->
+    <!-- /if todayissues -->[% END %]
+
+[% IF ( previssues ) %]
+    [% UNLESS ( todayissues ) %]
+    [% INCLUDE 'checkouts-table-footer.inc' %]
+        <tbody>
+    [% END %]
+    [% IF ( UseTablesortForCirc ) %]<tr id="previous"><th><span title="">Previous checkouts</span></th><th></th><th></th><th><span title=""></span></th><th></th><th></th><th></th><th></th><th></th><th></th>[% IF ( exports_enabled ) %]<th></th>[% END %]</tr>[% ELSE %]<tr id="previous">[% IF ( exports_enabled ) %]<th colspan="11">[% ELSE %]<th colspan="10">[% END %]Previous checkouts</th></tr>[% END %]
+    [% FOREACH previssue IN previssues %]
+    [% IF ( loop.odd ) %]
+        <tr>
+    [% ELSE %]
+        <tr class="highlight">
+    [% END %]
+        [% IF ( previssue.od ) %]<td class="od">[% ELSE %]<td>[% END %]
+        <span title="[% previssue.dd_sort %]">[% previssue.dd %]</span>
+
+            [% IF ( previssue.itemlost ) %]
+                <span class="lost">[% KohaAuthorisedValues.GetByCode( 'LOST', previssue.itemlost ) %]</span>
+            [% END %]
+            [% IF ( previssue.damaged ) %]
+                <span class="dmg">[% KohaAuthorisedValues.GetByCode( 'DAMAGED', previssue.damaged ) %]</span>
+            [% END %]
+        </td>
+        <td><a href="/cgi-bin/koha/catalogue/detail.pl?biblionumber=[% previssue.biblionumber %]&amp;type=intra"><strong>[% previssue.title |html %]</strong></a>[% IF ( previssue.author ) %], by [% previssue.author %][% END %] [% IF ( previssue.itemnotes ) %]- [% previssue.itemnotes %][% END %] <a href="/cgi-bin/koha/catalogue/moredetail.pl?biblionumber=[% previssue.biblionumber %]&amp;itemnumber=[% previssue.itemnumber %]#item[% previssue.itemnumber %]">[% previssue.barcode %]</a></td>
+        <td>
+            [% previssue.itemtype %]
+        </td>
+        <td><span title="[% previssue.displaydate_sort %]">[% previssue.displaydate %]</span></td>
+        [% IF ( previssue.multiple_borrowers ) %]<td>[% previssue.firstname %] [% previssue.surname %]</td>[% END %]
+        <td>[% previssue.issuingbranchname %]</td>
+        <td>[% previssue.itemcallnumber %]</td>
+        <td>[% previssue.charge %]</td>
+        <td>[% previssue.replacementprice %]</td>
+      [% IF ( previssue.renew_failed ) %]
+            <td class="problem">Renewal failed</td>
+      [% ELSE %]
+        <td><span style="padding: 0 1em;">[% IF ( previssue.renewals ) %][% previssue.renewals %][% ELSE %]0[% END %]</span>
+        [% IF ( previssue.can_renew ) %]
+        <input type="checkbox" name="all_items[]" value="[% previssue.itemnumber %]" checked="checked" style="display: none;" />
+        [% IF ( previssue.od ) %]
+            <input type="checkbox" class="radio" name="items[]" value="[% previssue.itemnumber %]" checked="checked" />
+        [% ELSE %]
+            <input type="checkbox" class="radio" name="items[]" value="[% previssue.itemnumber %]" />
+        [% END %]
+        [% ELSE %]
+            [% IF ( previssue.can_confirm ) %]<span class="renewals-allowed" style="display: none">
+                <input type="checkbox" name="all_items[]" value="[% previssue.itemnumber %]" checked="checked" style="display: none;" />
+                [% IF ( previssue.od ) %]
+                    <input type="checkbox" class="radio" name="items[]" value="[% previssue.itemnumber %]" checked="checked" />
+                [% ELSE %]
+                    <input type="checkbox" class="radio" name="items[]" value="[% previssue.itemnumber %]" />
+                [% END %]
+                </span>
+                <span class="renewals-disabled">
+            [% END %]
+        [% IF ( previssue.renew_error_on_reserve ) %]
+            <a href="/cgi-bin/koha/reserve/request.pl?biblionumber=[% previssue.biblionumber %]">On hold</a>
+        [% END %]
+                [% IF ( previssue.renew_error_too_many ) %]
+            Not renewable
+                [% END %]
+            [% IF ( previssue.can_confirm ) %]
+                </span>
+            [% END %]
+        [% END %]
+        </td>
+        [% END %]
+          [% IF ( previssue.return_failed ) %]
+            <td class="problem">Check-in failed</td>
+        [% ELSE %]
+            [% IF ( previssue.renew_error_on_reserve ) %]
+               <td><a href="/cgi-bin/koha/reserve/request.pl?biblionumber=[% previssue.biblionumber %]">On hold</a>
+                <input type="checkbox" name="all_barcodes[]" value="[% previssue.barcode %]" checked="checked" style="display: none;" />
+                </td>
+            [% ELSE %]
+            <td><input type="checkbox" class="radio" name="barcodes[]"  value="[% previssue.barcode %]" />
+                <input type="checkbox" name="all_barcodes[]" value="[% previssue.barcode %]" checked="checked" style="display: none;" />
+            </td>
+            [% END %]
+        [% END %]
+        [% IF ( exports_enabled ) %]
+          <td style="text-align:center;">
+            <input type="checkbox" id="export_[% previssue.biblionumber %]" name="biblionumbers" value="[% previssue.biblionumber %]" />
+            <input type="checkbox" name="itemnumbers" value="[% previssue.itemnumber %]" style="visibility:hidden;" />
+          </td>
+        [% END %]
+    </tr>
+    <!-- /loop previssues -->[% END %]
+<!--/if previssues -->[% END %]
+      </tbody>
+    </table>
+    [% IF ( issuecount ) %]
+    <fieldset class="action">
+        [% IF ( CAN_user_circulate_override_renewals ) %]
+        [% IF ( AllowRenewalLimitOverride ) %]
+        <label for="override_limit">Override renewal limit:</label>
+        <input type="checkbox" name="override_limit" id="override_limit" value="1" />
+        [% END %]
+        [% END %]
+        <input type="submit" name="renew_checked" value="Renew or Return checked items" />
+        <input type="submit" id="renew_all" name="renew_all" value="Renew all" />
+    </fieldset>
+    [% END %]
+    </form>
+[% ELSE %]
+<p>Patron has nothing checked out.</p>
+[% END %]
+
+</div>
+
+[% END %] <!-- borrowernumber -->
+</div></div>
+[% END %]
+
+
+
+</div>
+</div>
+<div class="yui-b">
+<div class="patroninfo"><h5 id="patron-title"></h5>
+<ul>
+    <li id="patron-address-1"></li>
+    <li id="patron-address-2"></li>
+    <li id="patron-address-parts"><!-- city, state, zipcode, country --></li>
+    <li id="patron-phone"></li>
+    <li id="patron-email" class="email"></li>
+    <li id="patron-category"></li>
+    <li class="patron-library"></li>
+</ul></div>
+</div>
+</div>
+[% INCLUDE 'intranet-bottom.inc' %]
