@@ -51,6 +51,9 @@ sub createMarcHash {
     my ($self, $tagslib) = @_;
     my $record = $self->record;
     my @array;
+
+    return unless $record;
+
     my @fields = $record->fields();
 
 
