@@ -6834,6 +6834,13 @@ if (C4::Context->preference("Version") < TransformToNum($DBversion)) {
     SetVersion($DBversion);
 }
 
+$DBversion = "3.13.00.XXX";
+if ( CheckVersion($DBversion) ) {
+    $dbh->do("INSERT INTO systempreferences (variable,value,options,explanation,type) VALUES ('AllowOfflineCirculation','0','','If on, enables HTML5 offline circulation functionality.','YesNo')");
+    print "Upgrade to $DBversion done (Bug XXXX: Add syspref AllowOfflineCirculation)\n";
+    SetVersion ($DBversion);
+}
+
 =head1 FUNCTIONS
 
 =head2 TableExists($table)

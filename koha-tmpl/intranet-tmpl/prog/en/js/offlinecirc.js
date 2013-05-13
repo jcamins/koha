@@ -45,11 +45,10 @@
                 callback();
                 kohadb.loadSetting('userid');
                 kohadb.loadSetting('branchcode');
-                kohadb.loadSetting('branchcode');
             }
         });
     };
-    kohadb.loadSetting = function (key) {
+    kohadb.loadSetting = function (key, callback) {
         $.indexedDB("koha").transaction(["offline_settings"]).then(function(){
         }, function(err, e){
         }, function(transaction){
@@ -57,6 +56,9 @@
             settings.get(key).done(function (item, error) {
                 if (typeof item !== 'undefined') {
                     kohadb.settings[key] = item.value;
+                }
+                if (typeof callback === 'function') {
+                    callback(key, kohadb.settings[key]);
                 }
             });
         });

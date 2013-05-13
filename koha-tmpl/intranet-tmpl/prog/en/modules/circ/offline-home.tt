@@ -13,20 +13,27 @@
    <div id="bd">
     <div class="yui-g">
 
-<h1>Circulation</h1>
 
-<div class="yui-u first">
-    <ul>
-        <li><a href="/cgi-bin/koha/circ/circulation.pl">Check out</a></li>
-        <li><a href="/cgi-bin/koha/circ/returns.pl">Check in</a></li>
-    </ul>
+    [% UNLESS (OfflineCirc) %]
+        <div id="noofflinecircwarning" class="dialog alert">
+            <p><strong>Warning:</strong> Offline Circulation has been disabled. You may continue and record transactions, but patron and item information will not be available.</p>
+        </div>
+    [% END %]
+    <h1>Circulation</h1>
+    <div class="yui-u first">
+        <ul>
+            <li><a href="/cgi-bin/koha/circ/circulation.pl">Check out</a></li>
+            <li><a href="/cgi-bin/koha/circ/returns.pl">Check in</a></li>
+        </ul>
     </div>
 
     <div class="yui-u">
         <h5>Offline circulation</h5>
+        <p><strong>Note:</strong> You must be online to use these options.</p>
         <ul>
-                    <li><a href="/cgi-bin/koha/offline_circ/process_koc.pl">Upload offline circulation file (.koc)</a></li>
-                    <li><a href="/cgi-bin/koha/offline_circ/list.pl">Pending offline circulation actions</a>
+            <li><a href="/cgi-bin/koha/circ/offlinesync.pl">Synchronize</a></li>
+            <li><a href="/cgi-bin/koha/offline_circ/process_koc.pl">Upload offline circulation file (.koc)</a></li>
+            <li><a href="/cgi-bin/koha/offline_circ/list.pl">Pending offline circulation actions</a>
         </ul>
     </div>
 </div>

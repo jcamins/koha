@@ -81,6 +81,7 @@ elsif ( $req_data eq 'items' ) {
     );
 }
 else {
+    $template->{'VARS'}->{'AllowOfflineCirculation'} = C4::Context->preference('AllowOfflineCirculation');
     output_html_with_http_headers $query, $cookie, $template->output;
 }
 

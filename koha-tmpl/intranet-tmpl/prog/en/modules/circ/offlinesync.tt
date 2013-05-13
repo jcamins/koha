@@ -6,27 +6,48 @@
 <script type="text/javascript">
 var start;
 
+var dateformat = '[% IF ( dateformat_us ) %]mm/dd/yy[% ELSIF ( dateformat_metric ) %]dd/mm/yy[% ELSE %]yy-mm-dd[% END %]';
+
 $(document).ready(function () {
     kohadb.initialize(function () {
         kohadb.saveSetting("userid", "[% loggedinusername %]");
         kohadb.saveSetting("branchcode", "[% LoginBranchcode %]");
+        kohadb.loadSetting("item-timestamp", showTimestamp);
+        kohadb.loadSetting("patron-timestamp", showTimestamp);
+        kohadb.loadSetting("issue-timestamp", showTimestamp);
+        [% UNLESS (AllowOfflineCirculation) %]
+            reloadRecords();
+        [% END %]
     });
-    $('#reload-records').click(function () {
-        start = new Date().getTime();
-        $.indexedDB("koha").transaction(["patrons", "items", "issues"]).then(function(){
-            loadRecords(0);
-        }, function(err, e){
-        }, function(transaction){
-            transaction.objectStore("patrons").clear();
-            transaction.objectStore("items").clear();
-            transaction.objectStore("issues").clear();
-        });
-        return false;
-    });
+    $('#reload-records').click(reloadRecords);
     $('#upload-transactions').click(function () {
         $.indexedDB("koha").objectStore("transactions").each(recordTransaction);
     });
 });
+
+function showTimestamp(key, value) {
+    if (typeof value !== 'undefined') {
+        var ts = new Date(value);
+        $('#' + key).text($.datepicker.formatDate(dateformat, ts) + ' ' + ts.toTimeString());
+    } else {
+        $('#' + key).text('(never)');
+    }
+}
+
+function reloadRecords(ev) {
+    start = new Date();
+    $.indexedDB("koha").transaction(["patrons", "items", "issues"]).then(function(){
+        loadRecords(0);
+    }, function(err, e){
+    }, function(transaction){
+        transaction.objectStore("patrons").clear();
+        transaction.objectStore("items").clear();
+        transaction.objectStore("issues").clear();
+    });
+    if (typeof ev !== 'undefined') {
+        ev.stopPropagation();
+    }
+}
 
 function recordTransaction(transaction) {
     $.ajax({
@@ -46,12 +67,12 @@ function recordTransaction(transaction) {
 }
 
 function finishedLoading() {
-    var end = new Date().getTime();
-    var total = end - start;
-    console.log("Done in " + total + "ms");
+    kohadb.saveSetting('item-timestamp', start.toISOString())
+    kohadb.saveSetting('patron-timestamp', start.toISOString())
 }
 
 function loadRecords(page) {
+[% IF (AllowOfflineCirculation) %]
     $.ajax({
         type: "GET",
         url: "/cgi-bin/koha/circ/offlinesync.pl",
@@ -82,6 +103,7 @@ function loadRecords(page) {
             }
         });
     });
+[% END %]
 }
 </script>
 </head>
@@ -94,11 +116,18 @@ function loadRecords(page) {
 <div id="doc" class="yui-t7">
     <div id="bd">
         <div id="toolbar" class="btn-toolbar">
+            [% IF (AllowOfflineCirculation) %]
             <a href="#" id="download-records" class="btn btn-small"><i class="icon-arrow-down"></i>Download records</a>
             <a href="#" id="reload-records" class="btn btn-small"><i class="icon-repeat"></i>Re-download all records</a>
+            [% END %]
             <a href="#" id="upload-transactions" class="btn btn-small"><i class="icon-arrow-up"></i>Upload transactions</a>
         </div>
         <div class="yui-g">
+            [% UNLESS (AllowOfflineCirculation) %]
+                <div id="noofflinecircwarning" class="dialog alert">
+                    <p><strong>Warning:</strong> Offline Circulation has been disabled. You may record transactions, but patron and item information will not be available.</p>
+                </div>
+            [% END %]
 
             <h1>Offline circulation</h1>
 
@@ -108,9 +137,9 @@ function loadRecords(page) {
                     You have records in the offline circulation database on this
                     computer, but they may not be current:
                     <ul>
-                        <li>Patron records were last synced on April 28, 2013 08:30:52</li>
-                        <li>Item records were last synced on April 28, 2013 08:32:52</li>
-                        <li>Circulation records were last synced on April 28, 2013 08:38:52</li>
+                        <li>Patron records were last synced on: <span id="patron-timestamp">(checking)</span></li>
+                        <li>Item records were last synced on: <span id="item-timestamp">(checking)</span></li>
+                        <li>Circulation records were last synced on: <span id="issue-timestamp">(checking)</span></li>
                     </ul>
                 </div>
             </div>
