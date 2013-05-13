@@ -11,6 +11,8 @@
 [% END %]
 </title>
 [% INCLUDE 'doc-head-close.inc' %]
+<script type="text/javascript" src="/intranet-tmpl/lib/jquery/plugins/jquery.indexeddb.js"></script>
+<script type="text/javascript" src="/intranet-tmpl/prog/en/js/offlinecirc.js"></script>
 [% INCLUDE 'calendar.inc' %]
 [% IF ( UseTablesortForCirc ) %]<link rel="stylesheet" type="text/css" href="[% themelang %]/css/datatables.css" />
 <script type="text/javascript" src="[% themelang %]/lib/jquery/plugins/jquery.dataTables.min.js"></script>
@@ -109,6 +111,78 @@ function validate1(date) {
         return false;
      }
 };
+
+function loadPatron(barcode) {
+    $.indexedDB("koha").transaction(["patrons"]).then(function() {
+    }, function(err, e){
+    }, function(transaction){
+        var patrons = transaction.objectStore("patrons");
+        patrons.get(barcode).done(function (patron, error) {
+            showPatron(barcode, patron, error);
+        });
+    });
+}
+
+function showPatron(barcode, patron, error) {
+    if (typeof patron === 'undefined') {
+        patron = { };
+    }
+    patron.surname = patron.surname || "";
+    patron.firstname = patron.firstname || "";
+    patron.othernames = patron.othernames || "";
+    patron.address = patron.address || "";
+    patron.address2 = patron.address2 || "";
+    patron.city = patron.city || "";
+    patron.state = patron.state || "";
+    patron.country = patron.country || "";
+    patron.zipcode = patron.zipcode || "";
+    patron.phone = patron.phone || "";
+    patron.mobile = patron.mobile || "";
+    patron.phonepro = patron.phonepro || "";
+    patron.email = patron.email || "";
+    patron.emailpro = patron.emailpro || "";
+    patron.categorycode = patron.categorycode || "";
+    patron.branchcode = patron.branchcode || "";
+
+    patron.name = patron.firstname + (patron.othernames.length > 0 ? " (" + patron.othernames + ") " : " ") + patron.surname + " (" + barcode + ")";
+    if (patron.name.length > 0) {
+        $('#patron-title').text(patron.name);
+    } else {
+        $('#patron-title').text(_("Unrecognized patron") + " (" + barcode + ")");
+    }
+    if (patron.address.length > 0 || patron.address2.length > 0) {
+        $('#patron-address-1').text(patron.address);
+        $('#patron-address-2').text(patron.address2);
+    } else {
+        $('#patron-address-1').html('<span class="empty" id="noaddressstored">' + _("No address stored.") + '</span></li>');
+        $('#patron-address-2').text('');
+    }
+    if (patron.city.length > 0) {
+        $('#patron-address-parts').text(patron.city + (patron.state.length > 0 ? ", " + patron.state : "") + " " + patron.zipcode + (patron.country.length > 0 ? ", " + patron.country : ""));
+    } else {
+        $('#patron-address-parts').html('<span class="empty" id="nocitystored">' + _("No city stored.") + '</span></li>');
+    }
+    if (patron.phone.length > 0 || patron.mobile.length > 0 || patron.phonepro.length > 0) {
+        $('#patron-phone').text((patron.phone.length > 0 ? patron.phone : (patron.mobile.length > 0 ? patron.mobile : (patron.phonepro.length > 0 ? patron.phonepro : ''))));
+    } else {
+        $('#patron-phone').html('<span class="empty" id="nophonestored">' + _("No phone stored.") + '</span></li>');
+    }
+    if (patron.email.length > 0 || patron.emailpro.length > 0) {
+        $('#patron-email').text((patron.email.length > 0 ? patron.email : (patron.emailpro.length > 0 ? patron.emailpro : "")));
+    } else {
+        $('#patron-email').html('<span class="empty" id="noemailstored">' + _("No email stored.") + '</span></li>');
+    }
+    if (patron.categorycode.length > "") {
+        $('#patron-category').text(_("Category: ") + patron.categorycode);
+    } else {
+        $('#patron-category').html('<span class="empty" id="unknowncategory">' + _("Category code unknown.") + '</span></li>');
+    }
+    if (patron.branchcode.length > "") {
+        $('#patron-library').text(_("Home library: ") + patron.branchcode);
+    } else {
+        $('#patron-library').html('<span class="empty" id="unknowncategory">' + _("Home library unknown.") + '</span></li>');
+    }
+}
 //]]>
 </script>
 </head>
@@ -809,9 +883,9 @@ No patron matched <span class="ex">[% message %]</span>
     <li id="patron-address-2"></li>
     <li id="patron-address-parts"><!-- city, state, zipcode, country --></li>
     <li id="patron-phone"></li>
-    <li id="patron-email" class="email"></li>
+    <li id="patron-email"></li>
     <li id="patron-category"></li>
-    <li class="patron-library"></li>
+    <li id="patron-library"></li>
 </ul></div>
 </div>
 </div>
