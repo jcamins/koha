@@ -82,7 +82,7 @@ my $issues_query = qq{SELECT
     };
 
 if ( $req_data eq 'all' ) {
-    print $query->header;
+    print $query->header( -type => 'application/json', -charset => 'utf-8' );
     print to_json(
         {
             'patrons' => get_data( $patrons_query, 'cardnumber' ),
@@ -92,12 +92,16 @@ if ( $req_data eq 'all' ) {
     );
 }
 elsif ( $req_data eq 'patrons' ) {
-    print $query->header;
+    print $query->header( -type => 'application/json', -charset => 'utf-8' );
     print to_json( { 'patrons' => get_data( $patrons_query, 'cardnumber' ), } );
 }
 elsif ( $req_data eq 'items' ) {
-    print $query->header;
+    print $query->header( -type => 'application/json', -charset => 'utf-8' );
     print to_json( { 'items' => get_data( $items_query, 'barcode' ), } );
+}
+elsif ( $req_data eq 'issues' ) {
+    print $query->header( -type => 'application/json', -charset => 'utf-8' );
+    print to_json( { 'issues' => get_data( $issues_query, 'barcode' ), } );
 }
 else {
     $template->{'VARS'}->{'AllowOfflineCirculation'} =

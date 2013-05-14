@@ -19,21 +19,28 @@
 <script type="text/javascript" src="[% themelang %]/lib/jquery/plugins/jquery-ui-timepicker-addon.js"></script>
 <script type="text/javascript">
 //<![CDATA[
-    var ALERT_PATRON_RESTRICTED = _("Patron is restricted");
     var ALERT_MATERIALS = _("Note about the accompanying materials: ");
     var ALERT_NO_MATCHING_ITEM = _("No item with barcode in offline database (transaction recorded anyway): ");
     var ALERT_NOT_CHECKED_OUT = _("Item not listed as checked out in offline database (transaction recorded anyway)");
     var ALERT_ITEM_WITHDRAWN = _("Item has been withdrawn (transaction recorded anyway)");
     var ALERT_ITEM_RESTRICTED = _("Item is restricted (transaction recorded anyway)");
+    var ALERT_NO_MATCHING_PATRON = _("No item with cardnumber in offline database (proceeding anyway): ");
     var ALERT_PATRON_GONE_NO_ADDRESS = _("Patron's address is in doubt (transaction recorded anyway)");
     var ALERT_PATRON_CARD_LOST = _("Patron's card is lost");
     var ALERT_PATRON_EXPIRED = _("Patron's card is expired");
     var ALERT_PATRON_BLOCKED_TEMPORARY = _("Patron has had overdue items and is restricted for: ");
+    var ALERT_PATRON_RESTRICTED = _("Patron is restricted");
+    var ALERT_PATRON_FINE = _("Patron has outstanding fines: ");
+    var ALERT_PATRON_FINE_OVER_LIMIT = _("Patron fines are over limit: ");
+
+    var dateformat = '[% IF ( dateformat_us ) %]mm/dd/yy[% ELSIF ( dateformat_metric ) %]dd/mm/yy[% ELSE %]yy-mm-dd[% END %]';
+
     window.onload=function(){ $('#findborrower').focus(); };
 $(document).ready(function() {
 
     $('#patronsearch').submit(function (event) {
         event.preventDefault();
+        loadPatron($('#findborrower').val());
     });
 
     $('#patronlists').tabs();
@@ -88,6 +95,18 @@ $(document).ready(function() {
         hour: 23,
         minute: 59
     });
+    $('#mainform').submit(function (event) {
+        event.preventDefault();
+        var barcode = $('#barcode').val();
+        $.indexedDB("koha").transaction(["items"]).then(function() {
+        }, function(err, e){
+        }, function(transaction){
+            var items = transaction.objectStore("items");
+            items.get(barcode).done(function (item, error) {
+                checkout(barcode, item, error);
+            });
+        });
+    });
  });
 
 function validate1(date) {
@@ -100,17 +119,94 @@ function validate1(date) {
 };
 
 function loadPatron(barcode) {
-    $.indexedDB("koha").transaction(["patrons"]).then(function() {
+    $.indexedDB("koha").transaction(["patrons", "issues"]).then(function() {
     }, function(err, e){
     }, function(transaction){
         var patrons = transaction.objectStore("patrons");
         patrons.get(barcode).done(function (patron, error) {
             showPatron(barcode, patron, error);
         });
+        var issuesidx = transaction.objectStore("issues").index("cardnumber");
+        $('#oldissuest tbody').empty();
+        issuesidx.each(function (item) {
+            $('#oldissuest tbody').append("<tr><td>" + item.value.date_due + "</td><td>" + item.value.barcode + "</td><td>" + item.value.title + "</td><td>" + item.value.itype + "</td><td>" + item.value.issuedate + "</td><td>" + item.value.issuebranch + "</td><td>" + item.value.callnumber + "</td><td>" + "" + "</td></tr>");
+        }, barcode);
     });
 }
 
+function checkout(barcode, item, error) {
+    var alerts = checkAlerts(barcode, item);
+    if (typeof item === 'undefined') {
+        item = { };
+    }
+    item.title = item.title || "";
+    item.author = item.author || "";
+    item.homebranch = item.homebranch || "";
+    item.holdingbranch = item.holdingbranch || "";
+    item.callnumber = item.callnumber || "";
+    item.itemtype = item.itemtype || "";
+    var date_due = new Date($('#duedatespec').datepicker('getDate'));
+    var trans = { "timestamp" : new Date().toMySQLString(),
+                  "barcode" : barcode,
+                  "cardnumber" : curpatron.cardnumber,
+                  "date_due" : date_due.toMySQLString(),
+                  "action" : "issue"
+                };
+    $('#alerts').empty();
+    kohadb.recordTransaction(trans, function () {
+        $('#issuest tbody').prepend('<tr><td>' + $.datepicker.formatDate(dateformat, date_due) + date_due.toTimeString() + '</td><td>' + item.title + '</td><td>' + barcode + '</td><td>' + item.itemtype + '</td><td>' + $.datepicker.formatDate(dateformat, new Date()) + '</td><td>' + kohadb.settings.branchcode + '</td><td>' + item.callnumber + '</td><td></td></tr>');
+        if (alerts.length > 0) {
+            $('#alerts').append('<div class="dialog alert"><h3>Check out message</h3></div>');
+            for (var msg in alerts) {
+                $('#alerts .dialog').append('<p>' + alerts[msg] + '</p');
+            }
+        }
+    });
+}
+
+function checkAlerts(barcode, item) {
+    var alerts = [];
+    if (typeof item === 'undefined') {
+        alerts.push(ALERT_NO_MATCHING_ITEM + barcode);
+    } else {
+        if (typeof item.materials !== 'undefined' && item.materials != null) {
+            alerts.push(ALERT_MATERIALS + item.materials);
+        }
+    }
+    return alerts;
+}
+
+function checkPatronAlerts(cardnumber, patron) {
+    var alerts = [];
+    if (typeof patron === 'undefined') {
+        alerts.push(ALERT_NO_MATCHING_PATRON + barcode);
+    } else {
+        if (patron.gonenoaddress !== '0') {
+            alerts.push(ALERT_PATRON_GONE_NO_ADDRESS);
+        }
+        if (patron.lost !== '0') {
+            alerts.push(ALERT_PATRON_CARD_LOST);
+        }
+        if (patron.debarred !== null) {
+            if (patron.debarred != '9999-12-31') {
+                alerts.push(ALERT_PATRON_BLOCKED_TEMPORARY + $.datepicker.formatDate(dateformat, patron.debarred));
+            } else {
+                alerts.push(ALERT_PATRON_RESTRICTED);
+            }
+        }
+        if (parseInt(patron.fine) > [% maxoutstanding %]) {
+            alerts.push(ALERT_PATRON_FINE_OVER_LIMIT + patron.fine);
+        } else if (parseInt(patron.fine) > 0) {
+            alerts.push(ALERT_PATRON_FINE + patron.fine);
+        }
+    }
+    return alerts;
+}
+
+var curpatron;
+
 function showPatron(barcode, patron, error) {
+    var alerts = checkPatronAlerts(barcode, patron);
     if (typeof patron === 'undefined') {
         patron = { };
     }
@@ -130,6 +226,7 @@ function showPatron(barcode, patron, error) {
     patron.emailpro = patron.emailpro || "";
     patron.categorycode = patron.categorycode || "";
     patron.branchcode = patron.branchcode || "";
+    patron.cardnumber = barcode;
 
     patron.name = patron.firstname + (patron.othernames.length > 0 ? " (" + patron.othernames + ") " : " ") + patron.surname + " (" + barcode + ")";
     if (patron.name.length > 0) {
@@ -159,16 +256,24 @@ function showPatron(barcode, patron, error) {
     } else {
         $('#patron-email').html('<span class="empty" id="noemailstored">' + _("No email stored.") + '</span></li>');
     }
-    if (patron.categorycode.length > "") {
+    if (patron.categorycode.length > 0) {
         $('#patron-category').text(_("Category: ") + patron.categorycode);
     } else {
         $('#patron-category').html('<span class="empty" id="unknowncategory">' + _("Category code unknown.") + '</span></li>');
     }
-    if (patron.branchcode.length > "") {
+    if (patron.branchcode.length > 0) {
         $('#patron-library').text(_("Home library: ") + patron.branchcode);
     } else {
         $('#patron-library').html('<span class="empty" id="unknowncategory">' + _("Home library unknown.") + '</span></li>');
     }
+    $('#alerts').empty();
+    if (alerts.length > 0) {
+        $('#alerts').append('<div class="dialog alert"><h3>Check in message</h3></div>');
+        for (var msg in alerts) {
+            $('#alerts .dialog').append('<p>' + alerts[msg] + '</p');
+        }
+    }
+    curpatron = patron;
 }
 //]]>
 </script>
@@ -486,12 +591,8 @@ No patron matched <span class="ex">[% message %]</span>
 [% IF ( noissues ) %]<div>[% ELSE %]<div class="yui-u">[% END %]
 
     [% IF ( flagged ) %]
-        [% IF ( noissues ) %]
         <h4>Checking out to [% INCLUDE 'patron-title.inc' %]</h4>
-        <div id="circmessages" class="circmessage warning">
-        [% ELSE %]
-        <div id="circmessages" class="circmessage attention">
-        [% END %]
+        <div id="alerts" class="yui-g">
 
         <h3>[% IF ( noissues ) %]
                 Cannot check out!
@@ -640,18 +741,32 @@ No patron matched <span class="ex">[% message %]</span>
     <thead><tr>
         <th scope="col">Due date</th>
         <th scope="col">Title</th>
+        <th scope="col">Barcode</th>
         <th scope="col">Item type</th>
         <th scope="col">Checked out on</th>
         <th scope="col">Checked out from</th>
         <th scope="col">Call no</th>
         <th scope="col">Charge</th>
-        <th scope="col">Price</th>
-        <th scope="col">Renew <p class="column-tool"><a href="#" id="CheckAllitems">select all</a> | <a href="#" id="CheckNoitems">none</a></p></th>
-        <th scope="col">Check in <p class="column-tool"><a href="#" id="CheckAllreturns">select all</a> | <a href="#" id="CheckNoreturns">none</a></p></th>
     </tr></thead>
     <tbody>
 
-    [% IF ( UseTablesortForCirc ) %]<tr id="previous"><th><span title="">Previous checkouts</span></th><th></th><th></th><th><span title=""></span></th><th></th><th></th><th></th><th></th><th></th><th></th></tr>[% ELSE %]<tr id="previous"><th colspan="10">Previous checkouts</th></tr>[% END %]
+      </tbody>
+    </table>
+
+    <h5>Previous checkouts</h5>
+    <table id="oldissuest">
+    <thead><tr>
+        <th scope="col">Due date</th>
+        <th scope="col">Title</th>
+        <th scope="col">Barcode</th>
+        <th scope="col">Item type</th>
+        <th scope="col">Checked out on</th>
+        <th scope="col">Checked out from</th>
+        <th scope="col">Call no</th>
+        <th scope="col">Charge</th>
+    </tr></thead>
+    <tbody>
+
       </tbody>
     </table>
     </form>

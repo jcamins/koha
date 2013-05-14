@@ -744,4 +744,6 @@ $template->param(
     canned_bor_notes_loop     => $canned_notes,
 );
 
+$template->{'VARS'}->{'maxoutstanding'} = C4::Context->preference('maxoutstanding') || 0;
+
 output_html_with_http_headers $query, $cookie, $template->output;
