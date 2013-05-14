@@ -41,47 +41,67 @@ my $page     = $query->param('page') || 0;
 my $startrec = int($page) * 5000;
 my $req_data = $query->param('data') || '';
 
+my $patrons_query = qq{SELECT
+    borrowers.borrowernumber, cardnumber, surname, firstname, title,
+    othernames, initials, streetnumber, streettype, address, address2, city,
+    state, zipcode, country, email, phone, mobile, fax, dateofbirth, branchcode,
+    categorycode, dateenrolled, dateexpiry, gonenoaddress, lost, debarred,
+    debarredcomment, SUM(accountlines.amountoutstanding) AS fine
+    FROM borrowers
+    LEFT JOIN accountlines ON borrowers.borrowernumber=accountlines.borrowernumber
+    GROUP BY borrowers.borrowernumber
+    LIMIT $startrec, 5000;
+    };
+
+# NOTE: we can't fit very long titles on the interface so there isn't really any point in transferring them
+my $items_query = qq{SELECT
+    items.barcode AS barcode, items.itemnumber AS itemnumber,
+    items.itemcallnumber AS callnumber, items.homebranch AS homebranch,
+    items.holdingbranch AS holdingbranch, items.itype AS itemtype,
+    items.materials AS materials, LEFT(biblio.title, 60) AS title,
+    biblio.author AS author, biblio.biblionumber AS biblionumber
+    FROM items
+    JOIN biblio ON biblio.biblionumber = items.biblionumber
+    LIMIT $startrec, 5000;
+    };
+
+my $issues_query = qq{SELECT
+    biblio.title AS title,
+    items.barcode AS barcode,
+    items.itemcallnumber AS callnumber,
+    issues.date_due AS date_due, 
+    issues.issuedate AS issuedate,
+    issues.renewals AS renewals,
+    borrowers.cardnumber AS cardnumber,
+    CONCAT(borrowers.surname, ', ', borrowers.firstname) AS borrower_name
+    FROM issues
+    JOIN items ON items.itemnumber = issues.itemnumber
+    JOIN biblio ON biblio.biblionumber = items.biblionumber
+    JOIN borrowers ON borrowers.borrowernumber = issues.borrowernumber
+    LIMIT $startrec, 5000;
+    };
+
 if ( $req_data eq 'all' ) {
     print $query->header;
     print to_json(
         {
-            'patrons' => get_data(
-"SELECT borrowers.borrowernumber, cardnumber, surname, firstname, title, othernames, initials, streetnumber, streettype, address, address2, city, state, zipcode, country, email, phone, mobile, fax, dateofbirth, branchcode, categorycode, dateenrolled, dateexpiry, gonenoaddress, lost, debarred, debarredcomment, SUM(accountlines.amountoutstanding) AS fine FROM borrowers LEFT JOIN accountlines ON borrowers.borrowernumber=accountlines.borrowernumber GROUP BY borrowers.borrowernumber LIMIT $startrec, 5000;",
-                'cardnumber'
-            ),
-
-# NOTE: we can't fit very long titles on the interface so there isn't really any point in transferring them
-            'items' => get_data(
-"SELECT items.barcode AS barcode, items.itemnumber AS itemnumber, items.itemcallnumber AS callnumber, items.homebranch AS homebranch, items.holdingbranch AS holdingbranch, items.itype AS itemtype, items.materials AS materials, LEFT(biblio.title, 60) AS title, biblio.author AS author, biblio.biblionumber AS biblionumber FROM items JOIN biblio ON biblio.biblionumber = items.biblionumber LIMIT $startrec, 5000;",
-                'barcode'
-            ),
+            'patrons' => get_data( $patrons_query, 'cardnumber' ),
+            'items'   => get_data( $items_query,   'barcode' ),
+            'issues'  => get_data( $issues_query,  'barcode' ),
         }
     );
 }
 elsif ( $req_data eq 'patrons' ) {
     print $query->header;
-    print to_json(
-        {
-            'patrons' => get_data(
-"SELECT borrowers.borrowernumber, cardnumber, surname, firstname, title, othernames, initials, streetnumber, streettype, address, address2, city, state, zipcode, country, email, phone, mobile, fax, dateofbirth, branchcode, categorycode, dateenrolled, dateexpiry, gonenoaddress, lost, debarred, debarredcomment, SUM(accountlines.amountoutstanding) AS fine FROM borrowers LEFT JOIN accountlines ON borrowers.borrowernumber=accountlines.borrowernumber GROUP BY borrowers.borrowernumber;",
-                'cardnumber'
-            )
-        }
-    );
+    print to_json( { 'patrons' => get_data( $patrons_query, 'cardnumber' ), } );
 }
 elsif ( $req_data eq 'items' ) {
     print $query->header;
-    print to_json(
-        {
-            'items' => get_data(
-"SELECT items.barcode AS barcode, items.itemnumber AS itemnumber, items.itemcallnumber AS callnumber, items.homebranch AS homebranch, items.holdingbranch AS holdingbranch, items.itype AS itemtype, biblio.title AS title, biblio.author AS author, biblio.biblionumber AS biblionumber FROM items JOIN biblio ON biblio.biblionumber = items.biblionumber;",
-                'barcode'
-            ),
-        }
-    );
+    print to_json( { 'items' => get_data( $items_query, 'barcode' ), } );
 }
 else {
-    $template->{'VARS'}->{'AllowOfflineCirculation'} = C4::Context->preference('AllowOfflineCirculation');
+    $template->{'VARS'}->{'AllowOfflineCirculation'} =
+      C4::Context->preference('AllowOfflineCirculation');
     output_html_with_http_headers $query, $cookie, $template->output;
 }
 

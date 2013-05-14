@@ -101,6 +101,12 @@ function loadRecords(page) {
                     items.put(this);
                 });
             }
+            if (data.issues) {
+                var issues = transaction.objectStore("issues");
+                $.each(data.issues, function () {
+                    issues.put(this);
+                });
+            }
         });
     });
 [% END %]

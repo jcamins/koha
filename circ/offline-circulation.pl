@@ -1,16 +1,12 @@
 #!/usr/bin/perl
 
-# script to execute issuing of books
-
-# Copyright 2000-2002 Katipo Communications
-# copyright 2010 BibLibre
-# Copyright 2011 PTFS-Europe Ltd.
+# Copyright 2013 C & P Bibliography Services
 #
 # This file is part of Koha.
 #
 # Koha is free software; you can redistribute it and/or modify it under the
 # terms of the GNU General Public License as published by the Free Software
-# Foundation; either version 2 of the License, or (at your option) any later
+# Foundation; either version 3 of the License, or (at your option) any later
 # version.
 #
 # Koha is distributed in the hope that it will be useful, but WITHOUT ANY

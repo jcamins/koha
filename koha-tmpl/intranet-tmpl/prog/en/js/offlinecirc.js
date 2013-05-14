@@ -29,9 +29,10 @@
                     var items = versionTransaction.createObjectStore("items", {
                         "keyPath": "barcode"
                     });
-                    var styles = versionTransaction.createObjectStore("issues", {
+                    var issues = versionTransaction.createObjectStore("issues", {
                         "keyPath": "barcode"
                     });
+                    issues.createIndex("cardnumber", { "multiEntry": true });
                     var transactions = versionTransaction.createObjectStore("transactions", {
                         "keyPath": "timestamp"
                     });
