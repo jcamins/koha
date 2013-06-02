@@ -3436,6 +3436,37 @@ msgstr "Použite nasledovný text pre obsah v kontrolnom poli autorít MARC 008 
 # Authorities > General
 # Authorities > General
 # Authorities > General
+msgid "authorities.pref#UNIMARCAuthorityField100# Use the following text for the contents of UNIMARC authority field 100 position (fixed length data elements). Do NOT include the date (position 00-05)."
+msgstr "Použite nasledovný text pre obsah poľa autorít UNIMARC 100 pozície (prvky údajov pevnej dĺžky). NEpridávajte dátum (pozícia 00-05)."
+
+# Authorities > General
+# Authorities > General
+# Authorities > General
+# Authorities > General
+# Authorities > General
+# Authorities > General
+# Authorities > General
+# Authorities > General
+# Authorities > General
+# Authorities > General
+# Authorities > General
+# Authorities > General
+# Authorities > General
+# Authorities > General
+# Authorities > General
+# Authorities > General
+# Authorities > General
+# Authorities > General
+# Authorities > General
+# Authorities > General
+# Authorities > General
+# Authorities > General
+# Authorities > General
+# Authorities > General
+# Authorities > General
+# Authorities > General
+# Authorities > General
+# Authorities > General
 msgid "authorities.pref#UseAuthoritiesForTracings# Don't use"
 msgstr "Nepoužívať"
 
@@ -14907,7 +14938,7 @@ msgstr "Definované url pre súbor javascriptu Babelthèque (napr. http://www.ba
 # Enhanced Content > Babelthèque
 # Enhanced Content > Babelthèque
 msgid "enhanced_content.pref#Babeltheque_url_update# Defined the url for the Babeltheque update periodically (eq. http://www.babeltheque.com/.../file.csv.bz2)."
-msgstr "Definované url pre aktualizáciu Babelthèque periodicky (napr. http://www.babeltheque.com/bw_XX.js)."
+msgstr "Definované url pre aktualizáciu Babelthèque periodicky (napr. http://www.babeltheque.com/.../file.csv.bz2)."
 
 # Enhanced Content > Baker and Taylor
 # Enhanced Content > Baker and Taylor
@@ -22161,7 +22192,7 @@ msgstr "použité autority v prehliadači autorít v OPACu."
 # OPAC > Appearance
 # OPAC > Appearance
 msgid "opac.pref#OPACURLOpenInNewWindow# When patrons click on a link to another website from your OPAC (like Amazon or OCLC),"
-msgstr "Keď čitatelia kliknú na odkaz na ďalšiu stránku z vášho OPAC (napr. Amazov alebo OCLC),"
+msgstr "Keď čitatelia kliknú na odkaz na ďalšiu stránku z vášho OPAC (napr. Amazon alebo OCLC),"
 
 # OPAC > Appearance
 # OPAC > Appearance
@@ -29479,6 +29510,130 @@ msgstr "Nezahrnúť"
 msgid "searching.pref#IncludeSeeFromInSearches# Include"
 msgstr "Zahrnúť"
 
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+msgid "searching.pref#IntranetNumbersPreferPhrase# By default,"
+msgstr "Predvolene"
+
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+msgid "searching.pref#IntranetNumbersPreferPhrase# don't use"
+msgstr "nepoužívať"
+
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+msgid "searching.pref#IntranetNumbersPreferPhrase# the operator \"phr\" in the callnumber and standard number staff client searches"
+msgstr "operátor \"phr\" v signatúre a v štandardných číselných hľadaniach v intranete"
+
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+msgid "searching.pref#IntranetNumbersPreferPhrase# use"
+msgstr "používať"
+
 # Searching > Results Display
 # Searching > Results Display
 # Searching > Results Display
@@ -29571,6 +29726,130 @@ msgstr "Zobraziť"
 # Searching > Results Display
 msgid "searching.pref#OPACItemsResultsDisplay# an item's library, location and call number in OPAC search results."
 msgstr "knižnicu, lokáciu a signatúru exemplára vo výsledkoch hľadania v OPACu."
+
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+msgid "searching.pref#OPACNumbersPreferPhrase# By default,"
+msgstr "Predvolene"
+
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+msgid "searching.pref#OPACNumbersPreferPhrase# don't use"
+msgstr "nepoužívať"
+
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+msgid "searching.pref#OPACNumbersPreferPhrase# the operator \"phr\" in the callnumber and standard number OPAC searches"
+msgstr "operátor \"phr\" v signatúre a v štandardných číselných hľadaniach v OPACu"
+
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+msgid "searching.pref#OPACNumbersPreferPhrase# use"
+msgstr "používať"
 
 # Searching > Results Display
 # Searching > Results Display
@@ -30718,6 +30997,37 @@ msgstr "Zahrnúť"
 # Searching > Features
 msgid "searching.pref#TraceSubjectSubdivisions# subdivisions for searches generated by clicking on subject tracings."
 msgstr "pododdiely pre hľadania generované kliknutím na sledovania predmetov."
+
+# Searching > Results Display
+# Searching > Results Display
+# Searching > Results Display
+# Searching > Results Display
+# Searching > Results Display
+# Searching > Results Display
+# Searching > Results Display
+# Searching > Results Display
+# Searching > Results Display
+# Searching > Results Display
+# Searching > Results Display
+# Searching > Results Display
+# Searching > Results Display
+# Searching > Results Display
+# Searching > Results Display
+# Searching > Results Display
+# Searching > Results Display
+# Searching > Results Display
+# Searching > Results Display
+# Searching > Results Display
+# Searching > Results Display
+# Searching > Results Display
+# Searching > Results Display
+# Searching > Results Display
+# Searching > Results Display
+# Searching > Results Display
+# Searching > Results Display
+# Searching > Results Display
+msgid "searching.pref#UNIMARCAuthorsFacetsSeparator# Use the following text as separator for UNIMARC authors facets"
+msgstr "Použiť nasledovný text ako oddeľovač pre aspekty autorov v UNIMARCu"
 
 # Searching > Features
 # Searching > Features
@@ -33290,7 +33600,7 @@ msgstr "Použiť zahrnuté súbory z"
 # Staff Client > Appearance
 # Staff Client > Appearance
 msgid "staff_client.pref#intranet_includes# directory in the template directory, instead of <code>includes/</code>. (Leave blank to disable)"
-msgstr "adresára v fočasnom adresári namiesto code>includes/</code>(prázdnym vynechajte)"
+msgstr "adresára v fočasnom adresári namiesto <code>includes/</code>. (Prázdnym vynechajte)"
 
 # Staff Client > Options
 # Staff Client > Options

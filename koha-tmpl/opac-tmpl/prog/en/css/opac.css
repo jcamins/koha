@@ -1448,6 +1448,10 @@ padding-left : .4em;
     margin-top : .5em;
 }
 
+.actions a {
+    white-space: nowrap;
+}
+
 .m880 {
     display:block; 
     text-align:right; 
@@ -1571,6 +1575,11 @@ div.message {
 #news th {
 	text-align : left;
 	padding : 3px 5px;
+}
+
+strong em, em strong  {
+    font-weight: bold;
+    font-style: italic;
 }
 
 #opac-main-search #listsmenu a, #opac-main-search #listsmenu h4 {

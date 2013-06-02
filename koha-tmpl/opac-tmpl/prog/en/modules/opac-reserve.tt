@@ -1,5 +1,6 @@
 [% INCLUDE 'doc-head-open.inc' %][% LibraryNameTitle or "Koha online" %] catalog &rsaquo;  Placing a hold
 [% INCLUDE 'doc-head-close.inc' %]
+[% INCLUDE 'calendar.inc' %]
 <script type="text/javascript">
 // <![CDATA[
  var MSG_NO_COPY_SELECTED = _("Expecting a specific copy selection.");
@@ -158,8 +159,8 @@
 
 <body id="opac-holds">
   <div id="doc3" class="yui-t7">
-    [% INCLUDE 'masthead.inc' %]
     <div id="bd">
+    [% INCLUDE 'masthead.inc' %]
 	  <div id="yui-g">
         <div id="holds" class="container">
         [% IF ( message ) %]
@@ -428,7 +429,7 @@
                               <th>Last location</th>
                             [% END %]
                             <th>Call number</th>
-                            [% IF ( bibitemloo.itemdata_enumchron ) %]
+                            [% IF ( itemdata_enumchron ) %]
                               <th>Vol info</th>
                             [% END %]
                             <th>Information</th>
@@ -459,7 +460,7 @@
                                 <td class="holdingbranch">[% itemLoo.holdingBranchName %]</td>
                               [% END %]
                               <td class="call_no">[% itemLoo.callNumber %]</td>
-                              [% IF ( itemLoo.itemdata_enumchron ) %]<!-- test -->
+                              [% IF ( itemdata_enumchron ) %]
                                 <td class="vol_info">[% itemLoo.enumchron %]</td>
                               [% END %]
                               <td class="information">

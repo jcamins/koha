@@ -132,11 +132,18 @@ sub SearchSuggestion  {
                 push @query,q{ and (suggestions.branchcode = ? or suggestions.branchcode ='')};
                 }
             }
+    } else {
+        if ( defined $suggestion->{branchcode} && $suggestion->{branchcode} ) {
+            unless ( $suggestion->{branchcode} eq '__ANY__' ) {
+                push @sql_params, $suggestion->{branchcode};
+                push @query,      qq{ AND suggestions.branchcode=? };
+            }
+        }
     }
 
     foreach my $field (grep { my $fieldname=$_;
         any {$fieldname eq $_ } qw<
-    STATUS branchcode itemtype suggestedby managedby acceptedby
+    STATUS itemtype suggestedby managedby acceptedby
     bookfundid biblionumber
     >} keys %$suggestion
     ) {

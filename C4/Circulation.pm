@@ -36,7 +36,11 @@ use C4::Message;
 use C4::Debug;
 use C4::Branch; # GetBranches
 use C4::Log; # logaction
-use C4::Koha qw(GetAuthorisedValueByCode);
+use C4::Koha qw(
+    GetAuthorisedValueByCode
+    GetAuthValCode
+    GetKohaAuthorisedValueLib
+);
 use C4::Overdues qw(CalcFine UpdateFine);
 use Algorithm::CheckDigits;
 
@@ -827,16 +831,17 @@ sub CanBookBeIssued {
     #
     # ITEM CHECKING
     #
-    if (   $item->{'notforloan'}
-        && $item->{'notforloan'} > 0 )
+    if ( $item->{'notforloan'} )
     {
         if(!C4::Context->preference("AllowNotForLoanOverride")){
             $issuingimpossible{NOT_FOR_LOAN} = 1;
+            $issuingimpossible{item_notforloan} = $item->{'notforloan'};
         }else{
             $needsconfirmation{NOT_FOR_LOAN_FORCING} = 1;
+            $needsconfirmation{item_notforloan} = $item->{'notforloan'};
         }
     }
-    elsif ( !$item->{'notforloan'} ){
+    else {
         # we have to check itemtypes.notforloan also
         if (C4::Context->preference('item-level_itypes')){
             # this should probably be a subroutine
@@ -847,16 +852,20 @@ sub CanBookBeIssued {
             if ($notforloan->{'notforloan'}) {
                 if (!C4::Context->preference("AllowNotForLoanOverride")) {
                     $issuingimpossible{NOT_FOR_LOAN} = 1;
+                    $issuingimpossible{itemtype_notforloan} = $item->{'itype'};
                 } else {
                     $needsconfirmation{NOT_FOR_LOAN_FORCING} = 1;
+                    $needsconfirmation{itemtype_notforloan} = $item->{'itype'};
                 }
             }
         }
         elsif ($biblioitem->{'notforloan'} == 1){
             if (!C4::Context->preference("AllowNotForLoanOverride")) {
                 $issuingimpossible{NOT_FOR_LOAN} = 1;
+                $issuingimpossible{itemtype_notforloan} = $biblioitem->{'itemtype'};
             } else {
                 $needsconfirmation{NOT_FOR_LOAN_FORCING} = 1;
+                $needsconfirmation{itemtype_notforloan} = $biblioitem->{'itemtype'};
             }
         }
     }
@@ -1302,7 +1311,7 @@ sub AddIssue {
         }
     }
 
-    logaction("CIRCULATION", "ISSUE", $borrower->{'borrowernumber'}, $biblio->{'biblionumber'})
+    logaction("CIRCULATION", "ISSUE", $borrower->{'borrowernumber'}, $biblio->{'itemnumber'})
         if C4::Context->preference("IssueLog");
   }
   return ($datedue);	# not necessarily the same as when it came in!
@@ -1866,7 +1875,7 @@ sub AddReturn {
         });
     }
     
-    logaction("CIRCULATION", "RETURN", $borrowernumber, $item->{'biblionumber'})
+    logaction("CIRCULATION", "RETURN", $borrowernumber, $item->{'itemnumber'})
         if C4::Context->preference("ReturnLog");
     
     # FIXME: make this comment intelligible.
@@ -2146,7 +2155,7 @@ sub _FixAccountForLostAndReturned {
             # FIXME: move prepares outside while loop!
             my $usth = $dbh->prepare("UPDATE accountlines SET amountoutstanding= ?
                     WHERE (accountlines_id = ?)");
-            $usth->execute($newamtos,'$thisacct');    # FIXME: '$thisacct' is a string literal!
+            $usth->execute($newamtos,$thisacct);
             $usth = $dbh->prepare("INSERT INTO accountoffsets
                 (borrowernumber, accountno, offsetaccount,  offsetamount)
                 VALUES

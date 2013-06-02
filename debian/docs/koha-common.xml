@@ -3,7 +3,7 @@
 <info>
 <productname>Koha</productname> is the first free software library automation package.
 <author>
-  <orgname>The Koha Communnity</orgname>
+  <orgname>The Koha Community</orgname>
   <uri>http://koha-community.org/</uri>
 </author>
 </info>
@@ -167,6 +167,32 @@
     </variablelist>
     </refsect2>
 
+    <refsect2><title>SIP2-related</title>
+    <variablelist>
+
+      <varlistentry>
+        <term><option>koha-enable-sip</option></term>
+        <listitem>
+          <para>Copies the SIP configuration file to allow SIP to be controlled by init scripts.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><option>koha-start-sip</option></term>
+        <listitem>
+          <para>Starts the SIP daemon for the specified Koha instances.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><option>koha-stop-sip</option></term>
+        <listitem>
+          <para>Stops the SIP daemon for the specified Koha instances.</para>
+        </listitem>
+      </varlistentry>
+    </variablelist>
+    </refsect2>
+
     <refsect2><title>Misc</title>
     <variablelist>
 
@@ -202,9 +228,17 @@
           <para>Run a command for each Koha instance. Takes the same arguments as koha-list.</para>
         </listitem>
       </varlistentry>
+
+      <varlistentry>
+        <term><option>koha-shell</option></term>
+        <listitem>
+          <para>This command behaves something like su(1), but provides you with a shell as the koha user, and with the environment pointing to the right places.</para>
+        </listitem>
+      </varlistentry>
     </variablelist>
     </refsect2>
   </refsect1>
+
   
   <refsect1><title>Bugs</title>
   <para>The scripts are a bit fragile. If something goes wrong, they do not clean up after themselves.</para>

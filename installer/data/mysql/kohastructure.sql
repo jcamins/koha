@@ -896,7 +896,8 @@ CREATE TABLE `import_records` (
   CONSTRAINT `import_records_ifbk_1` FOREIGN KEY (`import_batch_id`)
              REFERENCES `import_batches` (`import_batch_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   KEY `branchcode` (`branchcode`),
-  KEY `batch_sequence` (`import_batch_id`, `record_sequence`)
+  KEY `batch_sequence` (`import_batch_id`, `record_sequence`),
+  KEY `batch_id_record_type` (`import_batch_id`,`record_type`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
@@ -1977,7 +1978,7 @@ CREATE TABLE `suggestions` ( -- purchase suggestions
   `STATUS` varchar(10) NOT NULL default '', -- suggestion status (ASKED, CHECKED, ACCEPTED, or REJECTED)
   `note` mediumtext, -- note entered on the suggestion
   `author` varchar(80) default NULL, -- author of the suggested item
-  `title` varchar(80) default NULL, -- title of the suggested item
+  `title` varchar(255) default NULL, -- title of the suggested item
   `copyrightdate` smallint(6) default NULL, -- copyright date of the suggested item
   `publishercode` varchar(255) default NULL, -- publisher of the suggested item
   `date` timestamp NOT NULL default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP,  -- date and time the suggestion was updated

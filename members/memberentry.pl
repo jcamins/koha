@@ -254,7 +254,18 @@ $newdata{'country'} = $input->param('country') if defined($input->param('country
 
 #builds default userid
 if ( (defined $newdata{'userid'}) && ($newdata{'userid'} eq '')){
-    $newdata{'userid'} = Generate_Userid($borrowernumber, $newdata{'firstname'}, $newdata{'surname'});
+    if ( ( defined $newdata{'firstname'} ) && ( defined $newdata{'surname'} ) ) {
+        # Full page edit, firstname and surname input zones are present
+        $newdata{'userid'} = Generate_Userid( $borrowernumber, $newdata{'firstname'}, $newdata{'surname'} );
+    }
+    elsif ( ( defined $data{'firstname'} ) && ( defined $data{'surname'} ) ) {
+        # Partial page edit (access through "Details"/"Library details" tab), firstname and surname input zones are not used
+        # Still, if the userid field is erased, we can create a new userid with available firstname and surname
+        $newdata{'userid'} = Generate_Userid( $borrowernumber, $data{'firstname'}, $data{'surname'} );
+    }
+    else {
+        $newdata{'userid'} = $data{'userid'};
+    }
 }
   
 $debug and warn join "\t", map {"$_: $newdata{$_}"} qw(dateofbirth dateenrolled dateexpiry);
@@ -524,8 +535,8 @@ my $roadpopup = CGI::popup_menu(-name=>'streettype',
         -default=>$default_roadtype
         );  
 
-my $default_borrowertitle;
-$default_borrowertitle=$data{'title'} ;
+my $default_borrowertitle = '';
+unless ( $op eq 'duplicate' ) { $default_borrowertitle=$data{'title'} }
 my($borrowertitle)=GetTitles();
 $template->param( title_cgipopup => 1) if ($borrowertitle);
 my $borrotitlepopup = CGI::popup_menu(-name=>'title',
@@ -667,8 +678,8 @@ if ( $op eq 'duplicate' ) {
     $data{'dateexpiry'} = GetExpiryDate( $data{'categorycode'}, $data{'dateenrolled'} );
 }
 if (C4::Context->preference('uppercasesurnames')) {
-	$data{'surname'}    =uc($data{'surname'}    );
-	$data{'contactname'}=uc($data{'contactname'});
+    $data{'surname'} &&= uc( $data{'surname'} );
+    $data{'contactname'} &&= uc( $data{'contactname'} );
 }
 
 $data{debarred} = C4::Overdues::CheckBorrowerDebarred($borrowernumber);
@@ -699,7 +710,6 @@ $debug and warn "memberentry step: $step";
 $template->param(%data);
 $template->param( "step_$step"  => 1) if $step;	# associate with step to know where u are
 $template->param(  step  => $step   ) if $step;	# associate with step to know where u are
-$template->param( debug  => $debug  ) if $debug;
 
 $template->param(
   BorrowerMandatoryField => C4::Context->preference("BorrowerMandatoryField"),#field to test with javascript

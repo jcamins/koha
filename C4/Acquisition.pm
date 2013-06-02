@@ -643,7 +643,11 @@ $hashref->{'name'} is the 'name' field of the basketgroup in the aqbasketgroups 
 
 $hashref->{'basketlist'} is a list reference of the 'id's of the baskets that belong to this group,
 
+$hashref->{'billingplace'} is the 'billingplace' field of the basketgroup in the aqbasketgroups table,
+
 $hashref->{'deliveryplace'} is the 'deliveryplace' field of the basketgroup in the aqbasketgroups table,
+
+$hashref->{'freedeliveryplace'} is the 'freedeliveryplace' field of the basketgroup in the aqbasketgroups table,
 
 $hashref->{'deliverycomment'} is the 'deliverycomment' field of the basketgroup in the aqbasketgroups table,
 
@@ -656,8 +660,8 @@ sub NewBasketgroup {
     die "booksellerid is required to create a basketgroup" unless $basketgroupinfo->{'booksellerid'};
     my $query = "INSERT INTO aqbasketgroups (";
     my @params;
-    foreach my $field ('name', 'deliveryplace', 'deliverycomment', 'closed') {
-        if ( $basketgroupinfo->{$field} ) {
+    foreach my $field (qw(name billingplace deliveryplace freedeliveryplace deliverycomment closed)) {
+        if ( defined $basketgroupinfo->{$field} ) {
             $query .= "$field, ";
             push(@params, $basketgroupinfo->{$field});
         }
@@ -699,6 +703,8 @@ $hashref->{'basketlist'} is a list reference of the 'id's of the baskets that be
 $hashref->{'billingplace'} is the 'billingplace' field of the basketgroup in the aqbasketgroups table,
 
 $hashref->{'deliveryplace'} is the 'deliveryplace' field of the basketgroup in the aqbasketgroups table,
+
+$hashref->{'freedeliveryplace'} is the 'freedeliveryplace' field of the basketgroup in the aqbasketgroups table,
 
 $hashref->{'deliverycomment'} is the 'deliverycomment' field of the basketgroup in the aqbasketgroups table,
 
@@ -1127,6 +1133,9 @@ sub ModOrder {
     my $sth = $dbh->prepare("SELECT * FROM aqorders LIMIT 1;");
     $sth->execute;
     my $colnames = $sth->{NAME};
+        #FIXME Be careful. If aqorders would have columns with diacritics,
+        #you should need to decode what you get back from NAME.
+        #See report 10110 and guided_reports.pl
     my $query = "UPDATE aqorders SET ";
 
     foreach my $orderinfokey (grep(!/ordernumber/, keys %$orderinfo)){

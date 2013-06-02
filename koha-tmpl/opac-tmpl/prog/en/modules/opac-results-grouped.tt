@@ -17,7 +17,7 @@ var q_array = new Array();  // will hold the search terms, if possible
 $(document).ready(function(){
     [% IF ( OpacHighlightedWords ) %]
         $('a.title').each(function() {
-            $(this).attr('href', $(this).attr('href') + '&query_desc=[% query_desc | url %]');
+            $(this).attr("href", $(this).attr("href") + "&query_desc=[% query_desc | uri %]");
         });
     [% END %]
 
@@ -40,12 +40,12 @@ $(document).ready(function(){
 			var shelfnumber = $("#addto").find("option:selected").attr("id").replace("s","");
 			[% IF ( loggedinusername ) %]if (vShelfAdd()) {
 			Dopop('/cgi-bin/koha/opac-addbybiblionumber.pl?selectedshelf='+shelfnumber+'&' + vShelfAdd());
-			}[% ELSE %] alert(_('You must be logged in to create or add to Lists')); [% END %]
+			}[% ELSE %] alert(_("You must be logged in to create or add to Lists")); [% END %]
 			return false;
 		} else if($("#addto").find("option:selected").attr("value") == "newlist"){
 			[% IF ( loggedinusername ) %]if (vShelfAdd()) {
 			Dopop('/cgi-bin/koha/opac-addbybiblionumber.pl?newshelf=1&' + vShelfAdd());
-			}[% ELSE %] alert(_('You must be logged in to create or add to Lists')); [% END %]
+			}[% ELSE %] alert(_("You must be logged in to create or add to Lists")); [% END %]
 			return false;
 		}
 		if($("#addto").find("option:selected").attr("value") == "addtocart"){

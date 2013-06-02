@@ -222,7 +222,9 @@ sub GetBibsWithPendingHoldRequests {
                      FROM reserves
                      WHERE found IS NULL
                      AND priority > 0
-                     AND reservedate <= CURRENT_DATE()";
+                     AND reservedate <= CURRENT_DATE()
+                     AND suspend = 0
+                     ";
     my $sth = $dbh->prepare($bib_query);
 
     $sth->execute();
@@ -265,6 +267,7 @@ sub GetPendingHoldRequestsForBib {
                          AND found IS NULL
                          AND priority > 0
                          AND reservedate <= CURRENT_DATE()
+                         AND suspend = 0
                          ORDER BY priority";
     my $sth = $dbh->prepare($request_query);
     $sth->execute($biblionumber);
@@ -400,8 +403,7 @@ sub MapItemsToHoldRequests {
     foreach my $item (@$available_items) {
         next unless $item->{holdallowed};
 
-        push @{ $items_by_branch{  $automatic_return ? $item->{homebranch}
-                                                     : $item->{holdingbranch} } }, $item
+        push @{ $items_by_branch{ $item->{holdingbranch} } }, $item
           unless exists $allocated_items{ $item->{itemnumber} };
     }
     return unless keys %items_by_branch;

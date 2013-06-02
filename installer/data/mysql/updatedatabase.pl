@@ -5486,13 +5486,15 @@ if ( C4::Context->preference("Version") < TransformToNum($DBversion) ) {
           constrainttype, branchcode, notificationdate,
           reminderdate, cancellationdate, reservenotes,
           priority, found, timestamp, itemnumber,
-          waitingdate, expirationdate, lowestPriority
+          waitingdate, expirationdate, lowestPriority,
+          suspend, suspend_until
         ) SELECT
           borrowernumber, reservedate, biblionumber,
           constrainttype, branchcode, notificationdate,
           reminderdate, cancellationdate, reservenotes,
           priority, found, timestamp, itemnumber,
-          waitingdate, expirationdate, lowestPriority
+          waitingdate, expirationdate, lowestPriority,
+          suspend, suspend_until
         FROM old_reserves ORDER BY reservedate
     ");
     $dbh->do('SET @ai = ( SELECT MAX( reserve_id ) FROM tmp_reserves )');
@@ -5505,18 +5507,20 @@ if ( C4::Context->preference("Version") < TransformToNum($DBversion) ) {
           constrainttype, branchcode, notificationdate,
           reminderdate, cancellationdate, reservenotes,
           priority, found, timestamp, itemnumber,
-          waitingdate, expirationdate, lowestPriority
+          waitingdate, expirationdate, lowestPriority,
+          suspend, suspend_until
         ) SELECT
           borrowernumber, reservedate, biblionumber,
           constrainttype, branchcode, notificationdate,
           reminderdate, cancellationdate, reservenotes,
           priority, found, timestamp, itemnumber,
-          waitingdate, expirationdate, lowestPriority
+          waitingdate, expirationdate, lowestPriority,
+          suspend, suspend_until
         FROM reserves ORDER BY reservedate
     ");
     $dbh->do('TRUNCATE reserves');
     $dbh->do('ALTER TABLE reserves ADD reserve_id INT( 11 ) NOT NULL AUTO_INCREMENT PRIMARY KEY FIRST');
-    $dbh->do('INSERT INTO reserves SELECT * FROM tmp_reserves WHERE reserve_id > @ai');
+    $dbh->do('INSERT INTO reserves SELECT * FROM tmp_reserves WHERE reserve_id > COALESCE(@ai, 0)');
     $dbh->do('DROP TABLE tmp_reserves');
     $dbh->do('COMMIT');
 
@@ -6091,43 +6095,43 @@ if (C4::Context->preference("Version") < TransformToNum($DBversion)) {
 $DBversion = "3.10.02.001";
 if ( C4::Context->preference("Version") < TransformToNum($DBversion) ) {
    $dbh->do(q{
-        UPDATE userflags SET flagdesc="<b>Required for staff login.</b> Staff access, allows viewing of catalogue in staff client." where flag="catalogue";
+        UPDATE userflags SET flagdesc="<b>Required for staff login.</b> Staff access, allows viewing of catalogue in staff client." where flagdesc="Modify login / permissions for staff users";
         });
    $dbh->do(q{
-        UPDATE userflags SET flagdesc="Edit Authorities" where flag="editauthorities";
+        UPDATE userflags SET flagdesc="Edit Authorities" where flagdesc="Allow to edit authorities";
         });
    $dbh->do(q{
-        UPDATE userflags SET flagdesc="Allow access to the reports module" where flag="reports";
+        UPDATE userflags SET flagdesc="Allow access to the reports module" where flagdesc="Allow to access to the reports module";
         });
    $dbh->do(q{
-        UPDATE userflags SET flagdesc="Set library management parameters (deprecated)" where flag="management";
+        UPDATE userflags SET flagdesc="Set library management parameters (deprecated)" where flagdesc="Set library management parameters";
         });
    $dbh->do(q{
-        UPDATE userflags SET flagdesc="Manage serial subscriptions" where flag="serials";
+        UPDATE userflags SET flagdesc="Manage serial subscriptions" where flagdesc="Allow to manage serials subscriptions";
         });
    $dbh->do(q{
-        UPDATE userflags SET flagdesc="Manage patrons fines and fees" where flag="updatecharges";
+        UPDATE userflags SET flagdesc="Manage patrons fines and fees" where flagdesc="Update borrower charges";
         });
    $dbh->do(q{
-        UPDATE userflags SET flagdesc="Check out and check in items" where flag="circulate";
+        UPDATE userflags SET flagdesc="Check out and check in items" where flagdesc="Circulate books";
         });
    $dbh->do(q{
-        UPDATE userflags SET flagdesc="Manage Koha system settings (Administration panel)" where flag="parameters";
+        UPDATE userflags SET flagdesc="Manage Koha system settings (Administration panel)" where flagdesc="Set Koha system parameters";
         });
    $dbh->do(q{
-        UPDATE userflags SET flagdesc="Add or modify patrons" where flag="borrowers";
+        UPDATE userflags SET flagdesc="Add or modify patrons" where flagdesc="Add or modify borrowers";
         });
    $dbh->do(q{
-        UPDATE userflags SET flagdesc="Use all tools (expand for granular tools permissions)" where flag="tools";
+        UPDATE userflags SET flagdesc="Use all tools (expand for granular tools permissions)" where flagdesc="Use tools (export, import, barcodes)";
         });
    $dbh->do(q{
-        UPDATE userflags SET flagdesc="Allow staff members to modify permissions for other staff members" where flag="staffaccess";
+        UPDATE userflags SET flagdesc="Allow staff members to modify permissions for other staff members" where flagdesc="Set user permissions";
         });
    $dbh->do(q{
-        UPDATE userflags SET flagdesc="Perform batch modification of patrons" where flag="edit_patrons";
+        UPDATE permissions SET description="Perform batch modification of patrons" where description="Perform batch modifivation of patrons";
         });
 
-   print "Upgrade to $DBversion done (Bug 9382 - refresh permission descriptions to make more sense)\n";
+   print "Upgrade to $DBversion done (Bug 9382 (updated with bug 9745) - refresh permission descriptions to make more sense)\n";
    SetVersion ($DBversion);
 }
 
@@ -6158,6 +6162,104 @@ if ( C4::Context->preference("Version") < TransformToNum($DBversion) ) {
    print "Upgrade to $DBversion done (Bug 9395: Problem with callnumber and standard number search in OPAC and Staff Client)\n";
    SetVersion ($DBversion);
 }
+
+$DBversion = "3.10.03.002";
+if ( C4::Context->preference("Version") < TransformToNum($DBversion) ) {
+    $dbh->do("UPDATE z3950servers SET host = 'lx2.loc.gov', port = 210, db = 'LCDB', syntax = 'USMARC', encoding = 'utf8' WHERE name = 'LIBRARY OF CONGRESS'");
+    print "Upgrade to $DBversion done (Bug 9520 - Update default LOC Z39.50 target)\n";
+    SetVersion($DBversion);
+}
+
+$DBversion = "3.10.03.003";
+if ( C4::Context->preference("Version") < TransformToNum($DBversion) ) {
+    $dbh->do(qq{
+        ALTER TABLE import_records ADD INDEX batch_id_record_type ( import_batch_id, record_type );
+    });
+    print "Upgrade to $DBversion done (Bug 9207: Add new index batch_id_record_type to import_records)\n";
+    SetVersion($DBversion);
+}
+
+$DBversion = "3.10.04.000";
+if ( C4::Context->preference("Version") < TransformToNum($DBversion) ) {
+    print "Upgrade to $DBversion done (3.10.4 release)\n";
+    SetVersion($DBversion);
+}
+
+$DBversion = "3.10.04.001";
+if ( C4::Context->preference("Version") < TransformToNum($DBversion) ) {
+   $dbh->do("INSERT INTO systempreferences (variable,value,explanation,options,type) VALUES ('UNIMARCAuthorsFacetsSeparator',', ', 'UNIMARC authors facets separator', NULL, 'short')");
+   print "Upgrade to $DBversion done (Bug 9341: Problem with UNIMARC authors facets)\n";
+   SetVersion ($DBversion);
+}
+
+$DBversion = '3.10.04.002';
+if ( C4::Context->preference("Version") < TransformToNum($DBversion) ) {
+    my $sth = $dbh->prepare("
+        SELECT module, code, branchcode, content
+        FROM letter
+        WHERE content LIKE '%<fine>%'
+    ");
+    $sth->execute;
+    my $sth_update = $dbh->prepare("UPDATE letter SET content = ? WHERE module = ? AND code = ? AND branchcode = ?");
+    while(my $row = $sth->fetchrow_hashref){
+        $row->{content} =~ s/<fine>\w+<\/fine>/<<items.fine>>/;
+        $sth_update->execute($row->{content}, $row->{module}, $row->{code}, $row->{branchcode});
+    }
+    print "Upgrade to $DBversion done (use new <<items.fine>> syntax in notices)\n";
+    SetVersion ($DBversion);
+}
+
+$DBversion = "3.10.04.003";
+if ( C4::Context->preference("Version") < TransformToNum($DBversion) ) {
+    $dbh->do("UPDATE z3950servers SET encoding = 'ISO_8859-1' WHERE name = 'BIBSYS' AND host LIKE 'z3950.bibsys.no'");
+    $dbh->do("UPDATE z3950servers SET encoding = 'ISO_8859-1' WHERE name = 'NORBOK' AND host LIKE 'z3950.nb.no'");
+    $dbh->do("UPDATE z3950servers SET encoding = 'ISO_8859-1' WHERE name = 'SAMBOK' AND host LIKE 'z3950.nb.no'");
+    $dbh->do("UPDATE z3950servers SET encoding = 'ISO_8859-1' WHERE name = 'DEICHMAN' AND host like 'z3950.deich.folkebibl.no'");
+    print "Upgrade to $DBversion done (Bug 9498 - Update encoding for Norwegian sample Z39.50 servers)\n";
+    SetVersion($DBversion);
+}
+
+$DBversion = "3.10.05.000";
+if ( C4::Context->preference("Version") < TransformToNum($DBversion) ) {
+    print "Upgrade to $DBversion done (3.10.5 release)\n";
+    SetVersion($DBversion);
+}
+
+$DBversion = "3.10.05.001";
+if ( C4::Context->preference("Version") < TransformToNum($DBversion) ) {
+    $dbh->do("ALTER TABLE action_logs CHANGE timestamp timestamp TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP;");
+    $dbh->do("UPDATE action_logs SET info=(SELECT itemnumber FROM items WHERE biblionumber= action_logs.info LIMIT 1) WHERE module='CIRCULATION' AND action in ('ISSUE','RETURN');");
+    $dbh->do("ALTER TABLE action_logs CHANGE timestamp timestamp TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;");
+    print "Upgrade to $DBversion done (Bug 7241: Fix on circulation logs)\n";
+    print "WARNING about bug 7241: to partially correct the broken logs, the log history is filled with the first found item for each biblio.\n";
+}
+
+$DBversion = "3.10.05.002";
+if ( C4::Context->preference("Version") < TransformToNum($DBversion) ) {
+    $dbh->do(q{
+        INSERT INTO permissions ( module_bit, code, description )
+        VALUES  ( '1', 'overdues_report', 'Execute overdue items report' )
+    });
+    # add new permission for users with all report permissions and circulation remaining permission
+    my $sth = $dbh->prepare(q{
+        INSERT INTO user_permissions (borrowernumber, module_bit, code)
+        SELECT user_permissions.borrowernumber, 1, 'overdues_report'
+        FROM user_permissions
+        LEFT JOIN borrowers USING(borrowernumber)
+        WHERE borrowers.flags & (1 << 16)
+        AND user_permissions.code = 'circulate_remaining_permissions'
+    });
+    print "Upgrade to $DBversion done ( Add circ permission overdues_report )\n";
+    SetVersion($DBversion);
+}
+
+$DBversion = "3.10.05.003";
+if ( C4::Context->preference("Version") < TransformToNum($DBversion) ) {
+    $dbh->do(q{ALTER TABLE suggestions CHANGE COLUMN title title VARCHAR(255) DEFAULT NULL;});
+    print "Upgrade to $DBversion done (Bug 2046 - increasing title column length for suggestions)\n";
+    SetVersion ($DBversion);
+}
+
 
 =head1 FUNCTIONS
 

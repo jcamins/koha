@@ -992,7 +992,7 @@ msgstr "Соединитель"
 # Authorities > General
 # Authorities > General
 msgid "authorities.pref#AuthDisplayHierarchy# Display"
-msgstr ""
+msgstr "Показывать"
 
 # Authorities > General
 # Authorities > General
@@ -1004,7 +1004,7 @@ msgstr ""
 # Authorities > General
 # Authorities > General
 msgid "authorities.pref#AuthDisplayHierarchy# Don't display"
-msgstr ""
+msgstr "Не показывать"
 
 # Authorities > General
 # Authorities > General
@@ -1016,7 +1016,7 @@ msgstr ""
 # Authorities > General
 # Authorities > General
 msgid "authorities.pref#AuthDisplayHierarchy# broader term/narrower term hierarchies when viewing authorities."
-msgstr ""
+msgstr " иерархии более широких и более узких терминов при просмотре авторитетных источников."
 
 # Authorities > General
 # Authorities > General
@@ -1327,6 +1327,18 @@ msgstr "Использовать следующий текст для позиц
 # Authorities > General
 # Authorities > General
 # Authorities > General
+msgid "authorities.pref#UNIMARCAuthorityField100# Use the following text for the contents of UNIMARC authority field 100 position (fixed length data elements). Do NOT include the date (position 00-05)."
+msgstr "Используйте следующий текст для содержания поля 100 (элементы данных фиксированной длины) формата UNIMARC для авторитетных источников. Дату (позиции 0-7) НЕ включать."
+
+# Authorities > General
+# Authorities > General
+# Authorities > General
+# Authorities > General
+# Authorities > General
+# Authorities > General
+# Authorities > General
+# Authorities > General
+# Authorities > General
 msgid "authorities.pref#UseAuthoritiesForTracings# Don't use"
 msgstr "Не использовать"
 
@@ -1472,7 +1484,7 @@ msgstr "."
 # Cataloging > Record Structure
 # Cataloging > Record Structure
 msgid "cataloguing.pref#AlternateHoldingsField# Display MARC subfield"
-msgstr ""
+msgstr "Выводить МАРК-подполя "
 
 # Cataloging > Record Structure
 # Cataloging > Record Structure
@@ -1484,7 +1496,7 @@ msgstr ""
 # Cataloging > Record Structure
 # Cataloging > Record Structure
 msgid "cataloguing.pref#AlternateHoldingsField# as holdings information for records that do not have items (This can contain multiple subfields to look in; for instance <code>852abhi</code> would look in 852 subfields a, b, h, and i.), with the subfields separated by"
-msgstr ""
+msgstr " в качестве информации о наличии в фондах для записей, не имеющих экземпляров (может быть указано несколько подполей, например <code>852abhi </code>), а значение подполей будут отделены "
 
 # Cataloging > Interface
 # Cataloging > Interface
@@ -1520,7 +1532,7 @@ msgstr " в качестве источника классификации по 
 # Cataloging > Record Structure
 # Cataloging > Record Structure
 msgid "cataloguing.pref#DefaultLanguageField008#  Empty defaults to eng."
-msgstr ""
+msgstr "  Пустое значение означает «eng» (английский)."
 
 # Cataloging > Record Structure
 # Cataloging > Record Structure
@@ -1532,7 +1544,7 @@ msgstr ""
 # Cataloging > Record Structure
 # Cataloging > Record Structure
 msgid "cataloguing.pref#DefaultLanguageField008# Fill in the default language for field 008 Range 35-37 (e.g. eng, nor, ger, see <a href=\"http://www.loc.gov/marc/languages/language_code.html\">MARC Code List for Languages</a>)"
-msgstr ""
+msgstr "Заполните язык по умолчанию для позиций 35-37 поля 008 (например, eng, ukr, rus, см. <a href=\"http://www.loc.gov/marc/languages/language_code.html\">Перечень МАРК-кодов для языков (англ.)</a>) "
 
 # Cataloging > Interface
 # Cataloging > Interface
@@ -1652,7 +1664,7 @@ msgstr " обычной форме."
 # Cataloging > Display
 # Cataloging > Display
 msgid "cataloguing.pref#LabelMARCView# Do"
-msgstr ""
+msgstr "Всё же "
 
 # Cataloging > Display
 # Cataloging > Display
@@ -1664,7 +1676,7 @@ msgstr ""
 # Cataloging > Display
 # Cataloging > Display
 msgid "cataloguing.pref#LabelMARCView# Don't"
-msgstr ""
+msgstr "Не "
 
 # Cataloging > Display
 # Cataloging > Display
@@ -1676,7 +1688,7 @@ msgstr ""
 # Cataloging > Display
 # Cataloging > Display
 msgid "cataloguing.pref#LabelMARCView# collapse repeated tags of the same type into one tag entry on the display."
-msgstr ""
+msgstr " сворачивать повторяющиеся признаки одного и того же типа в один признак при выводе."
 
 # Cataloging > Record Structure
 # Cataloging > Record Structure
@@ -1796,7 +1808,7 @@ msgstr " записи, помеченные как скрытые в резул�
 # Cataloging > Record Structure
 # Cataloging > Record Structure
 msgid "cataloguing.pref#PrefillItem# When a new item is added,"
-msgstr ""
+msgstr "При добавлении нового экземпляра "
 
 # Cataloging > Record Structure
 # Cataloging > Record Structure
@@ -1808,7 +1820,7 @@ msgstr ""
 # Cataloging > Record Structure
 # Cataloging > Record Structure
 msgid "cataloguing.pref#PrefillItem# the new item is not prefilled with last created item values."
-msgstr ""
+msgstr " он не будет заполнен значениями из последнего созданного экземпляра."
 
 # Cataloging > Record Structure
 # Cataloging > Record Structure
@@ -1820,7 +1832,7 @@ msgstr ""
 # Cataloging > Record Structure
 # Cataloging > Record Structure
 msgid "cataloguing.pref#PrefillItem# the new item is prefilled with last created item values."
-msgstr ""
+msgstr " он будет уже заполнен значениями из последнего созданного экземпляра."
 
 # Cataloging > Spine Labels
 # Cataloging > Spine Labels
@@ -1904,7 +1916,7 @@ msgstr ""
 # Cataloging > Spine Labels
 # Cataloging > Spine Labels
 msgid "cataloguing.pref#SpineLabelShowPrintOnBibDetails# Display"
-msgstr ""
+msgstr "Отображать "
 
 # Cataloging > Spine Labels
 # Cataloging > Spine Labels
@@ -1916,7 +1928,7 @@ msgstr ""
 # Cataloging > Spine Labels
 # Cataloging > Spine Labels
 msgid "cataloguing.pref#SpineLabelShowPrintOnBibDetails# Don't display"
-msgstr ""
+msgstr "Не отображать "
 
 # Cataloging > Spine Labels
 # Cataloging > Spine Labels
@@ -1928,7 +1940,7 @@ msgstr ""
 # Cataloging > Spine Labels
 # Cataloging > Spine Labels
 msgid "cataloguing.pref#SpineLabelShowPrintOnBibDetails# buttons on the bib details page to print item spine labels."
-msgstr ""
+msgstr " кнопки на странице библиографических подробностей для распечатки наклеек на корешке для экземпляров."
 
 # Cataloging > Record Structure
 # Cataloging > Record Structure
@@ -1940,7 +1952,7 @@ msgstr ""
 # Cataloging > Record Structure
 # Cataloging > Record Structure
 msgid "cataloguing.pref#SubfieldsToUseWhenPrefill# Define a list of subfields to use when prefilling items (separated by space)"
-msgstr ""
+msgstr "Указание перечня подполей (разделённые пробелом), которые будут использоваться при предзаполнении экземпляров "
 
 # Cataloging > Display
 # Cataloging > Display
@@ -1952,7 +1964,7 @@ msgstr ""
 # Cataloging > Display
 # Cataloging > Display
 msgid "cataloguing.pref#URLLinkText# Show"
-msgstr ""
+msgstr "Показывать текст "
 
 # Cataloging > Display
 # Cataloging > Display
@@ -1964,7 +1976,7 @@ msgstr ""
 # Cataloging > Display
 # Cataloging > Display
 msgid "cataloguing.pref#URLLinkText# as the text of links embedded in MARC records."
-msgstr ""
+msgstr " для URL-ссылок, встроенных в МАРК-запись."
 
 # Cataloging > Display
 # Cataloging > Display
@@ -2708,7 +2720,7 @@ msgstr "Запретить"
 # Circulation > Holds Policy
 # Circulation > Holds Policy
 msgid "circulation.pref#AllowHoldsOnDamagedItems# hold requests to be placed on damaged items."
-msgstr ""
+msgstr " резервирование повреждённых экземпляров."
 
 # Circulation > Checkout Policy
 # Circulation > Checkout Policy
@@ -2960,7 +2972,7 @@ msgstr ""
 # Circulation > Holds Policy
 # Circulation > Holds Policy
 msgid "circulation.pref#AutoResumeSuspendedHolds# Allow"
-msgstr ""
+msgstr "Разрешить "
 
 # Circulation > Holds Policy
 # Circulation > Holds Policy
@@ -2972,7 +2984,7 @@ msgstr ""
 # Circulation > Holds Policy
 # Circulation > Holds Policy
 msgid "circulation.pref#AutoResumeSuspendedHolds# Don't allow"
-msgstr ""
+msgstr "Не позволять "
 
 # Circulation > Holds Policy
 # Circulation > Holds Policy
@@ -2984,7 +2996,7 @@ msgstr ""
 # Circulation > Holds Policy
 # Circulation > Holds Policy
 msgid "circulation.pref#AutoResumeSuspendedHolds# suspended holds to be automatically resumed by a set date."
-msgstr ""
+msgstr " устанавливать дату автоматического обновления для приостановленных резервирований."
 
 # Circulation > Self Checkout
 # Circulation > Self Checkout
@@ -2996,7 +3008,7 @@ msgstr ""
 # Circulation > Self Checkout
 # Circulation > Self Checkout
 msgid "circulation.pref#AutoSelfCheckAllowed# ."
-msgstr ""
+msgstr "."
 
 # Circulation > Self Checkout
 # Circulation > Self Checkout
@@ -3992,7 +4004,7 @@ msgstr ""
 # Circulation > Holds Policy
 # Circulation > Holds Policy
 msgid "circulation.pref#ReservesControlBranch# Check the"
-msgstr ""
+msgstr "Проверять "
 
 # Circulation > Holds Policy
 # Circulation > Holds Policy
@@ -4004,7 +4016,7 @@ msgstr ""
 # Circulation > Holds Policy
 # Circulation > Holds Policy
 msgid "circulation.pref#ReservesControlBranch# item's home library"
-msgstr ""
+msgstr " исходную библиотеку экземпляров "
 
 # Circulation > Holds Policy
 # Circulation > Holds Policy
@@ -4016,7 +4028,7 @@ msgstr ""
 # Circulation > Holds Policy
 # Circulation > Holds Policy
 msgid "circulation.pref#ReservesControlBranch# patron's home library"
-msgstr ""
+msgstr " исходную библиотеку посетителя "
 
 # Circulation > Holds Policy
 # Circulation > Holds Policy
@@ -4028,7 +4040,7 @@ msgstr ""
 # Circulation > Holds Policy
 # Circulation > Holds Policy
 msgid "circulation.pref#ReservesControlBranch# to see if the patron can place a hold on the item."
-msgstr ""
+msgstr " относительно того, может ли посетитель зарезервировать экземпляр."
 
 # Circulation > Holds Policy
 # Circulation > Holds Policy
@@ -4364,7 +4376,7 @@ msgstr "в данном порядке."
 # Circulation > Holds Policy
 # Circulation > Holds Policy
 msgid "circulation.pref#SuspendHoldsIntranet# Allow"
-msgstr ""
+msgstr "Разрешить "
 
 # Circulation > Holds Policy
 # Circulation > Holds Policy
@@ -4376,7 +4388,7 @@ msgstr ""
 # Circulation > Holds Policy
 # Circulation > Holds Policy
 msgid "circulation.pref#SuspendHoldsIntranet# Don't allow"
-msgstr ""
+msgstr "Запретить "
 
 # Circulation > Holds Policy
 # Circulation > Holds Policy
@@ -4388,7 +4400,7 @@ msgstr ""
 # Circulation > Holds Policy
 # Circulation > Holds Policy
 msgid "circulation.pref#SuspendHoldsIntranet# holds to be suspended from the intranet."
-msgstr ""
+msgstr " приостанавливать резервирования с библиотечного интерфейса."
 
 # Circulation > Holds Policy
 # Circulation > Holds Policy
@@ -4400,7 +4412,7 @@ msgstr ""
 # Circulation > Holds Policy
 # Circulation > Holds Policy
 msgid "circulation.pref#SuspendHoldsOpac# Allow"
-msgstr ""
+msgstr "Разрешить "
 
 # Circulation > Holds Policy
 # Circulation > Holds Policy
@@ -4412,7 +4424,7 @@ msgstr ""
 # Circulation > Holds Policy
 # Circulation > Holds Policy
 msgid "circulation.pref#SuspendHoldsOpac# Don't allow"
-msgstr ""
+msgstr "Запретить "
 
 # Circulation > Holds Policy
 # Circulation > Holds Policy
@@ -4424,7 +4436,7 @@ msgstr ""
 # Circulation > Holds Policy
 # Circulation > Holds Policy
 msgid "circulation.pref#SuspendHoldsOpac# holds to be suspended from the OPAC."
-msgstr ""
+msgstr " приостанавливать резервирования с электронного каталога."
 
 # Circulation > Holds Policy
 # Circulation > Holds Policy
@@ -4436,7 +4448,7 @@ msgstr ""
 # Circulation > Holds Policy
 # Circulation > Holds Policy
 msgid "circulation.pref#TransferWhenCancelAllWaitingHolds# Don't transfer"
-msgstr "circulation.pref#TransferWhenCancelAllWaitingHolds# Ne pas transférer"
+msgstr ""
 
 # Circulation > Holds Policy
 # Circulation > Holds Policy
@@ -4448,7 +4460,7 @@ msgstr "circulation.pref#TransferWhenCancelAllWaitingHolds# Ne pas transférer"
 # Circulation > Holds Policy
 # Circulation > Holds Policy
 msgid "circulation.pref#TransferWhenCancelAllWaitingHolds# Transfer"
-msgstr "circulation.pref#TransferWhenCancelAllWaitingHolds# Transférer"
+msgstr ""
 
 # Circulation > Holds Policy
 # Circulation > Holds Policy
@@ -4460,7 +4472,7 @@ msgstr "circulation.pref#TransferWhenCancelAllWaitingHolds# Transférer"
 # Circulation > Holds Policy
 # Circulation > Holds Policy
 msgid "circulation.pref#TransferWhenCancelAllWaitingHolds# items when cancelling all waiting holds."
-msgstr "circulation.pref#TransferWhenCancelAllWaitingHolds# les documents lors de l'annulation de réservations en attente."
+msgstr ""
 
 # Circulation > Checkout Policy
 # Circulation > Checkout Policy
@@ -4676,7 +4688,7 @@ msgstr ""
 # Circulation > Interface
 # Circulation > Interface
 msgid "circulation.pref#WaitingNotifyAtCheckin# Don't notify"
-msgstr ""
+msgstr "Не информировать "
 
 # Circulation > Interface
 # Circulation > Interface
@@ -4688,7 +4700,7 @@ msgstr ""
 # Circulation > Interface
 # Circulation > Interface
 msgid "circulation.pref#WaitingNotifyAtCheckin# Notify"
-msgstr ""
+msgstr "Информировать "
 
 # Circulation > Interface
 # Circulation > Interface
@@ -4700,7 +4712,7 @@ msgstr ""
 # Circulation > Interface
 # Circulation > Interface
 msgid "circulation.pref#WaitingNotifyAtCheckin# librarians of waiting holds for the patron whose items they are checking in."
-msgstr ""
+msgstr " библиотекарей про ожидающие резервирования для посетителя, который возвращает экземпляры."
 
 # Circulation > Self Checkout
 # Circulation > Self Checkout
@@ -5048,7 +5060,7 @@ msgstr ""
 # Circulation > Checkout Policy
 # Circulation > Checkout Policy
 msgid "circulation.pref#maxoutstanding# Prevent patrons from making holds on the OPAC if they owe more than"
-msgstr ""
+msgstr "Запретить посетителям делать резервирования в электронном каталоге, если они задолжали больше, чем "
 
 # Circulation > Checkout Policy
 # Circulation > Checkout Policy
@@ -5060,7 +5072,7 @@ msgstr ""
 # Circulation > Checkout Policy
 # Circulation > Checkout Policy
 msgid "circulation.pref#maxoutstanding# [% local_currency %] in fines."
-msgstr ""
+msgstr " [% local_currency %] штрафа."
 
 # Circulation > Holds Policy
 # Circulation > Holds Policy
@@ -8204,7 +8216,7 @@ msgstr "Запретить"
 # OPAC > Policy
 # OPAC > Policy
 msgid "opac.pref#OPACItemHolds# patrons to place holds on specific items in the OPAC. If this is disabled, users can only put a hold on the next available item."
-msgstr ""
+msgstr " посетителям размещать резервирования на конкретные экземпляры в электронном каталоге.  Если эта функция отключена, пользователи могут резервировать только следующий доступный экземпляр."
 
 # OPAC > Appearance
 # OPAC > Appearance
@@ -8408,7 +8420,7 @@ msgstr ""
 # OPAC > Appearance
 # OPAC > Appearance
 msgid "opac.pref#OPACShowBarcode# Don't show"
-msgstr ""
+msgstr "Не показывать "
 
 # OPAC > Appearance
 # OPAC > Appearance
@@ -8420,7 +8432,7 @@ msgstr ""
 # OPAC > Appearance
 # OPAC > Appearance
 msgid "opac.pref#OPACShowBarcode# Show"
-msgstr ""
+msgstr "Показывать "
 
 # OPAC > Appearance
 # OPAC > Appearance
@@ -8432,7 +8444,7 @@ msgstr ""
 # OPAC > Appearance
 # OPAC > Appearance
 msgid "opac.pref#OPACShowBarcode# the item's barcode on the holdings tab."
-msgstr ""
+msgstr " штрих-коды экземпляров на вкладке данных о наличии в фондах."
 
 # OPAC > Appearance
 # OPAC > Appearance
@@ -8480,7 +8492,7 @@ msgstr ""
 # OPAC > Appearance
 # OPAC > Appearance
 msgid "opac.pref#OPACShowHoldQueueDetails# Don't show any hold details"
-msgstr ""
+msgstr "Не показывать никаких подробностей относительно резервирований "
 
 # OPAC > Appearance
 # OPAC > Appearance
@@ -8492,7 +8504,7 @@ msgstr ""
 # OPAC > Appearance
 # OPAC > Appearance
 msgid "opac.pref#OPACShowHoldQueueDetails# Show holds"
-msgstr ""
+msgstr "Показывать резервирования "
 
 # OPAC > Appearance
 # OPAC > Appearance
@@ -8504,7 +8516,7 @@ msgstr ""
 # OPAC > Appearance
 # OPAC > Appearance
 msgid "opac.pref#OPACShowHoldQueueDetails# Show holds and their priority level"
-msgstr ""
+msgstr "Показывать резервирования и их уровни приоритета "
 
 # OPAC > Appearance
 # OPAC > Appearance
@@ -8516,7 +8528,7 @@ msgstr ""
 # OPAC > Appearance
 # OPAC > Appearance
 msgid "opac.pref#OPACShowHoldQueueDetails# Show priority level"
-msgstr ""
+msgstr "Показывать уровни приоритета "
 
 # OPAC > Appearance
 # OPAC > Appearance
@@ -8528,7 +8540,7 @@ msgstr ""
 # OPAC > Appearance
 # OPAC > Appearance
 msgid "opac.pref#OPACShowHoldQueueDetails# to patrons in the OPAC."
-msgstr ""
+msgstr " посетителям в электронном каталоге."
 
 # OPAC > Appearance
 # OPAC > Appearance
@@ -9716,7 +9728,7 @@ msgstr "Запретить"
 # OPAC > Features
 # OPAC > Features
 msgid "opac.pref#RequestOnOpac# patrons to place holds on items from the OPAC."
-msgstr ""
+msgstr " посетителям размещать резервирования на экземпляры из электронного каталога."
 
 # OPAC > Policy
 # OPAC > Policy
@@ -11410,6 +11422,54 @@ msgstr "Не включать"
 msgid "searching.pref#IncludeSeeFromInSearches# Include"
 msgstr "Включать"
 
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+msgid "searching.pref#IntranetNumbersPreferPhrase# By default,"
+msgstr ""
+
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+msgid "searching.pref#IntranetNumbersPreferPhrase# don't use"
+msgstr ""
+
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+msgid "searching.pref#IntranetNumbersPreferPhrase# the operator \"phr\" in the callnumber and standard number staff client searches"
+msgstr ""
+
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+msgid "searching.pref#IntranetNumbersPreferPhrase# use"
+msgstr ""
+
 # Searching > Results Display
 # Searching > Results Display
 # Searching > Results Display
@@ -11444,6 +11504,54 @@ msgstr "Показывать"
 # Searching > Results Display
 # Searching > Results Display
 msgid "searching.pref#OPACItemsResultsDisplay# an item's library, location and call number in OPAC search results."
+msgstr ""
+
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+msgid "searching.pref#OPACNumbersPreferPhrase# By default,"
+msgstr ""
+
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+msgid "searching.pref#OPACNumbersPreferPhrase# don't use"
+msgstr ""
+
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+msgid "searching.pref#OPACNumbersPreferPhrase# the operator \"phr\" in the callnumber and standard number OPAC searches"
+msgstr ""
+
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+# Searching > Search Form
+msgid "searching.pref#OPACNumbersPreferPhrase# use"
 msgstr ""
 
 # Searching > Results Display
@@ -11672,7 +11780,7 @@ msgstr ""
 # Searching > Features
 # Searching > Features
 msgid "searching.pref#QueryAutoTruncate# <br />(The * character would be used like so: <cite>Har*</cite> or <cite>*logging</cite>.)"
-msgstr ""
+msgstr " <br />(Символ * может быть использован следующим образом: <cite>Har*</cite> или <cite>*logging</cite>.)"
 
 # Searching > Features
 # Searching > Features
@@ -11684,7 +11792,7 @@ msgstr ""
 # Searching > Features
 # Searching > Features
 msgid "searching.pref#QueryAutoTruncate# Perform wildcard searching (where, for example, <cite>Har</cite> would match <cite>Harry</cite> and <cite>harp</cite>)"
-msgstr ""
+msgstr "Выполнять поиски с групповым символом (это когда, например, поиск по <cite>Har</cite> также будет соответствовать <cite>Harry</cite> и <cite>harp</cite>) "
 
 # Searching > Features
 # Searching > Features
@@ -11696,7 +11804,7 @@ msgstr ""
 # Searching > Features
 # Searching > Features
 msgid "searching.pref#QueryAutoTruncate# automatically."
-msgstr ""
+msgstr " автоматически."
 
 # Searching > Features
 # Searching > Features
@@ -11708,7 +11816,7 @@ msgstr ""
 # Searching > Features
 # Searching > Features
 msgid "searching.pref#QueryAutoTruncate# only if * is added."
-msgstr ""
+msgstr " только если добавленно *."
 
 # Searching > Features
 # Searching > Features
@@ -11720,7 +11828,7 @@ msgstr ""
 # Searching > Features
 # Searching > Features
 msgid "searching.pref#QueryFuzzy# Don't try"
-msgstr ""
+msgstr "Не пытаться "
 
 # Searching > Features
 # Searching > Features
@@ -11732,7 +11840,7 @@ msgstr ""
 # Searching > Features
 # Searching > Features
 msgid "searching.pref#QueryFuzzy# Try"
-msgstr ""
+msgstr "Пытаться "
 
 # Searching > Features
 # Searching > Features
@@ -11744,7 +11852,7 @@ msgstr ""
 # Searching > Features
 # Searching > Features
 msgid "searching.pref#QueryFuzzy# to match similarly spelled words in a search (for example, a search for <cite>flang</cite> would also match <cite>flange</cite> and <cite>fang</cite>; REQUIRES ZEBRA)."
-msgstr ""
+msgstr " подбирать подобно написанные слова при поиске (например, поиск по <cite>flang</cite> также будет отвечать <cite>flange</cite> и <cite>fang</cite>; требует движка Zebra)."
 
 # Searching > Features
 # Searching > Features
@@ -11756,7 +11864,7 @@ msgstr ""
 # Searching > Features
 # Searching > Features
 msgid "searching.pref#QueryStemming# Don't try"
-msgstr ""
+msgstr "Не пытаться "
 
 # Searching > Features
 # Searching > Features
@@ -11768,7 +11876,7 @@ msgstr ""
 # Searching > Features
 # Searching > Features
 msgid "searching.pref#QueryStemming# Try"
-msgstr ""
+msgstr "Пытаться "
 
 # Searching > Features
 # Searching > Features
@@ -11780,7 +11888,7 @@ msgstr ""
 # Searching > Features
 # Searching > Features
 msgid "searching.pref#QueryStemming# to match words of the same base in a search (for example, a search for <cite>enabling</cite> would also match <cite>enable</cite> and <cite>enabled</cite>; REQUIRES ZEBRA)."
-msgstr ""
+msgstr " подбирать слова с той же основой в поиске (например, поиск по <cite>enabling</cite> также будет отвечать <cite>enable</cite> и <cite>enabled</cite>; требует движка Zebra)."
 
 # Searching > Features
 # Searching > Features
@@ -11792,7 +11900,7 @@ msgstr ""
 # Searching > Features
 # Searching > Features
 msgid "searching.pref#QueryWeightFields# Disable"
-msgstr ""
+msgstr "Отключить "
 
 # Searching > Features
 # Searching > Features
@@ -11804,7 +11912,7 @@ msgstr ""
 # Searching > Features
 # Searching > Features
 msgid "searching.pref#QueryWeightFields# Enable"
-msgstr ""
+msgstr "Задействовать "
 
 # Searching > Features
 # Searching > Features
@@ -11816,7 +11924,7 @@ msgstr ""
 # Searching > Features
 # Searching > Features
 msgid "searching.pref#QueryWeightFields# ranking of search results by relevance (REQUIRES ZEBRA)."
-msgstr ""
+msgstr " упорядочение результатов поиска по значимости (требует движка Zebra)."
 
 # Searching > Features
 # Searching > Features
@@ -11888,6 +11996,18 @@ msgstr ""
 # Searching > Features
 # Searching > Features
 msgid "searching.pref#TraceSubjectSubdivisions# subdivisions for searches generated by clicking on subject tracings."
+msgstr ""
+
+# Searching > Results Display
+# Searching > Results Display
+# Searching > Results Display
+# Searching > Results Display
+# Searching > Results Display
+# Searching > Results Display
+# Searching > Results Display
+# Searching > Results Display
+# Searching > Results Display
+msgid "searching.pref#UNIMARCAuthorsFacetsSeparator# Use the following text as separator for UNIMARC authors facets"
 msgstr ""
 
 # Searching > Features
@@ -12128,7 +12248,7 @@ msgstr " количества граней поиска.  Актуальност
 # Searching > Search Form
 # Searching > Search Form
 msgid "searching.pref#expandedSearchOption# \"More options\" on the OPAC and staff advanced search pages."
-msgstr ""
+msgstr " «Больше параметров» на страницах детального поиска в электронном каталоге и библиотечном интерфейсе."
 
 # Searching > Search Form
 # Searching > Search Form
@@ -12140,7 +12260,7 @@ msgstr ""
 # Searching > Search Form
 # Searching > Search Form
 msgid "searching.pref#expandedSearchOption# By default,"
-msgstr ""
+msgstr "По умолчанию "
 
 # Searching > Search Form
 # Searching > Search Form
@@ -12152,7 +12272,7 @@ msgstr ""
 # Searching > Search Form
 # Searching > Search Form
 msgid "searching.pref#expandedSearchOption# don't show"
-msgstr ""
+msgstr " не отображать "
 
 # Searching > Search Form
 # Searching > Search Form
@@ -12164,7 +12284,7 @@ msgstr ""
 # Searching > Search Form
 # Searching > Search Form
 msgid "searching.pref#expandedSearchOption# show"
-msgstr ""
+msgstr " отображать "
 
 # Searching > Results Display
 # Searching > Results Display
@@ -12656,7 +12776,7 @@ msgstr ""
 # Staff Client > Options
 # Staff Client > Options
 msgid "staff_client.pref#HidePatronName# Don't show"
-msgstr ""
+msgstr "Не показывать "
 
 # Staff Client > Options
 # Staff Client > Options
@@ -12668,7 +12788,7 @@ msgstr ""
 # Staff Client > Options
 # Staff Client > Options
 msgid "staff_client.pref#HidePatronName# Show"
-msgstr ""
+msgstr "Показывать "
 
 # Staff Client > Options
 # Staff Client > Options
@@ -12680,7 +12800,7 @@ msgstr ""
 # Staff Client > Options
 # Staff Client > Options
 msgid "staff_client.pref#HidePatronName# the names of patrons that have items checked out or on hold on detail pages or the \"Place Hold\" screen."
-msgstr ""
+msgstr " имена посетителей (которые взяли на руки экземпляры или зарезервировали) на странице сведений или в окошке «Зарезервировать»."
 
 # Staff Client > Appearance
 # Staff Client > Appearance
@@ -12896,7 +13016,7 @@ msgstr ""
 # Staff Client > Options
 # Staff Client > Options
 msgid "staff_client.pref#intranetbookbag# Don't show"
-msgstr ""
+msgstr "Не показывать "
 
 # Staff Client > Options
 # Staff Client > Options
@@ -12908,7 +13028,7 @@ msgstr ""
 # Staff Client > Options
 # Staff Client > Options
 msgid "staff_client.pref#intranetbookbag# Show"
-msgstr ""
+msgstr "Показывать "
 
 # Staff Client > Options
 # Staff Client > Options
@@ -12920,7 +13040,7 @@ msgstr ""
 # Staff Client > Options
 # Staff Client > Options
 msgid "staff_client.pref#intranetbookbag# the cart option in the staff client."
-msgstr ""
+msgstr " функциональность корзины в библиотечном интерфейсе."
 
 # Staff Client > Appearance
 # Staff Client > Appearance
@@ -13016,7 +13136,7 @@ msgstr ""
 # Staff Client > Appearance
 # Staff Client > Appearance
 msgid "staff_client.pref#template# Use the"
-msgstr ""
+msgstr "Использовать тему "
 
 # Staff Client > Appearance
 # Staff Client > Appearance
@@ -13028,7 +13148,7 @@ msgstr ""
 # Staff Client > Appearance
 # Staff Client > Appearance
 msgid "staff_client.pref#template# theme on the staff interface."
-msgstr ""
+msgstr " для интерфейса библиотекаря."
 
 # Staff Client > Options
 # Staff Client > Options
@@ -13040,7 +13160,7 @@ msgstr ""
 # Staff Client > Options
 # Staff Client > Options
 msgid "staff_client.pref#viewISBD# Allow"
-msgstr ""
+msgstr "Предоставлять  "
 
 # Staff Client > Options
 # Staff Client > Options
@@ -13052,7 +13172,7 @@ msgstr ""
 # Staff Client > Options
 # Staff Client > Options
 msgid "staff_client.pref#viewISBD# Don't allow"
-msgstr ""
+msgstr "Не предоставлять "
 
 # Staff Client > Options
 # Staff Client > Options
@@ -13064,7 +13184,7 @@ msgstr ""
 # Staff Client > Options
 # Staff Client > Options
 msgid "staff_client.pref#viewISBD# staff to view records in ISBD form on the staff client."
-msgstr ""
+msgstr " работникам библиотеки возможность просмотра записей в формате ISBD в интерфейсе библиотекаря."
 
 # Staff Client > Options
 # Staff Client > Options
@@ -13076,7 +13196,7 @@ msgstr ""
 # Staff Client > Options
 # Staff Client > Options
 msgid "staff_client.pref#viewLabeledMARC# Allow"
-msgstr ""
+msgstr "Предоставлять "
 
 # Staff Client > Options
 # Staff Client > Options
@@ -13088,7 +13208,7 @@ msgstr ""
 # Staff Client > Options
 # Staff Client > Options
 msgid "staff_client.pref#viewLabeledMARC# Don't allow"
-msgstr ""
+msgstr "Не предоставлять "
 
 # Staff Client > Options
 # Staff Client > Options
@@ -13100,7 +13220,7 @@ msgstr ""
 # Staff Client > Options
 # Staff Client > Options
 msgid "staff_client.pref#viewLabeledMARC# staff to view records in labeled MARC form on the staff client."
-msgstr ""
+msgstr "  работникам библиотеки возможность просмотра записей в формате МАРК с метками в интерфейсе библиотекаря."
 
 # Staff Client > Options
 # Staff Client > Options
@@ -13112,7 +13232,7 @@ msgstr ""
 # Staff Client > Options
 # Staff Client > Options
 msgid "staff_client.pref#viewMARC# Allow"
-msgstr ""
+msgstr "Предоставлять "
 
 # Staff Client > Options
 # Staff Client > Options
@@ -13124,7 +13244,7 @@ msgstr ""
 # Staff Client > Options
 # Staff Client > Options
 msgid "staff_client.pref#viewMARC# Don't allow"
-msgstr ""
+msgstr "Не предоставлять "
 
 # Staff Client > Options
 # Staff Client > Options
@@ -13136,7 +13256,7 @@ msgstr ""
 # Staff Client > Options
 # Staff Client > Options
 msgid "staff_client.pref#viewMARC# staff to view records in plain MARC form on the staff client."
-msgstr ""
+msgstr " работникам библиотеки возможность просмотра записей в простом формате МАРК в интерфейсе библиотекаря."
 
 # Staff Client > Appearance
 # Staff Client > Appearance
@@ -13196,7 +13316,7 @@ msgstr "Веб-сервисы"
 # Web services > ILS-DI
 # Web services > ILS-DI
 msgid "web_services.pref ILS-DI"
-msgstr ""
+msgstr "ILS-DI (интерфейс раскрытия АБИС)"
 
 # Web services > OAI-PMH
 # Web services > OAI-PMH
@@ -13208,7 +13328,7 @@ msgstr ""
 # Web services > OAI-PMH
 # Web services > OAI-PMH
 msgid "web_services.pref OAI-PMH"
-msgstr ""
+msgstr "OAI-PMH (протокол инициативы открытых архивов для получения метаданных)"
 
 # Web services > Reporting
 # Web services > Reporting
@@ -13220,7 +13340,7 @@ msgstr ""
 # Web services > Reporting
 # Web services > Reporting
 msgid "web_services.pref Reporting"
-msgstr ""
+msgstr "Отчётность"
 
 # Web services > ILS-DI
 # Web services > ILS-DI
@@ -13232,7 +13352,7 @@ msgstr ""
 # Web services > ILS-DI
 # Web services > ILS-DI
 msgid "web_services.pref#ILS-DI# Disable"
-msgstr ""
+msgstr "Отключить "
 
 # Web services > ILS-DI
 # Web services > ILS-DI
@@ -13244,7 +13364,7 @@ msgstr ""
 # Web services > ILS-DI
 # Web services > ILS-DI
 msgid "web_services.pref#ILS-DI# Enable"
-msgstr ""
+msgstr "Включить "
 
 # Web services > ILS-DI
 # Web services > ILS-DI
@@ -13256,7 +13376,7 @@ msgstr ""
 # Web services > ILS-DI
 # Web services > ILS-DI
 msgid "web_services.pref#ILS-DI# ILS-DI services for OPAC users"
-msgstr ""
+msgstr " службы ILS-DI для пользователей ЭК."
 
 # Web services > ILS-DI
 # Web services > ILS-DI
@@ -13268,7 +13388,7 @@ msgstr ""
 # Web services > ILS-DI
 # Web services > ILS-DI
 msgid "web_services.pref#ILS-DI:AuthorizedIPs# allowed IPs to use the ILS-DI services"
-msgstr ""
+msgstr " — IP-адреса, для которых разрешено использовать службы ILS-DI."
 
 # Web services > OAI-PMH
 # Web services > OAI-PMH
@@ -13280,7 +13400,7 @@ msgstr ""
 # Web services > OAI-PMH
 # Web services > OAI-PMH
 msgid "web_services.pref#OAI-PMH# <a href=\"http://www.openarchives.org/pmh/\">OAI-PMH</a> server."
-msgstr ""
+msgstr "<a href=\"http://www.openarchives.org/pmh/\">OAI-PMH</a>-сервер в Коха."
 
 # Web services > OAI-PMH
 # Web services > OAI-PMH
@@ -13292,7 +13412,7 @@ msgstr ""
 # Web services > OAI-PMH
 # Web services > OAI-PMH
 msgid "web_services.pref#OAI-PMH# Disable"
-msgstr ""
+msgstr "Отключить "
 
 # Web services > OAI-PMH
 # Web services > OAI-PMH
@@ -13304,7 +13424,7 @@ msgstr ""
 # Web services > OAI-PMH
 # Web services > OAI-PMH
 msgid "web_services.pref#OAI-PMH# Enable"
-msgstr ""
+msgstr "Задействовать "
 
 # Web services > OAI-PMH
 # Web services > OAI-PMH
@@ -13316,7 +13436,7 @@ msgstr ""
 # Web services > OAI-PMH
 # Web services > OAI-PMH
 msgid "web_services.pref#OAI-PMH# Koha's"
-msgstr ""
+msgstr " "
 
 # Web services > OAI-PMH
 # Web services > OAI-PMH
@@ -13388,7 +13508,7 @@ msgstr " записей за раз в ответ на запрос ListRecords 
 # Web services > OAI-PMH
 # Web services > OAI-PMH
 msgid "web_services.pref#OAI-PMH:archiveID# : ."
-msgstr ""
+msgstr ": ."
 
 # Web services > OAI-PMH
 # Web services > OAI-PMH
@@ -13400,7 +13520,7 @@ msgstr ""
 # Web services > OAI-PMH
 # Web services > OAI-PMH
 msgid "web_services.pref#OAI-PMH:archiveID# Identify records at this site with the prefix"
-msgstr ""
+msgstr "Идентифицировать записи на этом сайте по префиксу "
 
 # Web services > Reporting
 # Web services > Reporting
@@ -13412,7 +13532,7 @@ msgstr ""
 # Web services > Reporting
 # Web services > Reporting
 msgid "web_services.pref#SvcMaxReportRows# Only return"
-msgstr ""
+msgstr "Возвращать только "
 
 # Web services > Reporting
 # Web services > Reporting
@@ -13424,5 +13544,5 @@ msgstr ""
 # Web services > Reporting
 # Web services > Reporting
 msgid "web_services.pref#SvcMaxReportRows# rows of a report requested via the reports web service."
-msgstr ""
+msgstr " строк в сообщении, которое было запрошено через службу веб-отчётов."
 

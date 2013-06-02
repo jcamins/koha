@@ -36,7 +36,7 @@ use URI::Escape;
 use Business::ISBN;
 use MARC::Record;
 use MARC::Field;
-
+use utf8;
 use vars qw($VERSION @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS $DEBUG);
 
 # set the version for version checking
@@ -112,8 +112,6 @@ sub FindDuplicate {
         # quotes around the value
         $result->{title} =~ s/(and|or|not)//g;
         $query = "ti,ext=$result->{title}";
-        $query .= " and itemtype=$result->{itemtype}"
-          if ( $result->{itemtype} );
         if   ( $result->{author} ) {
             $result->{author} =~ s /\\//g;
             $result->{author} =~ s /\"//g;
