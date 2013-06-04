@@ -7,6 +7,7 @@ use C4::Search;
 use C4::Charset;
 use C4::Debug;
 use C4::ZebraIndex;
+use Koha::Authority;
 
 use Getopt::Long;
 use YAML;
@@ -14,20 +15,22 @@ use List::MoreUtils qw/uniq/;
 
 my @matchstrings;
 my $choosemethod = "u";   # by default, choose to keep the most used authority
-my ($verbose, $all, $help, $wherestring, $test);
+my ($verbose, $all, $help, $wherestring, $test, $debug);
 
 # default is to check all these subfields for 'auth_tag_to_report'
 my $check = 'TAGabcdefghitxyz';
+my $allowed_indexes = 'he|he-main|ident';
 
-my $result = GetOptions (
-    "match=s"   => \@matchstrings
-    , "verbose+"  => \$verbose
-    , "all|a"  => \$all
-    , "test|t"  => \$test
-    , "help|h"   => \$help
-    , "where=s"   => \$wherestring
-    , "choose-method=s" => \$choosemethod
-    , "check=s" => \$check
+my $result = GetOptions(
+    "match=s"         => \@matchstrings,
+    "verbose+"        => \$verbose,
+    "all|a"           => \$all,
+    "test|t"          => \$test,
+    "help|h"          => \$help,
+    "where=s"         => \$wherestring,
+    "choose-method=s" => \$choosemethod,
+    "check=s"         => \$check,
+    "indexes=s"       => \$allowed_indexes
 );
 
 if ( $help || ! (@ARGV || $all)) {
@@ -143,10 +146,10 @@ for my $authtypecode (@authtypecodes) {
             ($verbose >= 2) and logger("Building query...");
             my $query = _build_query( $authrecord, $attempt );
             ($verbose >= 2) and logger("Building query done.");
-            $debug and $query and warn $query;
+            $debug and $query and warn "Query: $query\n";
             # This prevent too general queries to be executed
             # TODO: This should allow more than these 3 indexes
-            next unless $query =~ /(he|he-main|ident)(,\S*)*(=|:)/;
+            next unless $query =~ /($allowed_indexes)(,\S*)*(=|:)/;
 
             ($verbose >= 2) and logger("Searching...");
             my ($error, $results) = SimpleSearch($query, undef, undef, ["authorityserver"]);
@@ -299,7 +302,7 @@ sub prepare_strings{
     }
     return map {
                 ( $_
-                ?  qq<$$attempt{'index'}=\"$_\">
+                ?  qq<$$attempt{'index'}:\"$_\">
                 : () )
             }@stringstosearch;
 }
@@ -308,7 +311,7 @@ sub _build_query{
     my $authrecord = shift;
     my $attempt = shift;
     if ($attempt) {
-        my $query = join ' AND ', map {
+        my $query = join ' && ', map {
             prepare_strings($authrecord, $_)
         } @$attempt;
         return $query;
@@ -361,9 +364,9 @@ sub _get_usage {
 sub _choose_records {
     my @recordids = @_;
 
-    my @records = map { GetAuthority($_) } @recordids;
+    my @records = map { Koha::Authority->get_from_authid($_) } @recordids;
     my @candidate_auths =
-      grep { _is_duplicate( $recordids[0], $records[0], _get_id($_), $_ ) }
+      grep { _is_duplicate( $recordids[0], $records[0]->record, $_->authid, $_->record ) }
       ( @records[ 1 .. $#records ] );
 
     # See http://www.sysarch.com/Perl/sort_paper.html Schwartzian transform
@@ -375,10 +378,10 @@ sub _choose_records {
             $b->[3] <=> $a->[3]
         }
         map [
-            _get_id($_),
-            $choose_subs[0] ? $choose_subs[0]->($_) : 0,
-            $choose_subs[1] ? $choose_subs[1]->($_) : 0,
-            $choose_subs[2] ? $choose_subs[2]->($_) : 0
+            $_->authid,
+            $choose_subs[0] ? $choose_subs[0]->($_->record) : 0,
+            $choose_subs[1] ? $choose_subs[1]->($_->record) : 0,
+            $choose_subs[2] ? $choose_subs[2]->($_->record) : 0
         ] =>
         ( $records[0], @candidate_auths );
 
@@ -523,7 +526,8 @@ Parameters:
             sn,ne,st-numeric/001##authtype/152b##he-main,ext/2..a##he,ext/2..bxyz
 
         Match strings MUST contains at least one of the
-        following indexes: he, he-main and ident
+        following indexes: he, he-main and ident unless you have specified the
+        --indexes option
 
 
     --check <tag1><subfieldcodes>[,<tag2><subfieldcodes>[,...]]
@@ -566,12 +570,19 @@ Parameters:
         Default is 'u'
         You cannot type more than 3 letters
 
+    --indexes he|he-main|ident
+
+                            a pipe-separated list of indexes to allow for the
+                            duplication identification query
 
     --where <sqlstring>     limit the deduplication to SOME authorities only
 
     --verbose               display logs
 
     --all                   deduplicate all authority type
+
+    --test                  test what the script would do but do not make any
+                            changes to the database
 
     --help or -h            show this message.
 
