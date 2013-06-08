@@ -27,10 +27,7 @@
 [% END %]
 </ul>
 </div>
-[% IF ( OPACResultsSidebar ) %]
 <div id="opacresultssidebar">
-[% OPACResultsSidebar %]
 </div>
-[% END %]
 [% END %]
 [% END %]

@@ -313,11 +313,9 @@
     You did not specify any search criteria.
     [% END %]
 </p>
-[% IF ( OPACNoResultsFound ) %]
 <div id="noresultsfound">
 [% OPACNoResultsFound %]
 </div>
-[% END %]
 
 </div>
 [% END %]</p>[% END %]</div>
