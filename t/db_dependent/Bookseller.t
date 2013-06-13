@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 12;
+use Test::More tests => 15;
 
 BEGIN {
     use_ok('C4::Bookseller');
@@ -16,12 +16,15 @@ my $booksellerid = C4::Bookseller::AddBookseller(
         phone    => "0123456",
         active   => 1
     },
-    [ { name => 'John Smith', phone => '0123456x1' } ]
+    [
+        { name => 'John Smith',  phone => '0123456x1' },
+        { name => 'Leo Tolstoy', phone => '0123456x2' },
+    ]
 );
 
 my @booksellers = C4::Bookseller::GetBookSeller('my vendor');
 ok(
-    (grep { $_->{'id'} == $booksellerid } @booksellers),
+    ( grep { $_->{'id'} == $booksellerid } @booksellers ),
     'GetBookSeller returns correct record when passed a name'
 );
 
@@ -37,7 +40,9 @@ is(
 );
 is( $bookseller->{'contacts'}->[0]->phone,
     '0123456x1', 'Contact has expected phone number' );
+is( scalar @{ $bookseller->{'contacts'} }, 2, 'Saved two contacts' );
 
+pop @{ $bookseller->{'contacts'} };
 $bookseller->{'name'} = 'your vendor';
 $bookseller->{'contacts'}->[0]->phone('654321');
 C4::Bookseller::ModBookseller($bookseller);
@@ -48,6 +53,8 @@ is( $bookseller->{'name'}, 'your vendor',
 is( $bookseller->{'contacts'}->[0]->phone,
     '654321',
     'Successfully changed contact phone number by modifying bookseller hash' );
+is( scalar @{ $bookseller->{'contacts'} },
+    1, 'Only one contact after modification' );
 
 C4::Bookseller::ModBookseller( $bookseller,
     [ { name => 'John Jacob Jingleheimer Schmidt' } ] );
@@ -60,6 +67,8 @@ is(
 );
 is( $bookseller->{'contacts'}->[0]->phone,
     undef, 'Removed phone number from contact' );
+is( scalar @{ $bookseller->{'contacts'} },
+    1, 'Only one contact after modification' );
 
 END {
     C4::Bookseller::DelBookseller($booksellerid);
