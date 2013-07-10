@@ -2582,3 +2582,44 @@ fieldset.rows table.mceListBox {
     -webkit-box-shadow: 0px 3px 2px 0px rgba(0, 0, 0, .5);
     box-shadow: 0px 3px 2px 0px rgba(0, 0, 0, .5);
 }
+
+.browse-controls {
+    padding-top: 1em;
+    margin-left: 1.1em;
+    border-right: 1px solid #b9d8d9;
+    margin-right: .5em;
+    padding-bottom: 1em;
+}
+
+.browse-controls-inner {
+    padding: 0.3em;
+    background: #e8f0f6;
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+    border: 1px solid #b9d8d9;
+}
+
+#browse-return-to-results {
+    display: block;
+    text-align: center;
+}
+
+.browse-button {
+    border: 1px solid #b9d8d9;
+    color: #004d99;
+    padding: .4em .6em;
+    display: inline-block;
+}
+
+span.browse-button {
+    background: #fafafa;
+    color: #222;
+}
+
+.browse-button:hover {
+    background: #fafafa;
+}
+
+#browse-next {
+    float: right;
+}
