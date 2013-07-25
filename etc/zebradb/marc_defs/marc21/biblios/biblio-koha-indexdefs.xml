@@ -662,6 +662,41 @@
     <target_index>Subject:w</target_index>
     <target_index>Subject:p</target_index>
   </index_data_field>
+  <index_data_field xmlns="http://www.koha-community.org/schemas/index-defs" tag="600' or @tag='610' or @tag='611' or @tag='630' or @tag='648' or @tag='650' or @tag='651' or @tag='655' or @tag='656' or @tag='657' or @tag='658') and @ind2='2">
+    <target_index>MESH-subject:w</target_index>
+    <target_index>MESH-subject:p</target_index>
+  </index_data_field>
+  <index_data_field xmlns="http://www.koha-community.org/schemas/index-defs" tag="600' or @tag='610' or @tag='611' or @tag='630' or @tag='648' or @tag='650' or @tag='651' or @tag='655' or @tag='656' or @tag='657' or @tag='658') and @ind2!='2">
+    <target_index>LC-subject-heading:w</target_index>
+    <target_index>LC-subject-heading:p</target_index>
+  </index_data_field>
+  <!-- The stanzas above do not quite generate the following indexes. An opening parenthesis must be added in the datafield declaration.
+  <xslo:template mode="index_data_field" match="marc:datafield[(@tag='600' or @tag='610' or @tag='611' or @tag='630' or @tag='648' or @tag='650' or @tag='651' or @tag='655' or @tag='656' or @tag='657' or @tag='658') and @ind2='2']">
+    <z:index name="MESH-subject:w MESH-subject:p">
+      <xslo:variable name="raw_heading">
+        <xslo:for-each select="marc:subfield">
+          <xslo:if test="position() &gt; 1">
+            <xslo:value-of select="substring(' ', 1, 1)"/>
+          </xslo:if>
+          <xslo:value-of select="."/>
+        </xslo:for-each>
+      </xslo:variable>
+      <xslo:value-of select="normalize-space($raw_heading)"/>
+    </z:index>
+  </xslo:template>
+  <xslo:template mode="index_data_field" match="marc:datafield[(@tag='600' or @tag='610' or @tag='611' or @tag='630' or @tag='648' or @tag='650' or @tag='651' or @tag='655' or @tag='656' or @tag='657' or @tag='658') and @ind2!='2']">
+    <z:index name="LC-subject-heading:w LC-subject-heading:p">
+      <xslo:variable name="raw_heading">
+        <xslo:for-each select="marc:subfield">
+          <xslo:if test="position() &gt; 1">
+            <xslo:value-of select="substring(' ', 1, 1)"/>
+          </xslo:if>
+          <xslo:value-of select="."/>
+        </xslo:for-each>
+      </xslo:variable>
+      <xslo:value-of select="normalize-space($raw_heading)"/>
+    </z:index>
+  </xslo:template>-->
   <!--record.abs line 179: melm 651$9      Koha-Auth-Number    -->
   <index_subfields xmlns="http://www.koha-community.org/schemas/index-defs" tag="651" subfields="9">
     <target_index>Koha-Auth-Number:w</target_index>
