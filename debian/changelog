@@ -1,3 +1,10 @@
+koha (3.12.02-1cpspecial) cpspecial; urgency=low
+
+  * Migration of C & P customizations to 3.12.x
+  * Addition of customizations for ACOM
+
+ -- Jared Camins-Esakov <jcamins@cpbibliography.com>  Thu, 25 Jul 2013 11:51:05 -0400
+
 koha (3.12.02-1) squeeze; urgency=low
 
   * New upstream release (3.12.02)
