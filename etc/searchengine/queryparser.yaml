@@ -1056,7 +1056,67 @@ field_mappings:
       aliases:
         - withdrawn
       label: Withdrawn
+    action-agent:
+      bib1_mapping:
+        biblioserver:
+          1: 9583
+          6: 3
+      enabled: 1
+      index: action-agent
+      aliases:
+        - action-agent
+      label: "Action agent"
+    action-note:
+      bib1_mapping:
+        biblioserver:
+          1: 9584
+      enabled: 1
+      index: action-note
+      aliases:
+        - action-note
+      label: "Action note"
+    collection-name:
+      bib1_mapping:
+        biblioserver:
+          1: 7002
+      enabled: 1
+      index: Collection-name
+      aliases:
+        - Collection-name
+        - col
+      label: "Collection name"
+    ANS-location:
+      bib1_mapping:
+        biblioserver:
+          1: 7113
+          3: 1
+      enabled: 1
+      index: ANS-location
+      aliases:
+        - ANS-location
+        - loc
+      label: Location
   subject:
+    lcsh:
+      bib1_mapping:
+        biblioserver:
+          1: 27
+      enabled: 1
+      index: LC-subject-heading
+      aliases:
+        - LC-subject-heading
+        - lcsh
+      label: LCSH
+    mesh:
+      bib1_mapping:
+        biblioserver:
+          1: 25
+      enabled: 1
+      index: MESH-subject
+      aliases:
+        - MESH-subject
+        - mesh
+      label: MeSH
     subject:
       bib1_mapping:
         authorityserver:
