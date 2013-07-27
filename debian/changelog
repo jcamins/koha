@@ -83,7 +83,7 @@ koha (3.12.03-1) squeeze; urgency=high
 
  -- Robin Sheat <robin@catalyst.net.nz>  Tue, 30 Jul 2013 01:18:42 +1200
 
-koha (3.12.02-1cpspecial) cpspecial; urgency=low
+koha (3.12.02-2cpspecial) cpspecial; urgency=low
 
   * Migration of C & P customizations to 3.12.x
   * Addition of customizations for ACOM
