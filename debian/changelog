@@ -1,4 +1,4 @@
-koha (3.12.02-1cpspecial) cpspecial; urgency=low
+koha (3.12.02-2cpspecial) cpspecial; urgency=low
 
   * Migration of C & P customizations to 3.12.x
   * Addition of customizations for ACOM
