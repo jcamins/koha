@@ -520,7 +520,7 @@
             </span>
         </xsl:if>
         <xsl:if test="marc:datafield[substring(@tag, 1, 1) = '6' and @ind2 != '2']">
-            <span class="results_summary subjects"><span class="label">Subject(s): </span>
+            <span class="results_summary subjects"><span class="label">LC subject(s): </span>
             <xsl:for-each select="marc:datafield[substring(@tag, 1, 1) = '6' and @ind2 != '2']">
             <a>
             <xsl:choose>
