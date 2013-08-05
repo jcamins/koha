@@ -1,0 +1,54 @@
+upstream plackopac {
+    server  unix:/var/run/koha/__KOHASITE__/opac.sock;
+}
+
+upstream apache {
+    server  localhost:8080;
+}
+
+server {
+    server_name  __OPACSERVER__;
+
+    access_log  /var/log/koha/__KOHASITE__/nginx-opac--access.log;
+    root        /usr/share/koha/opac/htdocs;
+
+    rewrite ^/$ /cgi-bin/koha/opac-main.pl;
+
+    location    / {
+        try_files $uri @plackopac;
+    }
+
+    #location /cgi-bin/koha/opac-image.pl {
+    #    proxy_cache     images;
+    #    proxy_cache_valid 200 302  10m;
+    #    proxy_cache_valid 404      1m;
+    #}
+
+    location /opac-tmpl {
+        expires max;
+    }
+
+    location @plackopac {
+        proxy_pass      http://plackopac;
+        include         /etc/koha/nginx-proxy.conf;
+    }
+}
+
+server {
+    server_name  __INTRASERVER__;
+
+    root        /usr/share/koha/intranet/htdocs;
+
+    location / {
+        try_files   $uri @apacheintranet;
+    }
+
+    location /intranet-tmpl {
+        expires max;
+    }
+
+    location @apacheintranet {
+        proxy_pass      http://apache;
+        include         /etc/koha/nginx-proxy.conf;
+    }
+}

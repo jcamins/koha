@@ -275,6 +275,8 @@ eof
     generate_config_file zebra.passwd.in \
         "/etc/koha/sites/$name/zebra.passwd"
 
+    generate_config_file nginx-site.conf.in \
+        "/etc/nginx/sites-available/$name"
 
     # Create a GPG-encrypted file for requesting a DB to be set up.
     if [ "$op" = request ]
@@ -347,9 +349,14 @@ fi
 
 if [ "$op" = create ] || [ "$op" = populate ] || [ "$op" = use ]
 then
+    # Start Starman
+    koha-start-starman "$name"
+
     # Reconfigure Apache.
     a2ensite "$name"
     service apache2 restart
+    ln -s /etc/nginx/sites-available/$name /etc/nginx/sites-enabled/$name
+    service nginx restart
 
     # Start Zebra.
     koha-start-zebra "$name"

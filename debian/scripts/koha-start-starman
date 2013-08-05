@@ -1,0 +1,112 @@
+#!/usr/bin/env sh
+
+# make errors fatal
+set -e
+
+die(){
+    echo "$@" 1>&2
+    exit 1
+}
+
+usage(){
+    cat <<EOF
+Starts Starman instances.
+
+Usage: $0 instanename1 instancename2 ...
+
+by default $0 will 'exit 1' if a specified instance has not yet been plackified
+you may pass a '--silent' option as the first argument to cause such instances to be skipped.
+other errors can still occur when in --silent mode.
+
+EOF
+}
+
+# check for arguments
+[ "$#" -ge 1 ] || ( usage ; die "Missing instance name..." )
+
+do_start(){
+    export PERL5LIB=/usr/share/koha/lib
+    SILENT=0
+
+    for name in "$@"
+    do
+        # a flag of --silent means we should not 'exit 1' for non-plackified instances
+        if [ "--silent" = "$name" ] ; then
+            SILENT=1
+            continue
+        fi
+
+        echo "starting starman for $name"
+
+        if [ ! -e "/etc/koha/sites/$name" ] ; then
+            echo "Could not find instance $name"
+            exit 1
+        fi
+
+        export KOHA_CONF=/etc/koha/sites/$name/koha-conf.xml
+        if [ ! -e "$KOHA_CONF" ] ; then
+            echo "could not find koha conf for $name : $KOHA_CONF"
+            exit 1
+        fi
+
+        PIDFILE=/var/run/koha/$name/starman.pid
+        ERRLOG=/var/log/koha/$name/starman.err
+        ACCLOG=/var/log/koha/$name/starman.log
+        OPAC=/usr/share/koha/bin/opac.psgi
+        #/home/kohaadmin/prod.psgi
+        USER="$name-koha"
+        GROUP="$name-koha"
+
+        #starman -M FindBin --user $USER --group $GROUP --workers 6 --port 5000 --pid $PIDFILE $OPAC 2>$ERRLOG >$OUTLOG &
+        starman -M FindBin --daemonize --user $USER --group $GROUP --error-log $ERRLOG --access-log $ACCLOG --workers 6 --listen /var/run/koha/$name/opac.sock --pid $PIDFILE $OPAC
+        chmod 777 /var/run/koha/$name/opac.sock
+
+    done
+}
+
+do_stop(){
+    export PERL5LIB=/usr/share/koha
+    SILENT=0
+
+    for name in "$@"
+    do
+        # a flag of --silent means we should not 'exit 1' for non-plackified instances
+        if [ "--silent" = "$name" ] ; then
+            SILENT=1
+            continue
+        fi
+
+        if [ -e "/etc/koha/sites/$name" ] ; then
+            echo "Stopping Starman for $name"
+
+            PIDFILE=/var/run/koha/$name/starman.pid
+            if [ -e "$PIDFILE" ] ; then
+                cat $PIDFILE | xargs kill
+            else
+                echo "Could not find pidfile for instance $name : $PIDFILE"
+                if [ $SILENT -eq 1 ] ; then
+                    continue;
+                else
+                    exit 1
+                fi
+            fi
+
+        else
+            echo "Could not find instance $name"
+            exit 1
+        fi
+
+    done
+}
+
+do_restart(){
+    do_stop $@
+    do_start $@
+}
+
+case "$0" in
+    "/usr/sbin/koha-start-starman") do_start $@;;
+    "/usr/sbin/koha-stop-starman") do_stop $@;;
+    "/usr/sbin/koha-restart-starman") do_restart $@;;
+    *) die "incorrect usage($0), please invoke via one of koha-start-starman, koha-stop-starman, or koha-restart-starman" ;;
+esac

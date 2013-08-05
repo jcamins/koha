@@ -68,8 +68,13 @@ eof
     
     # If the daemon is not running already, we don't want to fail this loop. So bin the result code if this fails.
     koha-stop-zebra $name || /bin/true
+    koha-stop-starman $name || /bin/true
     [ -f "/etc/apache2/sites-available/$name" ]  && \
         rm "/etc/apache2/sites-available/$name"
+    [ -f "/etc/nginx/sites-enabled/$name" ]  && \
+        rm "/etc/nginx/sites-enabled/$name"
+    [ -f "/etc/nginx/sites-available/$name" ]  && \
+        rm "/etc/nginx/sites-available/$name"
     [ -f "/etc/koha/sites/$name/koha-conf.xml" ] && \
         rm "/etc/koha/sites/$name/koha-conf.xml"
     [ -f "/etc/koha/sites/$name/zebra-biblios.cfg" ] && \
@@ -95,3 +100,4 @@ eof
 done
 
 service apache2 restart
+service nginx restart

@@ -46,6 +46,7 @@ do_start()
     koha-create-dirs $(koha-list)
     koha-start-zebra $(koha-list --enabled)
     koha-start-sip $(koha-list --enabled)
+    koha-start-starman $(koha-list --enabled)
 }
 
 #
@@ -56,6 +57,7 @@ do_stop()
     # We stop everything, including disabled ones.
     koha-stop-zebra $(koha-list) || true
     koha-stop-sip $(koha-list) || true
+    koha-stop-starman $(koha-list) || true
 }
 
 #
@@ -65,6 +67,7 @@ do_reload() {
     koha-restart-zebra $(koha-list --enabled)
     koha-stop-sip $(koha-list) || true
     koha-start-sip $(koha-list --enabled)
+    koha-restart-starman $(koha-list --enabled)
 }
 
 case "$1" in
