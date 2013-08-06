@@ -83,6 +83,13 @@ koha (3.12.03-1) squeeze; urgency=high
 
  -- Robin Sheat <robin@catalyst.net.nz>  Tue, 30 Jul 2013 01:18:42 +1200
 
+koha (3.12.03cpspecial) cpspecial; urgency=low
+
+  * New upstream release (3.12.03)
+  * Bugfixes and Starman for the OPAC
+
+ -- Jared Camins-Esakov <jcamins@cpbibliography.com>  Thu, 25 Jul 2013 11:51:05 -0400
+
 koha (3.12.02-3cpspecial) cpspecial; urgency=low
 
   * Migration of C & P customizations to 3.12.x
