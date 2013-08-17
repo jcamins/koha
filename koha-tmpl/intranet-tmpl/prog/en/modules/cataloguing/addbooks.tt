@@ -41,7 +41,14 @@
    <div id="bd">
 	<div id="yui-main">
 
-[% IF ( CAN_user_editcatalogue_edit_catalogue ) %]
+[% IF (bibcount >= 250) %]
+    <div id="adminwarning" class="dialog alert">
+        <p><strong>Warning:</strong> You already have 250 records in your catalog, which is the maximum allowed by DaredevILS.
+        If you want to add more you will need to delete some of the records already in the catalog.</p>
+    </div>
+[% END %]
+
+[% IF ( CAN_user_editcatalogue_edit_catalogue && bibcount < 250 ) %]
   <div id="toolbar" class="btn-toolbar">
         <div class="btn-group">
             <button class="btn btn-small dropdown-toggle" data-toggle="dropdown"><i class="icon-plus"></i> New record <span class="caret"></span></button>

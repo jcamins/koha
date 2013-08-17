@@ -555,6 +555,9 @@ sub BatchCommitRecords {
                              LEFT JOIN import_biblios ON (import_records.import_record_id=import_biblios.import_record_id)
                              WHERE import_batch_id = ?");
     $sth->execute($batch_id);
+    my $bibcountsth = $dbh->prepare("SELECT COUNT(*) FROM biblio;");
+    $bibcountsth->execute();
+    my $bibcount = @{$bibcountsth->fetchrow_arrayref()}[0];
     my $marcflavour = C4::Context->preference('marcflavour');
     my $rec_num = 0;
     while (my $rowref = $sth->fetchrow_hashref) {
@@ -592,7 +595,7 @@ sub BatchCommitRecords {
 
         my $recordid;
         my $query;
-        if ($record_result eq 'create_new') {
+        if ($record_result eq 'create_new' && $bibcount < 250) {
             $num_added++;
             if ($record_type eq 'biblio') {
                 my $biblioitemnumber;

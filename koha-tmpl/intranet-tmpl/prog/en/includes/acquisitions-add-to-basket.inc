@@ -1,5 +1,11 @@
 <fieldset id="acqui_basket_add">
     <legend>Add order to basket</legend>
+[% IF (bibcount >= 250) %]
+    <div id="adminwarning" class="dialog alert">
+        <p><strong>Warning:</strong> You already have 250 records in your catalog, which is the maximum allowed by DaredevILS.
+        If you want to add more you will need to delete some of the records already in the catalog.</p>
+    </div>
+[% ELSE %]
     [% IF has_budgets %]
       <ul>
         <li>
@@ -20,4 +26,5 @@
     [% ELSE %]
         You can't create any orders unless you first <a href="/cgi-bin/koha/admin/aqbudgetperiods.pl">define a budget and a fund</a>.
     [% END %]
+[% END %]
 </fieldset>

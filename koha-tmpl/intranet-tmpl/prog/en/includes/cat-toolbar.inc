@@ -113,7 +113,7 @@ CAN_user_serials_create_subscription ) %]
     <div class="btn-group">
     <button class="btn btn-small dropdown-toggle" data-toggle="dropdown"><i class="icon-plus"></i> New <span class="caret"></span></button>
         <ul class="dropdown-menu">
-            [% IF ( CAN_user_editcatalogue_edit_catalogue ) %]
+            [% IF ( CAN_user_editcatalogue_edit_catalogue && bibcount < 250) %]
              <li><a id="newbiblio" href="/cgi-bin/koha/cataloguing/addbiblio.pl">New record</a></li>
             [% END %]
 
@@ -127,7 +127,7 @@ CAN_user_serials_create_subscription ) %]
             [% IF ( EasyAnalyticalRecords && CAN_user_editcatalogue_edit_catalogue ) %]
                 <li><a href="/cgi-bin/koha/catalogue/detail.pl?biblionumber=[% biblionumber %]&amp;analyze=1">Analyze items</a></li>
             [% END %]
-            [% IF CAN_user_editcatalogue_edit_catalogue %]
+            [% IF CAN_user_editcatalogue_edit_catalogue && bibcount < 250 %]
                 <li><a href="/cgi-bin/koha/cataloguing/addbiblio.pl?parentbiblionumber=[% biblionumber %]">New child record</a></li>
             [% END %]
     </ul>

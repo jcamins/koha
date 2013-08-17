@@ -236,6 +236,13 @@ sub get_template_and_user {
                 }
             }
         }
+        if ($in->{type} ne 'opac') { 
+            my $dbh = C4::Context->dbh;
+            my $query = "SELECT COUNT(*) FROM biblio;";
+            my $sth = $dbh->prepare($query);
+            $sth->execute();
+            $template->{'VARS'}->{'bibcount'} = @{$sth->fetchrow_arrayref()}[0];
+        }
         # Logged-in opac search history
         # If the requested template is an opac one and opac search history is enabled
         if ($in->{type} eq 'opac' && C4::Context->preference('EnableOpacSearchHistory')) {
