@@ -205,10 +205,11 @@ MARC21 only. Prefer records which come from ABC based on the 003 field.
 =cut
 
         when (/^source=(.*)$/) {
+            my $goal = $1;
             push @selectors, sub {
                 return (
                     defined $_[0]->{'record'}->field('003')
-                      && $_[0]->{'record'}->field('003')->data() eq $1
+                      && $_[0]->{'record'}->field('003')->data() eq $goal
                     ? 1
                     : 0
                 );
@@ -265,13 +266,14 @@ if ( $match =~ m#/# ) {
     $matcher->threshold( 1000 * scalar(@matchers) - 1 );
     $matcher->code('TEMP');
     $matcher->description('Temporary matcher for deduplication run');
-    while ( $matchers[ $cnt++ ] =~ m#^([^/]+)/([0-9]{3})(.*)$# ) {
+    while ( $matchers[ $cnt ] && $matchers[ $cnt++ ] =~ m#^([^/]+)/([0-9]{3})(.*)$# ) {
         $matcher->add_simple_matchpoint( $1, 1000, $2, $3, 0, 0, '' );
     }
+    $check ||= '';
     my @checks = split( ',', $check );
     $cnt = 0;
-    while ( $checks[ $cnt++ ] =~ m#^([0-9]{3})(.*)$# ) {
-        $matcher->add_simple_required_check( $1, $2, 0, 0, $1, $2, 0, 0, '' );
+    while ( $checks[ $cnt ] && $checks[ $cnt++ ] =~ m#^([0-9]{3})(.*)$# ) {
+        $matcher->add_simple_required_check( $1, $2, 0, 0, '', $1, $2, 0, 0, '' );
     }
 }
 else {
