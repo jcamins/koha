@@ -17,6 +17,8 @@ field_mappings:
       bib1_mapping:
         biblioserver:
           1: 1006
+        authorityserver:
+          1: Meeting-name
       enabled: 1
       index: conference
       label: Conference
@@ -27,6 +29,8 @@ field_mappings:
       bib1_mapping:
         biblioserver:
           1: 1005
+        authorityserver:
+          1: Corporate-name
       enabled: 1
       index: corporate
       label: Corporate
@@ -48,6 +52,8 @@ field_mappings:
       bib1_mapping:
         biblioserver:
           1: 1004
+        authorityserver:
+          1: Personal-name
       enabled: 1
       index: personal
       label: Personal
@@ -1142,6 +1148,33 @@ field_mappings:
         - su-to
         - su-geo
         - su-ut
+    topicalsubject:
+      bib1_mapping:
+        authorityserver:
+          1: Subject-topical
+      enabled: 1
+      index: 'Subject-topical'
+      label: 'Topical subject'
+      aliases:
+        - topical
+    geographicsubject:
+      bib1_mapping:
+        authorityserver:
+          1: Name-geographic
+      enabled: 1
+      index: 'Name-geographic'
+      label: 'Geographic name'
+      aliases:
+        - geographic
+    genreterm:
+      bib1_mapping:
+        authorityserver:
+          1: Term-genre-form
+      enabled: 1
+      index: 'Term-genre-form'
+      label: 'Genre term'
+      aliases:
+        - genre
     authority-number:
       bib1_mapping:
         biblioserver:
@@ -1290,6 +1323,8 @@ field_mappings:
     uniform:
       bib1_mapping:
         biblioserver:
+          1: Title-uniform
+        authorityserver:
           1: Title-uniform
       enabled: 1
       index: uniform
