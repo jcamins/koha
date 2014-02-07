@@ -1,3 +1,4 @@
+[% USE Branches %]
 [% INCLUDE 'doc-head-open.inc' %]
 <title>Koha &rsaquo; Reports &rsaquo; Items with no checkouts</title>
 [% INCLUDE 'doc-head-close.inc' %]
@@ -65,21 +66,14 @@
 			</tr>
 				[% IF ( looptable.looprow ) %]
 				[% FOREACH loopro IN looptable.looprow %]
-				[% DEFAULT
-                    loopro.itemcallnumber="No call number"
-                    loopro.barcode="No barcode"
-				    loopro.title="NO TITLE"
-				    loopro.author=""
-				%]
 				    [% UNLESS ( loop.odd ) %]<tr class="highlight">
 		                    [% ELSE %]<tr>[% END %]
 		    
 						<td>[% loop.count %]</td>
-						<td>[% loopro.itemcallnumber %]</td>
-						<td>[% loopro.barcode %]</td>
- 						<td><p><a href="/cgi-bin/koha/catalogue/detail.pl?biblionumber=[% loopro.biblionumber %]">[% loopro.title %]</a></p>
-							[% loopro.author %]
-							[% IF ( loopro.branch ) %]at [% loopro.branch %][% END %]
+                        <td>[% IF ( loopro.itemcallnumber ) %][% loopro.itemcallnumber %][% ELSE %]No call number[% END %]</td>
+                        <td>[% IF ( loopro.barcode ) %][% loopro.barcode %][% ELSE %]No barcode[% END %]</td>
+                        <td><p><a href="/cgi-bin/koha/catalogue/detail.pl?biblionumber=[% loopro.biblionumber %]">[% IF ( loopro.title ) %][% loopro.title %][% ELSE %]NO TITLE[% END %]</a> [% IF ( loopro.author ) %] by [% loopro.author %][% END %]</p>
+                            [% IF ( loopro.branch ) %]at [% Branches.GetName( loopro.branch ) %][% END %]
 						</td>
 					</tr>
 				[% END %]
@@ -100,8 +94,12 @@
 	<select name="Filter" id="branch">
         <option value="">Any library</option>
     [% FOREACH branchloo IN branchloop %]
-        <option value="[% branchloo.value %]">[% branchloo.branchname %]</option>  
-     [% END %] 
+      [% IF ( branchloo.selected ) %]
+        <option value="[% branchloo.value %]" selected="selected">[% branchloo.branchname %]</option>
+      [% ELSE %]
+        <option value="[% branchloo.value %]">[% branchloo.branchname %]</option>
+      [% END %]
+    [% END %]
     </select></li>
       <li> 
         <label for="documenttype">Item type: </label><select name="Filter" id="documenttype">
@@ -117,21 +115,20 @@
 	<fieldset class="rows">
 	<legend>Limits</legend>
 		<ol>
-		<li><label for="numberlimit">Limit to: </label> <select name="Limit" id="numberlimit">
-						<option value ="" selected="selected">None</option>
-						<option value ="5"> 5</option>
-						<option value ="10">10</option>
-						<option value ="15">15</option>
-						<option value ="20">20</option>
-						<option value ="25">25</option>
-						<option value ="40">40</option>
-						<option value ="50">50</option>
-						<option value ="100">100</option>
-						<option value ="250">250</option>
-						<option value ="500">500</option>
-						<option value ="700">750</option>
-						<option value ="1000">1000</option>
-					</select></li>
+        <li>
+            <label for="numberlimit">Limit to: </label>
+            <select name="Limit" id="numberlimit">
+                <option value ="10">10</option>
+                <option value ="20">20</option>
+                <option value ="50">50</option>
+                <option value ="100">100</option>
+                <option value ="200">200</option>
+                <option value ="300">300</option>
+                <option value ="400">400</option>
+                <option value ="500">500</option>
+                <option value ="1000">1000</option>
+            </select>
+        </li>
 		<li><label for="criteria">By: </label><select name="Criteria" id="criteria">
 						<option value ="" selected="selected">None</option>
 						<option value ="homebranch">Library</option>
@@ -139,27 +136,12 @@
 					</select></li>
 		</ol>
 	</fieldset>
-<!-- FIXME: Not implemented
-	<fieldset class="rows">
-	<legend>Output</legend>
-<ol><li><label for="outputscreen">To screen into the browser: </label><input type="radio" checked="checked" name="output" id="outputscreen" value="screen" /> </li>
-    <li><label for="outputfile">To a file: </label><input type="radio" name="output" value="file" id="outputfile" disabled="disabled" />
-		<label class="inline" for="basename">Named: </label><input type="text" name="basename" id="basename" value="Export" />
-		<label class="inline" for="MIME">Into an application </label>
-        <select name="MIME" id="MIME">
-        [% FOREACH CGIextChoic IN CGIextChoice %]
-          <option value="[% CGIextChoic.type %]">[% CGIextChoic.type %]</option>
-        [% END %]
-        </select>
-        [% CGIsepChoice %]
-	</li>
-</ol>
-    </fieldset> -->
 
 	<fieldset class="action">
 	<input type="submit" value="Submit" />
 	<input type="hidden" name="report_name" value="[% report_name %]" />
-	<input type="hidden" name="do_it" value="1" />
+    <input type="hidden" name="do_it" value="1" />
+    <input type="hidden" name="output" value="screen" />
 	</fieldset>
 	</form>
 [% END %]

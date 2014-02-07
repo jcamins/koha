@@ -1,3 +1,4 @@
+[% USE Branches %]
 [% INCLUDE 'doc-head-open.inc' %]
 [% USE KohaDates %]
 <title>Koha &rsaquo; Serials [% biblionumber %]</title>
@@ -148,11 +149,11 @@
                         </td>
                         <td><a href="/cgi-bin/koha/serials/subscription-detail.pl?subscriptionid=[% subscription.subscriptionid %]" class="button" title="subscription detail">[% subscription.title |html %]</a>
                         </td>
-                        <td>[% IF ( subscription.notes ) %][% subscription.notes %][% END %]
+                        <td>[% IF ( subscription.publicnotes ) %][% subscription.publicnotes %][% END %]
                         [% IF ( subscription.internalnotes ) %]([% subscription.internalnotes %])[% END %]
                         </td>
                         <td>
-                          [% IF ( subscription.branchname ) %][% subscription.branchname %][% END %]
+                          [% IF ( subscription.branchcode ) %][% Branches.GetName( subscription.branchcode ) %][% END %]
                         </td>
                         <td>
                           [% IF ( subscription.callnumber ) %][% subscription.callnumber %][% END %]
@@ -234,7 +235,7 @@
                           [% IF ( subscription.internalnotes ) %]([% subscription.internalnotes %])[% END %]
                         </td>
                         <td>
-                          [% IF ( subscription.branchname ) %][% subscription.branchname %][% END %]
+                          [% IF ( subscription.branchcode ) %][% Branches.GetName( subscription.branchcode ) %][% END %]
                         </td>
                         <td>
                           [% IF ( subscription.callnumber ) %][% subscription.callnumber %][% END %]

@@ -1,3 +1,4 @@
+[% USE Koha %]
 [% USE KohaDates %]
 [% SET TagsShowEnabled = ( TagsEnabled && TagsShowOnDetail ) %]
 [% SET TagsInputEnabled = ( opacuserlogin && TagsEnabled && TagsInputOnDetail ) %]
@@ -911,7 +912,9 @@ YAHOO.util.Event.onContentReady("furtherm", function () {
     [% IF (SeparateHoldings) %]
         <li><a href="#otherholdings">Other holdings ( [% otheritemloop.size || 0 %] )</a></li>
     [% END %]
-<li id="tab_descriptions"> <a href="#descriptions">Title notes</a></li>
+[% IF ( MARCNOTES || notes || ( SyndeticsEnabled && SyndeticsSummary && SYNDETICS_SUMMARY )) %]
+    <li id="tab_descriptions"> <a href="#descriptions">Title notes</a></li>
+[% END %]
 [% IF ( SYNDETICS_TOC ) %]
     <li id="tab_toc"> <a href="#toc">TOC</a></li>
 [% END %]
@@ -946,7 +949,7 @@ YAHOO.util.Event.onContentReady("furtherm", function () {
         <a href="#subscriptions">Subscriptions</a>
     </li>
 [% END %]
-[% IF ( reviewson ) %]
+[% IF ( Koha.Preference( 'reviewson' ) == 1 ) %]
     <li id="tab_comments"><a href="#comments">Comments ( [% reviews.size || 0 %] )</a></li>
 [% END %]
 
@@ -1005,8 +1008,8 @@ YAHOO.util.Event.onContentReady("furtherm", function () {
 
 <div id="holdings">
 [% IF ( itemloop.size ) %]
-    [% IF ( lotsofitems ) %]
-	<p>This record has many physical items. <a href="/cgi-bin/koha/opac-detail.pl?biblionumber=[% biblionumber %]&amp;viewallitems=1#holdings">Click here to view them all.</a></p>
+    [% IF ( lotsofholdingsitems ) %]
+        <p>This record has many physical items. <a href="/cgi-bin/koha/opac-detail.pl?biblionumber=[% biblionumber %]&amp;viewallitems=1#holdings">Click here to view them all.</a></p>
     [% ELSE %]
         [% INCLUDE items_table items=itemloop tab="holdings" %]
     [% END %]
@@ -1041,13 +1044,19 @@ YAHOO.util.Event.onContentReady("furtherm", function () {
 [% IF (SeparateHoldings) %]
     <div id="otherholdings">
         [% IF (otheritemloop.size) %]
-            [% INCLUDE items_table items=otheritemloop tab="otherholdings" %]
+            [% IF lotsofothersholdingsitems %]
+                <p>This record has many physical items. <a href="/cgi-bin/koha/opac-detail.pl?biblionumber=[% biblionumber %]&amp;viewallitems=1#otherholdings">Click here to view them all.</a></p>
+            [% ELSE %]
+                [% INCLUDE items_table items=otheritemloop tab="otherholdings" %]
+            [% END %]
         [% ELSE %]
             No other items.
         [% END %]
         [% INCLUDE shelfbrowser tab='otherholdings' %]
     </div>
 [% END %]
+
+[% IF ( MARCNOTES || notes || ( SyndeticsEnabled && SyndeticsSummary && SYNDETICS_SUMMARY )) %]
 
 <div id="descriptions">
 <div class="content_set">
@@ -1075,6 +1084,8 @@ YAHOO.util.Event.onContentReady("furtherm", function () {
 
 </div>
 </div>
+
+[% END %]
 
 [% IF ( SyndeticsEnabled ) %]
 
@@ -1221,7 +1232,7 @@ YAHOO.util.Event.onContentReady("furtherm", function () {
 <!-- /Library Thing for Libraries Content -->
 
 
-[% IF ( reviewson ) %]
+[% IF ( Koha.Preference( 'reviewson' ) == 1 ) %]
 <div id="comments">
     <div id="newcomment"></div>
     [% IF ( reviews ) %]

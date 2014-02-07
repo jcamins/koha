@@ -60,7 +60,7 @@ overdue_notices.pl
    -max          <days>           maximum days overdue to deal with
    -library      <branchname>     only deal with overdues from this library (repeatable : several libraries can be given)
    -csv          <filename>       populate CSV file
-   -html         <filename>       Output html to file
+   -html         <directory>      Output html to a file in the given directory
    -itemscontent <list of fields> item information in templates
    -borcat       <categorycode>   category code that must be included
    -borcatout    <categorycode>   category code that must be excluded
@@ -113,6 +113,8 @@ overdues that could not be emailed are sent in CSV format to the admin.
 Produces html data. if patron does not have a mail address or
 -n (no mail) flag is set, an html file is generated in the specified
 directory. This can be downloaded or futher processed by library staff.
+The file will be called notices-YYYY-MM-DD.html and placed in the directory
+specified.
 
 =item B<-itemscontent>
 
@@ -568,8 +570,6 @@ END_SQL
                 if (@misses) {
                     $verbose and warn "The following terms were not matched and replaced: \n\t" . join "\n\t", @misses;
                 }
-                $letter->{'content'} =~ s/\<[^<>]*?\>//g;    # Now that we've warned about them, remove them.
-                $letter->{'content'} =~ s/\<[^<>]*?\>//g;    # 2nd pass for the double nesting.
 
                 if ( !$nomail && scalar @emails_to_use ) {
                     C4::Letters::EnqueueLetter(
@@ -688,7 +688,9 @@ sub parse_letter {
         $tables{'branches'} = $p;
     }
 
-    my $currency_format = GetCurrency()->{currency};
+    my $currencies = GetCurrency();
+    my $currency_format;
+    $currency_format = $currencies->{currency} if defined($currencies);
 
     my @item_tables;
     if ( my $i = $params->{'items'} ) {
@@ -761,7 +763,10 @@ sub prepare_letter_for_printing {
         }
     } elsif ( exists $params->{'outputformat'} && $params->{'outputformat'} eq 'html' ) {
       $return = "<pre>\n";
-      $return .= "$params->{'letter'}->{'content'}\n";
+      my $content = $params->{'letter'}->{'content'};
+      $content =~ s/\n/<br \/>/g;
+      $content =~ s/\r//g;
+      $return .= "$content\n";
       $return .= "\n</pre>\n";
     } else {
         $return .= "$params->{'letter'}->{'content'}\n";

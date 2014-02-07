@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 0.2\n"
 "POT-Creation-Date: 2013-07-17 10:24-0300\n"
-"PO-Revision-Date: 2013-01-21 14:42+0200\n"
+"PO-Revision-Date: 2013-11-30 18:01+0000\n"
 "Last-Translator: Luiza <lstachura@afm.edu.pl>\n"
 "Language-Team: American English <kde-i18n-doc@kde.org>\n"
 "Language: pl\n"
@@ -18,7 +18,8 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
 "|| n%100>=20) ? 1 : 2);\n"
-"X-Generator: Pootle 2.1.6\n"
+"X-Generator: Pootle 2.5.0\n"
+"X-POOTLE-MTIME: 1385834510.0\n"
 
 #. For the first occurrence,
 #. %1$s:  END 
@@ -274,7 +275,7 @@ msgstr "%s %s %s %s (%s)"
 #: opac-tmpl/ccsr/en/includes/masthead.inc:228
 #, c-format
 msgid "%s (related searches: %s%s%s). %s "
-msgstr "%s (powiązane wyszukiwania: %s%s%s). %s"
+msgstr "%s (powiązane wyszukiwania: %s%s%s). %s "
 
 #. %1$s:  ELSE 
 #. %2$s:  END 
@@ -364,9 +365,9 @@ msgstr "%s%s%s%s%s"
 
 #. %1$s:  END 
 #: opac-tmpl/ccsr/en/includes/top-bar.inc:66
-#, fuzzy, c-format
+#, c-format
 msgid "%sLog Out"
-msgstr "Wyloguj"
+msgstr "%sWyloguj"
 
 #: opac-tmpl/ccsr/en/includes/masthead.inc:227
 #, c-format
@@ -381,7 +382,7 @@ msgstr "Dodaj do schowka"
 #: opac-tmpl/ccsr/en/includes/masthead.inc:194
 #, c-format
 msgid "Advanced search"
-msgstr "Wyszukiwanie zaawansowane "
+msgstr "Wyszukiwanie zaawansowane"
 
 #: opac-tmpl/ccsr/en/includes/masthead.inc:180
 #, c-format
@@ -401,7 +402,7 @@ msgstr "Czy na pewno chcesz opróżnić swój schowek?"
 #. SCRIPT
 #: opac-tmpl/ccsr/en/includes/doc-head-close.inc:63
 msgid "Are you sure you want to remove the selected items?"
-msgstr "Czy na pewno chcesz usunąć zaznaczone pozycje?"
+msgstr "Czy na pewno chcesz usunąć zaznaczone egzemplarze?"
 
 #: opac-tmpl/ccsr/en/includes/masthead.inc:63
 #: opac-tmpl/ccsr/en/includes/masthead.inc:65
@@ -412,7 +413,7 @@ msgstr "Autor"
 #: opac-tmpl/ccsr/en/includes/masthead.inc:196
 #, c-format
 msgid "Authority search"
-msgstr ""
+msgstr "Wyszukiwanie hasła wzorcowego"
 
 #: opac-tmpl/ccsr/en/includes/masthead.inc:195
 #, c-format
@@ -435,6 +436,8 @@ msgstr "Schowek"
 msgid ""
 "Could not login, perhaps your Persona email does not match your Koha one"
 msgstr ""
+"Nie można zalogować, być może Twój e-mail nie jest zgodny z e-mailem w "
+"systemie Koha"
 
 #. SCRIPT
 #: opac-tmpl/ccsr/en/includes/doc-head-close.inc:63
@@ -474,7 +477,7 @@ msgstr "OK"
 #. OPTGROUP
 #: opac-tmpl/ccsr/en/includes/masthead.inc:113
 msgid "Groups"
-msgstr ""
+msgstr "Grupy"
 
 #. A
 #: opac-tmpl/ccsr/en/includes/masthead.inc:226
@@ -496,7 +499,7 @@ msgstr "W Twoim schowku"
 #. SCRIPT
 #: opac-tmpl/ccsr/en/includes/doc-head-close.inc:63
 msgid "Items in your cart: "
-msgstr "Pozycje w twoim schowku "
+msgstr "Egzemplarze w twoim schowku: "
 
 #. IMG
 #: opac-tmpl/ccsr/en/includes/masthead.inc:14
@@ -506,7 +509,7 @@ msgstr "Katalog Koha online"
 
 #: opac-tmpl/ccsr/en/includes/doc-head-close.inc:3
 msgid "Koha [% Version %]"
-msgstr "Koha [% Version %]"
+msgstr "Koha [% Wersja %]"
 
 #: opac-tmpl/ccsr/en/includes/opac-bottom.inc:44
 #, c-format
@@ -515,9 +518,8 @@ msgstr "Języki:&nbsp;"
 
 #. OPTGROUP
 #: opac-tmpl/ccsr/en/includes/masthead.inc:106
-#, fuzzy
 msgid "Libraries"
-msgstr "Wszystkie biblioteki"
+msgstr "Biblioteki"
 
 #: opac-tmpl/ccsr/en/includes/masthead.inc:165
 #, c-format
@@ -564,13 +566,13 @@ msgstr "Brak zdjęcia okładki"
 #. SCRIPT
 #: opac-tmpl/ccsr/en/includes/doc-head-close.inc:63
 msgid "No item was added to your cart"
-msgstr "Nie dodane żadnej pozycji do schowka"
+msgstr "Nie dodano żadnego egzemplarza do schowka"
 
 #. For the first occurrence,
 #. SCRIPT
 #: opac-tmpl/ccsr/en/includes/doc-head-close.inc:63
 msgid "No item was selected"
-msgstr "Nie wybrano żadnej pozycji"
+msgstr "Nie wybrano żadnego egzemplarza"
 
 #: opac-tmpl/ccsr/en/includes/top-bar.inc:40
 #, c-format
@@ -598,8 +600,8 @@ msgid ""
 "Note: you can only tag an item with a given term once. Check 'My Tags' to "
 "see your current tags."
 msgstr ""
-"Uwaga: konkretny tag może być przypisany do danej pozycji tylko raz. Sprawdź "
-"\"Moje tagi\", aby zobaczyć swoje aktualne tagi."
+"Uwaga: konkretny tag może być przypisany do danego egzemplarza tylko raz. "
+"Sprawdź \"Moje tagi\", aby zobaczyć swoje aktualne tagi."
 
 #. SCRIPT
 #: opac-tmpl/ccsr/en/includes/doc-head-close.inc:63
@@ -696,17 +698,17 @@ msgstr "Dodane tagi: "
 #. SCRIPT
 #: opac-tmpl/ccsr/en/includes/doc-head-close.inc:63
 msgid "This item has been added to your cart"
-msgstr "Pozycję dodano do schowka"
+msgstr "Egzemplarz dodano do schowka"
 
 #. SCRIPT
 #: opac-tmpl/ccsr/en/includes/doc-head-close.inc:63
 msgid "This item has been removed from your cart"
-msgstr "Pozycję usunięto ze schowka"
+msgstr "Egzemplarz usunięto ze schowka"
 
 #. SCRIPT
 #: opac-tmpl/ccsr/en/includes/doc-head-close.inc:63
 msgid "This item is already in your cart"
-msgstr "Pozycja znajduje się już w Twoim schowku"
+msgstr "Egzemplarz znajduje się już w Twoim schowku"
 
 #: opac-tmpl/ccsr/en/includes/masthead.inc:58
 #: opac-tmpl/ccsr/en/includes/masthead.inc:60
@@ -774,6 +776,9 @@ msgid ""
 "absolutely in this theme, it it makes the positioning of the rest of the "
 "elements easier to keep it out of the doc3 div. %%] %s "
 msgstr ""
+"[%%# Sticking the div for the top bar here; since the top bar is positioned "
+"absolutely in this theme, it it makes the positioning of the rest of the "
+"elements easier to keep it out of the doc3 div. %%] %s "
 
 #: opac-tmpl/ccsr/en/includes/top-bar.inc:41
 #, c-format
@@ -803,7 +808,7 @@ msgstr "zmień hasło"
 #. SCRIPT
 #: opac-tmpl/ccsr/en/includes/doc-head-close.inc:63
 msgid "item(s) added to your cart"
-msgstr "pozycję(-i/-e) dodano do schowka"
+msgstr "egzemplarz(e) dodano do schowka"
 
 #: opac-tmpl/ccsr/en/includes/usermenu.inc:6
 #, c-format
@@ -818,7 +823,7 @@ msgstr "moje listy"
 #: opac-tmpl/ccsr/en/includes/usermenu.inc:30
 #, c-format
 msgid "my messaging"
-msgstr "moje wiadomości"
+msgstr "Wiadomości"
 
 #: opac-tmpl/ccsr/en/includes/usermenu.inc:8
 #, c-format

@@ -352,6 +352,7 @@ sub get_template_and_user {
             AllowMultipleCovers         => C4::Context->preference('AllowMultipleCovers'),
             EnableBorrowerFiles         => C4::Context->preference('EnableBorrowerFiles'),
             UseKohaPlugins              => C4::Context->preference('UseKohaPlugins'),
+            UseCourseReserves            => C4::Context->preference("UseCourseReserves"),
         );
     }
     else {
@@ -381,7 +382,7 @@ sub get_template_and_user {
             AnonSuggestions           => "" . C4::Context->preference("AnonSuggestions"),
             AuthorisedValueImages     => C4::Context->preference("AuthorisedValueImages"),
             BranchesLoop              => GetBranchesLoop($opac_name),
-            BranchCategoriesLoop      => GetBranchCategories( undef, undef, 1, $opac_name ),
+            BranchCategoriesLoop      => GetBranchCategories( 'searchdomain', 1, $opac_name ),
             CalendarFirstDayOfWeek    => (C4::Context->preference("CalendarFirstDayOfWeek") eq "Sunday")?0:1,
             LibraryName               => "" . C4::Context->preference("LibraryName"),
             LibraryNameTitle          => "" . $LibraryNameTitle,
@@ -391,7 +392,6 @@ sub get_template_and_user {
             OpacHighlightedWords      => C4::Context->preference("OpacHighlightedWords"),
             OPACItemHolds             => C4::Context->preference("OPACItemHolds"),
             OPACShelfBrowser          => "". C4::Context->preference("OPACShelfBrowser"),
-            OpacShowRecentComments    => C4::Context->preference("OpacShowRecentComments"),
             OPACURLOpenInNewWindow    => "" . C4::Context->preference("OPACURLOpenInNewWindow"),
             OPACUserCSS               => "". C4::Context->preference("OPACUserCSS"),
             OPACMobileUserCSS         => "". C4::Context->preference("OPACMobileUserCSS"),
@@ -431,13 +431,11 @@ sub get_template_and_user {
             opacsmallimage            => "" . C4::Context->preference("opacsmallimage"),
             opacuserjs                => C4::Context->preference("opacuserjs"),
             opacuserlogin             => "" . C4::Context->preference("opacuserlogin"),
-            reviewson                 => C4::Context->preference("reviewson"),
             ShowReviewer              => C4::Context->preference("ShowReviewer"),
             ShowReviewerPhoto         => C4::Context->preference("ShowReviewerPhoto"),
             suggestion                => "" . C4::Context->preference("suggestion"),
             virtualshelves            => "" . C4::Context->preference("virtualshelves"),
             OPACSerialIssueDisplayCount => C4::Context->preference("OPACSerialIssueDisplayCount"),
-            OpacAddMastheadLibraryPulldown => C4::Context->preference("OpacAddMastheadLibraryPulldown"),
             OPACXSLTDetailsDisplay           => C4::Context->preference("OPACXSLTDetailsDisplay"),
             OPACXSLTResultsDisplay           => C4::Context->preference("OPACXSLTResultsDisplay"),
             SyndeticsClientCode          => C4::Context->preference("SyndeticsClientCode"),
@@ -623,6 +621,7 @@ sub checkauth {
     # This parameter is the name of the CAS server we want to authenticate against,
     # when using authentication against multiple CAS servers, as configured in Auth_cas_servers.yaml
     my $casparam = $query->param('cas');
+    my $q_userid = $query->param('userid') // '';
 
     if ( $userid = $ENV{'REMOTE_USER'} ) {
             # Using Basic Authentication, no cookies required
@@ -642,9 +641,11 @@ sub checkauth {
         my $session = get_session($sessionID);
         C4::Context->_new_userenv($sessionID);
         my ($ip, $lasttime, $sessiontype);
+        my $s_userid = '';
         if ($session){
+            $s_userid = $session->param('id') // '';
             C4::Context::set_userenv(
-                $session->param('number'),       $session->param('id'),
+                $session->param('number'),       $s_userid,
                 $session->param('cardnumber'),   $session->param('firstname'),
                 $session->param('surname'),      $session->param('branch'),
                 $session->param('branchname'),   $session->param('flags'),
@@ -657,14 +658,14 @@ sub checkauth {
             $debug and printf STDERR "AUTH_SESSION: (%s)\t%s %s - %s\n", map {$session->param($_)} qw(cardnumber firstname surname branch) ;
             $ip       = $session->param('ip');
             $lasttime = $session->param('lasttime');
-            $userid   = $session->param('id');
+            $userid   = $s_userid;
             $sessiontype = $session->param('sessiontype') || '';
         }
-        if ( ( ($query->param('koha_login_context')) && ($query->param('userid') ne $session->param('id')) )
+        if ( ( $query->param('koha_login_context') && ($q_userid ne $s_userid) )
           || ( $cas && $query->param('ticket') ) ) {
             #if a user enters an id ne to the id in the current session, we need to log them in...
             #first we need to clear the anonymous session...
-            $debug and warn "query id = " . $query->param('userid') . " but session id = " . $session->param('id');
+            $debug and warn "query id = $q_userid but session id = $s_userid";
             $session->flush;      
             $session->delete();
             C4::Context->_unset_userenv($sessionID);
@@ -684,7 +685,7 @@ sub checkauth {
         logout_cas($query);
         }
         }
-        elsif ( $lasttime < time() - $timeout ) {
+        elsif ( !$lasttime || ($lasttime < time() - $timeout) ) {
             # timed logout
             $info{'timed_out'} = 1;
             $session->delete() if $session;
@@ -732,11 +733,16 @@ sub checkauth {
             -value    => $session->id,
             -HttpOnly => 1
         );
-    $userid = $query->param('userid');
+        $userid = $q_userid;
+        my $pki_field = C4::Context->preference('AllowPKIAuth');
+        if (! defined($pki_field) ) {
+            print STDERR "ERROR: Missing system preference AllowPKIAuth.\n";
+            $pki_field = 'None';
+        }
         if (   ( $cas && $query->param('ticket') )
             || $userid
-            || ( my $pki_field = C4::Context->preference('AllowPKIAuth') ) ne
-            'None' || $persona )
+            || $pki_field ne 'None'
+            || $persona )
         {
             my $password = $query->param('password');
 
@@ -807,7 +813,7 @@ sub checkauth {
                 my $retuserid;
                 ( $return, $cardnumber, $retuserid ) =
                   checkpw( $dbh, $userid, $password, $query );
-                $userid = $retuserid if ( $retuserid ne '' );
+                $userid = $retuserid if ( $retuserid );
         }
         if ($return) {
                #_session_log(sprintf "%20s from %16s logged in  at %30s.\n", $userid,$ENV{'REMOTE_ADDR'},(strftime '%c', localtime));
@@ -973,6 +979,10 @@ sub checkauth {
         push @inputs, { name => $name, value => $value };
     }
 
+    my $LibraryNameTitle = C4::Context->preference("LibraryName");
+    $LibraryNameTitle =~ s/<(?:\/?)(?:br|p)\s*(?:\/?)>/ /sgi;
+    $LibraryNameTitle =~ s/<(?:[^<>'"]|'(?:[^']*)'|"(?:[^"]*)")*>//sg;
+
     my $template_name = ( $type eq 'opac' ) ? 'opac-auth.tmpl' : 'auth.tmpl';
     my $template = C4::Templates::gettemplate($template_name, $type, $query );
     $template->param(
@@ -984,7 +994,8 @@ sub checkauth {
         casAuthentication    => C4::Context->preference("casAuthentication"),
         suggestion           => C4::Context->preference("suggestion"),
         virtualshelves       => C4::Context->preference("virtualshelves"),
-        LibraryName          => C4::Context->preference("LibraryName"),
+        LibraryName          => "" . C4::Context->preference("LibraryName"),
+        LibraryNameTitle     => "" . $LibraryNameTitle,
         opacuserlogin        => C4::Context->preference("opacuserlogin"),
         OpacNav              => C4::Context->preference("OpacNav"),
         OpacNavRight         => C4::Context->preference("OpacNavRight"),
@@ -1020,6 +1031,14 @@ sub checkauth {
 
     $template->param( OpacPublic => C4::Context->preference("OpacPublic"));
     $template->param( loginprompt => 1 ) unless $info{'nopermission'};
+
+    if($type eq 'opac'){
+        my ($total, $pubshelves) = C4::VirtualShelves::GetSomeShelfNames(undef, 'MASTHEAD');
+        $template->param(
+            pubshelves     => $total->{pubtotal},
+            pubshelvesloop => $pubshelves,
+        );
+    }
 
     if ($cas) {
 

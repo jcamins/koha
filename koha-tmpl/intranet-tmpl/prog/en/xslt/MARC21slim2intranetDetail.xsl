@@ -618,7 +618,7 @@
         </span>
                 <xsl:variable name="f773">
                     <xsl:call-template name="chopPunctuation"><xsl:with-param name="chopString"><xsl:call-template name="subfieldSelect">
-                        <xsl:with-param name="codes">at</xsl:with-param>
+                        <xsl:with-param name="codes">a_t</xsl:with-param>
                     </xsl:call-template></xsl:with-param></xsl:call-template>
                 </xsl:variable>
             <xsl:choose>
@@ -744,7 +744,7 @@
         <xsl:text> </xsl:text>
                 <xsl:variable name="f780">
                     <xsl:call-template name="subfieldSelect">
-                        <xsl:with-param name="codes">at</xsl:with-param>
+                        <xsl:with-param name="codes">a_t</xsl:with-param>
                     </xsl:call-template>
                 </xsl:variable>
             <xsl:choose>
@@ -754,7 +754,7 @@
                     </a>
                 </xsl:when>
                 <xsl:otherwise>
-                    <a><xsl:attribute name="href">/cgi-bin/koha/catalogue/search.pl?q=<xsl:value-of select="translate($f780, '()', '')"/></xsl:attribute>
+                    <a><xsl:attribute name="href">/cgi-bin/koha/catalogue/search.pl?q=ti,phr:<xsl:value-of select="translate($f780, '()', '')"/></xsl:attribute>
                         <xsl:value-of select="translate($f780, '()', '')"/>
                     </a>
                 </xsl:otherwise>
@@ -805,7 +805,7 @@
         <xsl:text> </xsl:text>
                    <xsl:variable name="f785">
                     <xsl:call-template name="subfieldSelect">
-                        <xsl:with-param name="codes">at</xsl:with-param>
+                        <xsl:with-param name="codes">a_t</xsl:with-param>
                     </xsl:call-template>
                 </xsl:variable>
 
@@ -816,7 +816,7 @@
                     </a>
                 </xsl:when>
                 <xsl:otherwise>
-                    <a><xsl:attribute name="href">/cgi-bin/koha/catalogue/search.pl?q=<xsl:value-of select="translate($f785, '()', '')"/></xsl:attribute>
+                    <a><xsl:attribute name="href">/cgi-bin/koha/catalogue/search.pl?q=ti,phr:<xsl:value-of select="translate($f785, '()', '')"/></xsl:attribute>
                         <xsl:value-of select="translate($f785, '()', '')"/>
                     </a>
                 </xsl:otherwise>

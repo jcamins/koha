@@ -26,7 +26,6 @@ use C4::Context;
 use C4::Members qw(AddMember changepassword);
 use C4::Members::Attributes;
 use C4::Members::AttributeTypes;
-use C4::Utils qw( :all );
 use List::MoreUtils qw( any );
 use Net::LDAP;
 use Net::LDAP::Filter;
@@ -170,29 +169,25 @@ sub checkpw_ldap {
    } else {
         return 0;   # B2, D2
     }
-	if (C4::Context->preference('ExtendedPatronAttributes') && $borrowernumber && ($config{update} ||$config{replicate})) {
-        my $extended_patron_attributes;
+    if (C4::Context->preference('ExtendedPatronAttributes') && $borrowernumber && ($config{update} ||$config{replicate})) {
+        my @extended_patron_attributes;
         foreach my $attribute_type ( C4::Members::AttributeTypes::GetAttributeTypes() ) {
-                my $code = $attribute_type->{code};
-                if ( exists($borrower{$code}) && $borrower{$code} !~ m/^\s*$/ ) { # skip empty values
-                        push @$extended_patron_attributes, { code => $code, value => $borrower{$code} };
-                }
+            my $code = $attribute_type->{code};
+            if ( exists($borrower{$code}) && $borrower{$code} !~ m/^\s*$/ ) { # skip empty values
+                push @extended_patron_attributes, { code => $code, value => $borrower{$code} };
+            }
         }
-		my @errors;
-		#Check before add
-		for (my $i; $i< scalar(@$extended_patron_attributes)-1;$i++) {
-			my $attr=$extended_patron_attributes->[$i];
-			unless (C4::Members::Attributes::CheckUniqueness($attr->{code}, $attr->{value}, $borrowernumber)) {
-				unshift @errors, $i;
-				warn "ERROR_extended_unique_id_failed $attr->{code} $attr->{value}";
-			}
-		}
-		#Removing erroneous attributes
-		foreach my $index (@errors){
-			@$extended_patron_attributes=splice(@$extended_patron_attributes,$index,1);
-		}
-           C4::Members::Attributes::SetBorrowerAttributes($borrowernumber, $extended_patron_attributes);
-  	}
+        #Check before add
+        my @unique_attr;
+        foreach my $attr ( @extended_patron_attributes ) {
+            if (C4::Members::Attributes::CheckUniqueness($attr->{code}, $attr->{value}, $borrowernumber)) {
+                push @unique_attr, $attr;
+            } else {
+                warn "ERROR_extended_unique_id_failed $attr->{code} $attr->{value}";
+            }
+        }
+        C4::Members::Attributes::SetBorrowerAttributes($borrowernumber, \@unique_attr);
+    }
 return(1, $cardnumber, $userid);
 }
 
@@ -207,10 +202,8 @@ sub ldap_entry_2_hash {
 	my %memberhash;
 	$userldapentry->exists('uid');	# This is bad, but required!  By side-effect, this initializes the attrs hash. 
 	if ($debug) {
-		print STDERR "\nkeys(\%\$userldapentry) = " . join(', ', keys %$userldapentry), "\n", $userldapentry->dump();
 		foreach (keys %$userldapentry) {
 			print STDERR "\n\nLDAP key: $_\t", sprintf('(%s)', ref $userldapentry->{$_}), "\n";
-			hashdump("LDAP key: ",$userldapentry->{$_});
 		}
 	}
 	my $x = $userldapentry->{attrs} or return;

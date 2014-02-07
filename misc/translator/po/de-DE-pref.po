@@ -1,18 +1,19 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
+"Project-Id-Version: Koha 3.12\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2013-05-16 03:26+0200\n"
-"PO-Revision-Date: 2013-06-16 14:20+0000\n"
+"PO-Revision-Date: 2013-12-18 11:20+0000\n"
 "Last-Translator: Katrin <katrin.fischer@bsz-bw.de>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language-Team: Koha Translation Team <koha-translate@lists.koha-community.org>\n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Pootle 2.5.0\n"
-"X-POOTLE-MTIME: 1371392437.0\n"
+"X-POOTLE-MTIME: 1387365624.0\n"
+"X-Poedit-SourceCharset: utf-8\n"
 
 # Acquisitions
 msgid "acquisitions.pref"
@@ -148,7 +149,7 @@ msgstr "den Namen"
 
 # Administration > CAS Authentication
 msgid "admin.pref#AllowPkiAuth# the emailAddress"
-msgstr "die Emailadresse"
+msgstr "die E-Mail-Adresse"
 
 # Administration > Login options
 msgid "admin.pref#AutoLocation# Don't require"
@@ -200,7 +201,7 @@ msgstr "Verwende"
 
 # Administration > Interface options
 msgid "admin.pref#KohaAdminEmailAddress# as the email address for the administrator of Koha. (This is the default From: address for emails unless there is one for the particular library, and is referred to when an internal error occurs.)"
-msgstr "als Emailadresse für den Systemadministrator von Koha. (Sie wird als Absenderadresse für Emails verwendet, wenn keine Emailadresse für die Bibliothek konfiguriert wurde, oder wenn ein interner Fehler auftritt.)"
+msgstr "als E-Mail-Adresse für den Systemadministrator von Koha. (Sie wird als Absenderadresse für E-Mails verwendet, wenn keine E-Mail-Adresse für die Bibliothek konfiguriert wurde, oder wenn ein interner Fehler auftritt.)"
 
 # Administration > Mozilla Persona
 msgid "admin.pref#Persona# Allow"
@@ -284,7 +285,7 @@ msgstr "Trenne einzelne Spalten in exportierten Reports mit"
 
 # Administration > Interface options
 msgid "admin.pref#delimiter# backslashes"
-msgstr "umgekehrten Schrägstichen (\\)"
+msgstr "umgekehrten Schrägstichen (Backslashes)"
 
 # Administration > Interface options
 msgid "admin.pref#delimiter# by default."
@@ -795,8 +796,8 @@ msgid "cataloguing.pref#item-level_itypes# Use the item type of the"
 msgstr "Verwende den Medientyp des"
 
 # Cataloging > Record Structure
-msgid "cataloguing.pref#item-level_itypes# as the authoritative item type (for determining circulation and fines rules, etc)."
-msgstr "als den maßgeblichen Medientyp (für die Bestimmung von Ausleih- und Gebührenregeln etc.)"
+msgid "cataloguing.pref#item-level_itypes# as the authoritative item type (for determining circulation and fines rules, for displaying an item type icon on either opac detail or results page, etc)."
+msgstr " als ausschlaggebenden Medientyp (für die Ermittlung von Ausleihkonditionen, für die Anzeige des Medientypicons im OPAC und der Trefferliste, etc.)."
 
 # Cataloging > Record Structure
 msgid "cataloguing.pref#item-level_itypes# biblio record"
@@ -1396,7 +1397,7 @@ msgstr "dass Benutzer die Bibliothek auswählen, in der Sie eine Vormerkung abho
 
 # Circulation > Checkout Policy
 msgid "circulation.pref#OverdueNoticeBcc# Send all notices as a BCC to this email address"
-msgstr "Benachrichtigungen als BCC an diese Email-Adresse schicken"
+msgstr "Benachrichtigungen als BCC an diese E-Mail-Adresse schicken"
 
 # Circulation > Checkout Policy
 msgid "circulation.pref#OverduesBlockCirc# Ask for confirmation"
@@ -1784,7 +1785,7 @@ msgstr "Aktiviere"
 
 # Circulation > Holds Policy
 msgid "circulation.pref#emailLibrarianWhenHoldIsPlaced# sending an email to the Koha administrator email address whenever a hold request is placed."
-msgstr "den Versand von Emails an den Koha-Administrator, wenn eine Vormerkung gesetzt wurde."
+msgstr "den Versand von E-Mails an den Koha-Administrator, wenn eine Vormerkung gesetzt wurde."
 
 # Circulation > Fines Policy
 msgid "circulation.pref#finesCalendar# Calculate fines based on days overdue"
@@ -1800,7 +1801,7 @@ msgstr "ohne die Schließtage."
 
 # Circulation > Fines Policy
 msgid "circulation.pref#finesMode# Calculate (but only for mailing to the admin)"
-msgstr "Berechne (aber nur für Email an den Administrator)"
+msgstr "Berechne (aber nur für E-Mail an den Administrator)"
 
 # Circulation > Fines Policy
 msgid "circulation.pref#finesMode# Calculate and charge"
@@ -2884,7 +2885,7 @@ msgstr "Zeige"
 
 # OPAC > Appearance
 msgid "opac.pref#AuthorisedValueImages# images for <a href=\"/cgi-bin/koha/admin/authorised_values.pl\">authorized values</a> (such as lost statuses and locations) in search results and item detail pages on the OPAC."
-msgstr "Grafiken für Normierte Werte (z.B. Verloren-Status und Standorte) in den Trefferlisten und Volltitelansichten des OPACs."
+msgstr "Grafiken für <a href=\"/cgi-bin/koha/admin/authorised_values.pl\">Normierte Werte</a> (z.B. Verloren-Status und Standorte) in den Trefferlisten und Volltitelansichten des OPACs."
 
 # OPAC > Appearance
 msgid "opac.pref#BiblioDefaultView# By default, show bib records"
@@ -2971,8 +2972,8 @@ msgid "opac.pref#LibraryName# as the name of the library on the OPAC."
 msgstr "als Bibliotheksnamen im OPAC."
 
 # OPAC > Appearance
-msgid "opac.pref#OPACBaseURL# . (This must be filled in correctly for RSS, unAPI, and search plugins to work.)"
-msgstr ". (Dieser Parameter muss korrekt ausgefüllt werden, damit RSS, unAPI und Such-Plugins korrekt funktionieren)"
+msgid "opac.pref#OPACBaseURL# . Do not include a trailing slash in the URL. (This must be filled in correctly for RSS, unAPI, and search plugins to work.)"
+msgstr "Geben Sie die URL ohne abschließenden Schrägstrich an. (Dieses Feld muss ausgefüllt sein, damit RSS, unAPI und die Suchplugins korrekt funktionieren.)"
 
 # OPAC > Appearance
 msgid "opac.pref#OPACBaseURL# The OPAC is located at http://"
@@ -3632,7 +3633,7 @@ msgstr "Erfordere,"
 
 # OPAC > Self Registration
 msgid "opac.pref#PatronSelfRegistrationVerifyByEmail# that a self-registering patron verify his or herself via email."
-msgstr "dass Benutzer, die online ein Konto eröffnen, sich über Email verifizieren."
+msgstr "dass Benutzer, die online ein Konto eröffnen, sich über E-Mail verifizieren."
 
 # OPAC > Features
 msgid "opac.pref#QuoteOfTheDay# Disable"
@@ -3944,7 +3945,7 @@ msgstr "Verschicke"
 
 # Patrons
 msgid "patrons.pref#AutoEmailOpacUser# an email to newly created patrons with their account details."
-msgstr "eine Email mit ihren Kontendaten an neu angelegte Benutzer."
+msgstr "eine E-Mail mit ihren Kontendaten an neu angelegte Benutzer."
 
 # Patrons
 msgid "patrons.pref#AutoEmailPrimaryAddress# Use"
@@ -3952,7 +3953,7 @@ msgstr "Verwende"
 
 # Patrons
 msgid "patrons.pref#AutoEmailPrimaryAddress# alternate"
-msgstr "die 2. Emailadresse"
+msgstr "die 2. E-Mail-Adresse"
 
 # Patrons
 msgid "patrons.pref#AutoEmailPrimaryAddress# cardnumber as"
@@ -3960,19 +3961,19 @@ msgstr "die Ausweisnummer"
 
 # Patrons
 msgid "patrons.pref#AutoEmailPrimaryAddress# first valid"
-msgstr "die erste gültige Emailadresse"
+msgstr "die erste gültige E-Mail-Adresse"
 
 # Patrons
 msgid "patrons.pref#AutoEmailPrimaryAddress# home"
-msgstr "die 1. Emailadresse"
+msgstr "die 1. E-Mail-Adresse"
 
 # Patrons
 msgid "patrons.pref#AutoEmailPrimaryAddress# patron email address for sending out emails."
-msgstr "Emailadresse eines Benutzers für den Versand von Benachrichtigungen."
+msgstr "E-Mail-Adresse eines Benutzers für den Versand von Benachrichtigungen."
 
 # Patrons
 msgid "patrons.pref#AutoEmailPrimaryAddress# work"
-msgstr "die weitere Emailadresse"
+msgstr "die weitere E-Mail-Adresse"
 
 # Patrons
 msgid "patrons.pref#BorrowerMandatoryField# (separate columns with |)"
@@ -4823,8 +4824,8 @@ msgid "staff_client.pref#intranetuserjs# Include the following JavaScript on all
 msgstr "Verwende das folgende Javascript auf allen Seiten der Dienstoberfläche:"
 
 # Staff Client > Appearance
-msgid "staff_client.pref#staffClientBaseURL# ."
-msgstr "."
+msgid "staff_client.pref#staffClientBaseURL# . Do not include a trailing slash in the URL."
+msgstr "Geben Sie die URL ohne abschließenden Schrägstrich an."
 
 # Staff Client > Appearance
 msgid "staff_client.pref#staffClientBaseURL# The staff client is located at http://"
@@ -4920,7 +4921,7 @@ msgstr "IP-Adressen, denen der Zugriff auf den ILS-DI Service erlaubt ist"
 
 # Web services > OAI-PMH
 msgid "web_services.pref#OAI-PMH# <a href=\"http://www.openarchives.org/pmh/\">OAI-PMH</a> server."
-msgstr "<a href=\"http://www.openarchives.org/pmh/\">OAI-PMH Server</a<"
+msgstr "<a href=\"http://www.openarchives.org/pmh/\">OAI-PMH Server</a>."
 
 # Web services > OAI-PMH
 msgid "web_services.pref#OAI-PMH# Disable"

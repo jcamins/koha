@@ -25,8 +25,8 @@ use strict;
 
 use C4::Context;
 use C4::Branch qw(GetBranchesCount);
+use Koha::DateUtils qw(dt_from_string);
 use Memoize;
-use DateTime;
 use DateTime::Format::MySQL;
 use autouse 'Data::Dumper' => qw(Dumper);
 
@@ -174,16 +174,16 @@ build a HTML select with the following code :
 
 =head3 in TEMPLATE
 
-    <form action='<!-- TMPL_VAR name="script_name" -->' method=post>
-        <select name="itemtype">
-            <option value="">Default</option>
-        <!-- TMPL_LOOP name="itemtypeloop" -->
-            <option value="<!-- TMPL_VAR name="itemtype" -->" <!-- TMPL_IF name="selected" -->selected<!-- /TMPL_IF -->> <!--TMPL_IF Name="imageurl"--><img alt="<!-- TMPL_VAR name="description" -->" src="<!--TMPL_VAR Name="imageurl"-->><!--TMPL_ELSE-->"<!-- TMPL_VAR name="description" --><!--/TMPL_IF--></option>
-        <!-- /TMPL_LOOP -->
-        </select>
-        <input type=text name=searchfield value="<!-- TMPL_VAR name="searchfield" -->">
-        <input type="submit" value="OK" class="button">
-    </form>
+    <select name="itemtype" id="itemtype">
+        <option value=""></option>
+        [% FOREACH itemtypeloo IN itemtypeloop %]
+             [% IF ( itemtypeloo.selected ) %]
+                <option value="[% itemtypeloo.itemtype %]" selected="selected">[% itemtypeloo.description %]</option>
+            [% ELSE %]
+                <option value="[% itemtypeloo.itemtype %]">[% itemtypeloo.description %]</option>
+            [% END %]
+       [% END %]
+    </select>
 
 =cut
 
@@ -1064,7 +1064,11 @@ sub GetAuthorisedValues {
     if(@where_strings > 0) {
         $query .= " WHERE " . join(" AND ", @where_strings);
     }
-    $query .= " GROUP BY lib ORDER BY category, lib, lib_opac";
+    $query .= " GROUP BY lib";
+    $query .= ' ORDER BY category, ' . (
+                $opac ? 'COALESCE(lib_opac, lib)'
+                      : 'lib, lib_opac'
+              );
 
     my $sth = $dbh->prepare($query);
 
@@ -1466,7 +1470,10 @@ sub GetDailyQuote {
         # update the timestamp for that quote
         $query = 'UPDATE quotes SET timestamp = ? WHERE id = ?';
         $sth = C4::Context->dbh->prepare($query);
-        $sth->execute(DateTime::Format::MySQL->format_datetime(DateTime->now), $quote->{'id'});
+        $sth->execute(
+            DateTime::Format::MySQL->format_datetime( dt_from_string() ),
+            $quote->{'id'}
+        );
     }
     return $quote;
 }

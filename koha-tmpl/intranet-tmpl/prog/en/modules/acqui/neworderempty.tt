@@ -6,6 +6,7 @@
 <script type="text/javascript" src="[% themelang %]/js/acq.js"></script>
 [% INCLUDE 'additem.js.inc' %]
 <script type="text/javascript" src="[% themelang %]/js/additem.js"></script>
+<script type="text/javascript" src="[% themelang %]/js/cataloging.js"></script>
 <script type="text/javascript" src="[% themelang %]/js/prevent_submit.js"></script>
 <script type="text/javascript">
 //<![CDATA[
@@ -39,7 +40,7 @@ function Check(ff) {
     
     if(isNull(ff.budget_id,1)){
 		ok=1;
-					_alertString += "\n- "+ _("You must select a budget");
+        _alertString += "\n- "+ _("You must select a fund");
     }
 
     if (!(isNum(ff.quantity,0)) || ff.quantity.value == 0){
@@ -64,13 +65,7 @@ function Check(ff) {
     }
 
     if ( ff.field_value ) {
-        var empty_item_mandatory = 0;
-        for (i = 0; i < ff.field_value.length; i++) {
-            //alert("i = " + i + " => " + ff.kohafield[i] );
-            if (ff.field_value[i].value.length == 0 && ff.mandatory[i].value == 1) {
-                empty_item_mandatory++;
-            }
-        }
+        var empty_item_mandatory = CheckMandatorySubfields(ff);
         if (empty_item_mandatory > 0) {
             ok = 1;
             _alertString +=
@@ -389,7 +384,7 @@ $(document).ready(function()
       [% END %][%# UNLESS subscriptionid %]
     [% END %][%# IF (AcqCreateItemOrdering) %]
     <fieldset class="rows">
-        <legend>Accounting Details</legend>
+        <legend>Accounting details</legend>
         <ol>
             <li>
                 [% IF ( close ) %]
@@ -421,13 +416,13 @@ $(document).ready(function()
                 [% ELSE %]
                 <label class="required" for="budget_id">Fund: </label>
                 <select id="budget_id" onchange="fetchSortDropbox(this.form)" size="1" name="budget_id">
-                        <option value="">Select a budget</option>
+                        <option value="">Select a fund</option>
                 [% FOREACH budget_loo IN budget_loop %]
                     [% IF ( budget_loo.b_sel ) %]
                         <option value="[% budget_loo.b_id %]" selected="selected">[% budget_loo.b_txt %]</option>
                     [% ELSE %]
                         [% IF ( budget_loo.b_active ) %]<option value="[% budget_loo.b_id %]">[% budget_loo.b_txt %]</option>
-                        [% ELSE %]<option value="[% budget_loo.b_id %]" class="b_inactive">[% budget_loo.b_txt %]</option>
+                        [% ELSE %]<option value="[% budget_loo.b_id %]" class="b_inactive">[% budget_loo.b_txt %] (inactive)</option>
                         [% END %]
                     [% END %]
                 [% END %]

@@ -751,7 +751,7 @@ sub _remove_stopwords {
     my @stopwords_removed;
 
     # phrase and exact-qualified indexes shouldn't have stopwords removed
-    if ( $index !~ m/phr|ext/ ) {
+    if ( $index !~ m/,(phr|ext)/ ) {
 
 # remove stopwords from operand : parse all stopwords & remove them (case insensitive)
 #       we use IsAlpha unicode definition, to deal correctly with diacritics.
@@ -1194,7 +1194,10 @@ sub parseQuery {
             next unless $operands[$ii];
             $query .= $operators[ $ii - 1 ] eq 'or' ? ' || ' : ' && '
               if ($query);
-            if ( $indexes[$ii] =~ m/su-/ ) {
+            if ( $operands[$ii] =~ /^[^"]\W*[-|_\w]*:\w.*[^"]$/ ) {
+                $query .= $operands[$ii];
+            }
+            elsif ( $indexes[$ii] =~ m/su-/ ) {
                 $query .= $indexes[$ii] . '(' . $operands[$ii] . ')';
             }
             else {
@@ -1287,7 +1290,7 @@ sub buildQuery {
 
     my $cclq       = 0;
     my $cclindexes = getIndexes();
-    if ( $query !~ /\s*ccl=/ ) {
+    if ( $query !~ /\s*(ccl=|pqf=|cql=)/ ) {
         while ( !$cclq && $query =~ /(?:^|\W)([\w-]+)(,[\w-]+)*[:=]/g ) {
             my $dx = lc($1);
             $cclq = grep { lc($_) eq $dx } @$cclindexes;
@@ -1393,7 +1396,7 @@ sub buildQuery {
 
                 # Set default structure attribute (word list)
                 my $struct_attr = q{};
-                unless ( $indexes_set || !$index || $index =~ /(st-|phr|ext|wrdl|nb|ns)/ ) {
+                unless ( $indexes_set || !$index || $index =~ /,(st-|phr|ext|wrdl)/ || $index =~ /^(nb|ns)$/ ) {
                     $struct_attr = ",wrdl";
                 }
 
@@ -1411,7 +1414,7 @@ sub buildQuery {
                 }
 
                 if ($auto_truncation){
-					unless ( $index =~ /(st-|phr|ext)/ ) {
+                        unless ( $index =~ /,(st-|phr|ext)/ ) {
 						#FIXME only valid with LTR scripts
 						$operand=join(" ",map{
 											(index($_,"*")>0?"$_":"$_*")
@@ -1687,7 +1690,9 @@ sub searchResults {
     while ( ( my $column ) = $sth2->fetchrow ) {
         my ( $tagfield, $tagsubfield ) =
           &GetMarcFromKohaField( "items." . $column, "" );
-        $subfieldstosearch{$column} = $tagsubfield;
+        if ( defined $tagsubfield ) {
+            $subfieldstosearch{$column} = $tagsubfield;
+        }
     }
 
     # handle which records to actually retrieve
@@ -1705,7 +1710,12 @@ sub searchResults {
 
     # loop through all of the records we've retrieved
     for ( my $i = $offset ; $i <= $times - 1 ; $i++ ) {
-        my $marcrecord = MARC::File::USMARC::decode( $marcresults->[$i] );
+        my $marcrecord = eval { MARC::File::USMARC::decode( $marcresults->[$i] ); };
+        if ( $@ ) {
+            warn "ERROR DECODING RECORD - $@: " . $marcresults->[$i];
+            next;
+        }
+
         my $fw = $scan
              ? undef
              : $bibliotag < 10
@@ -1946,23 +1956,17 @@ sub searchResults {
                     $item_onhold_count++     if $reservestatus eq 'Waiting';
                     $item->{status} = $item->{wthdrawn} . "-" . $item->{itemlost} . "-" . $item->{damaged} . "-" . $item->{notforloan};
 
-                    # can place hold on item ?
-                    if ( !$item->{itemlost} ) {
-                        if ( !$item->{wthdrawn} ){
-                            if ( $item->{damaged} ){
-                                if ( C4::Context->preference('AllowHoldsOnDamagedItems') ){
-                                    # can place a hold on a damaged item if AllowHoldsOnDamagedItems is true
-                                    if ( ( !$item->{notforloan} || $item->{notforloan} < 0 ) ){
-                                        # item is either for loan or has notforloan < 0
-                                        $can_place_holds = 1;
-                                    }
-                                }
-                            } elsif ( $item->{notforloan} < 0 ) {
-                                # item is not damaged and notforloan is < 0
-                                $can_place_holds = 1;
-                            }
-                        }
-                    }
+                    # can place a hold on a item if
+                    # not lost nor withdrawn
+                    # not damaged unless AllowHoldsOnDamagedItems is true
+                    # item is either for loan or on order (notforloan < 0)
+                    $can_place_holds = 1
+                      if (
+                           !$item->{itemlost}
+                        && !$item->{wthdrawn}
+                        && ( !$item->{damaged} || C4::Context->preference('AllowHoldsOnDamagedItems') )
+                        && ( !$item->{notforloan} || $item->{notforloan} < 0 )
+                      );
 
                     $other_count++;
 

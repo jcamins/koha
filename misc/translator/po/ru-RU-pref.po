@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: pref_ru_RU\n"
 "POT-Creation-Date: \n"
-"PO-Revision-Date: 2013-06-07 15:58+0000\n"
+"PO-Revision-Date: 2013-10-30 09:22+0000\n"
 "Last-Translator: Serhij <dubyk@ukr.net>\n"
 "Language-Team: Ukrainian Linux Team <translation@linux.org.ua>\n"
 "Language: ru\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 "X-Generator: Pootle 2.5.0\n"
 "X-Poedit-SourceCharset: utf-8\n"
-"X-POOTLE-MTIME: 1370620720.0\n"
+"X-POOTLE-MTIME: 1383124947.0\n"
 
 # Acquisitions
 msgid "acquisitions.pref"
@@ -44,7 +44,7 @@ msgstr "получении заказа."
 
 # Acquisitions > Policy
 msgid "acquisitions.pref#AcqViewBaskets# Show baskets"
-msgstr "Показывать пакеты"
+msgstr "Показывать корзины заказов"
 
 # Acquisitions > Policy
 msgid "acquisitions.pref#AcqViewBaskets# created by staff member."
@@ -60,7 +60,7 @@ msgstr "в системе, независимо от владельца."
 
 # Acquisitions > Policy
 msgid "acquisitions.pref#BasketConfirmations# When closing or reopening a basket,"
-msgstr "При закрытии или открытии заново полочки заказов, "
+msgstr "При закрытии или открытии заново корзины заказов, "
 
 # Acquisitions > Policy
 msgid "acquisitions.pref#BasketConfirmations# always ask for confirmation."
@@ -88,15 +88,15 @@ msgstr "Использовать "
 
 # Acquisitions > Printing
 msgid "acquisitions.pref#OrderPdfFormat# when printing basket groups."
-msgstr "при печати групп с корзины."
+msgstr "при печати групп корзин заказов."
 
 # Acquisitions > Policy
 msgid "acquisitions.pref#UniqueItemFields# (separated by a space)"
-msgstr ""
+msgstr " (отделять пробелом)"
 
 # Acquisitions > Policy
 msgid "acquisitions.pref#UniqueItemFields# The following <a href='http://schema.koha-community.org/tables/items.html' target='blank'>database columns</a> should be unique in an item:"
-msgstr ""
+msgstr "Следующие <a href='http://schema.koha-community.org/tables/items.html' target='blank'>столбцы базы данных</a> должны быть уникальными среди экземпляров: "
 
 # Acquisitions > Policy
 msgid "acquisitions.pref#gist# (enter in numeric form, 0.12 for 12%. First is the default. If you want more than 1 value, please separate with |)"
@@ -124,7 +124,7 @@ msgstr "Параметры входа"
 
 # Administration > Mozilla Persona
 msgid "admin.pref Mozilla Persona"
-msgstr ""
+msgstr "Аутентификация через Mozilla Persona"
 
 # Administration > Search Engine
 msgid "admin.pref Search Engine"
@@ -132,7 +132,7 @@ msgstr "Движок для поисков"
 
 # Administration > CAS Authentication
 msgid "admin.pref#AllowPkiAuth# Use"
-msgstr " "
+msgstr "Использовать "
 
 # Administration > CAS Authentication
 msgid "admin.pref#AllowPkiAuth# field for SSL client certificate authentication"
@@ -204,15 +204,15 @@ msgstr " в качестве адреса электронной почты ад
 
 # Administration > Mozilla Persona
 msgid "admin.pref#Persona# Allow"
-msgstr ""
+msgstr "Позволять"
 
 # Administration > Mozilla Persona
 msgid "admin.pref#Persona# Don't Allow"
-msgstr ""
+msgstr " аутентификацию с Mozilla Persona для входа."
 
 # Administration > Mozilla Persona
 msgid "admin.pref#Persona# Mozilla persona for login"
-msgstr ""
+msgstr " аутентификацию с Mozilla Persona для входа."
 
 # Administration > Search Engine
 msgid "admin.pref#SearchEngine# Solr"
@@ -604,11 +604,11 @@ msgstr "Когда создаются экземпляры, предоставл
 
 # Cataloging > Display
 msgid "cataloguing.pref#NotesBlacklist# Don't show these"
-msgstr ""
+msgstr "Не показывать эти "
 
 # Cataloging > Display
 msgid "cataloguing.pref#NotesBlacklist# note fields in title notes separator (OPAC record details) and in the description separator (Staff client record details). The fields should appear separated with commas and according with the Koha MARC format (eg 3.. for UNIMARC, 5.. for MARC21)"
-msgstr ""
+msgstr " поля примечаний во вкладке примечаний о заглавии (подробности биб-записи в ЭК) и во вкладке описаний (подробности биб-записи в библиотечном интерфейсе).  Поля должны отделятся запятыми и соответствовать МАРК-формату Коха (например, 3.. для UNIMARC, 5.. для MARC21)."
 
 # Cataloging > Display
 msgid "cataloguing.pref#OpacSuppression# (Leave blank if not used. Define a range like <code>192.168.</code>.)"
@@ -795,8 +795,8 @@ msgid "cataloguing.pref#item-level_itypes# Use the item type of the"
 msgstr "Использовать тип единицы "
 
 # Cataloging > Record Structure
-msgid "cataloguing.pref#item-level_itypes# as the authoritative item type (for determining circulation and fines rules, etc)."
-msgstr " как авторитетный тип единицы (для определения правил обращения, штрафов и т.п.)."
+msgid "cataloguing.pref#item-level_itypes# as the authoritative item type (for determining circulation and fines rules, for displaying an item type icon on either opac detail or results page, etc)."
+msgstr ""
 
 # Cataloging > Record Structure
 msgid "cataloguing.pref#item-level_itypes# biblio record"
@@ -812,7 +812,7 @@ msgstr "Отображать MARC-подполе "
 
 # Cataloging > Record Structure
 msgid "cataloguing.pref#itemcallnumber# to an item's callnumber. (This can contain multiple subfields to look in; for instance <code>082ab</code> would look in 082 subfields a and b.)<br />Examples: <strong>Dewey</strong>: <code>082ab</code> or <code>092ab</code>; <strong>LOC</strong>: <code>050ab</code> or <code>090ab</code>; <strong>from the item record</strong>: <code>852hi</code>"
-msgstr " в шифр хранения экземпляра. (Информация может включать несколько подполей, которые могут использоваться: например, при <code>680ab</code>будут просматриваться подполя «a» и «b» с <code>680</code>). Примеры:<br /> <strong>Дьюи</strong>: <code>676a</code>(Unimarc) / (<code>082ab</code> или <code>092ab</code>)(Marc21);<br /> <strong>УДК</strong>: <code>675a</code>(Unimarc);<br /> <strong>КБК</strong>:  <code>680ab</code>(Unimarc) / (<code>050ab</code> или <code>090ab</code>)(Marc21);<br /> <strong>ББК и др.</strong>:  <code>686abс</code>(Unimarc);<br /> <strong>с экземплярной записи</strong>: <code>852gkl</code>(Unimarc) / <code>852hi</code>(Marc21)"
+msgstr " в шифр хранения экземпляра. (Информация может включать несколько подполей, которые могут использоваться: например, при <code>680ab</code>будут просматриваться подполя «a» и «b» с <code>680</code>). Примеры:<br /> <strong>Дьюи</strong>: <code>676a</code>(Unimarc) / (<code>082ab</code> или <code>092ab</code>)(Marc21);<br /> <strong>УДК</strong>: <code>675a</code>(Unimarc);<br /> <strong>КБК</strong>:  <code>680ab</code>(Unimarc) / (<code>050ab</code> или <code>090ab</code>)(Marc21);<br /> <strong>ББК и др.</strong>:  <code>686abс</code>(Unimarc);<br /> <strong>с экземплярной записи</strong>: (<code>852gkl</code> или <code>852j</code> или <code>942hv</code> или <code>942j</code>)(Unimarc) / <code>852hi</code>(Marc21)"
 
 # Cataloging > Record Structure
 msgid "cataloguing.pref#marcflavour# Interpret and store MARC records in the"
@@ -2971,8 +2971,8 @@ msgid "opac.pref#LibraryName# as the name of the library on the OPAC."
 msgstr " в качестве названия библиотеки в электронном каталоге."
 
 # OPAC > Appearance
-msgid "opac.pref#OPACBaseURL# . (This must be filled in correctly for RSS, unAPI, and search plugins to work.)"
-msgstr "(это необходимо корректно заполнить для правильной работы RSS, unAPI и поисковых плагинов)"
+msgid "opac.pref#OPACBaseURL# . Do not include a trailing slash in the URL. (This must be filled in correctly for RSS, unAPI, and search plugins to work.)"
+msgstr ""
 
 # OPAC > Appearance
 msgid "opac.pref#OPACBaseURL# The OPAC is located at http://"
@@ -3220,15 +3220,15 @@ msgstr ""
 
 # OPAC > Features
 msgid "opac.pref#OPACpatronimages# Don't show"
-msgstr "opac.pref#OPACpatronimages# Ne pas afficher"
+msgstr ""
 
 # OPAC > Features
 msgid "opac.pref#OPACpatronimages# Show"
-msgstr "opac.pref#OPACpatronimages# Afficher"
+msgstr ""
 
 # OPAC > Features
 msgid "opac.pref#OPACpatronimages# patron images on the patron information page in the OPAC."
-msgstr "opac.pref#OPACpatronimages# les photos des adhérents sur la page des informations personnelles à l'OPAC."
+msgstr ""
 
 # OPAC > Appearance
 msgid "opac.pref#OpacAddMastheadLibraryPulldown# Add"
@@ -3316,11 +3316,11 @@ msgstr ""
 
 # OPAC > Appearance
 msgid "opac.pref#OpacExportOptions# <br />Note: Available options are: BIBTEX (<code>bibtex</code>), Dublin Core (<code>dc</code>),"
-msgstr "opac.pref#OpacExportOptions# <br />Note: les options disponibles sont: BIBTEX (<code>bibtex</code>), Dublin Core (<code>dc</code>),"
+msgstr ""
 
 # OPAC > Appearance
 msgid "opac.pref#OpacExportOptions# List export options that should be available from OPAC detail page separated by |:"
-msgstr "opac.pref#OpacExportOptions# Lister les options d'export qui seront disponibles depuis l'affichage détaillée de l'OPAC, en les séparant par |:"
+msgstr ""
 
 # OPAC > Appearance
 msgid "opac.pref#OpacExportOptions# MARCXML (<code>marcxml</code>), MARC-8 encoded MARC (<code>marc8</code>), Unicode/UTF-8 encoded MARC (<code>utf8</code>),"
@@ -3328,7 +3328,7 @@ msgstr ""
 
 # OPAC > Appearance
 msgid "opac.pref#OpacExportOptions# Unicode/UTF-8 encoded MARC without local use -9xx, x9x, xx9- fields and subfields (<code>marcstd</code>), MODS (<code>mods</code>), RIS (<code>ris</code>)"
-msgstr "opac.pref#OpacExportOptions# Unicode/UTF-8 encoded MARC without local use -9xx, x9x, xx9- fields and subfields (<code>marcstd</code>), MODS (<code>mods</code>), RIS (<code>ris</code>)"
+msgstr ""
 
 # OPAC > Appearance
 msgid "opac.pref#OpacFavicon# Use the image at"
@@ -4208,15 +4208,15 @@ msgstr "Поисковая форма"
 
 # Searching > Search Form
 msgid "searching.pref#AdvancedSearchTypes# <em>Currently supported values</em>: Item types (<strong>itemtypes</strong>), Collection Codes (<strong>ccode</strong>) and Shelving Location (<strong>loc</strong>)."
-msgstr "searching.pref#AdvancedSearchTypes# <em>Comprend actuellement les valeurs</em>: Item types (<strong>itemtypes</strong>), Collection Codes (<strong>ccode</strong>) and Shelving Location (<strong>loc</strong>)."
+msgstr "<em>В настоящее время поддерживаются значения</em>: типы единиц (<strong>itemtypes</strong>), виды собраний (<strong>ccode</strong>) и общее расположение полки (<strong>loc</strong>)."
 
 # Searching > Search Form
 msgid "searching.pref#AdvancedSearchTypes# Show tabs in OPAC and staff-side advanced search for limiting searches on the"
-msgstr "searching.pref#AdvancedSearchTypes# Affiche des onglets dans la recherche avancée de l'OPAC et l'interface proShow tabs pour limiter les recherche sur les champs"
+msgstr "Показывать в расширенном поиске (ЭК, рабочее место библиотекаря) вкладки для ограничения поиска по полям "
 
 # Searching > Search Form
 msgid "searching.pref#AdvancedSearchTypes# fields (separate values with |). Tabs appear in the order listed.<br/>"
-msgstr "searching.pref#AdvancedSearchTypes# (séparer les valeurs par |). Les onglets s'affichent dans l'ordre de la liste.<br/>"
+msgstr " (значения отделять «|»). Вкладки будут появляться в указанном порядке.<br/>"
 
 # Searching > Results Display
 msgid "searching.pref#FacetLabelTruncationLength# Truncate facets length to"
@@ -4823,7 +4823,7 @@ msgid "staff_client.pref#intranetuserjs# Include the following JavaScript on all
 msgstr "Включить следующий JavaScript-сценарий на всех страницах библиотечного интерфейса: "
 
 # Staff Client > Appearance
-msgid "staff_client.pref#staffClientBaseURL# ."
+msgid "staff_client.pref#staffClientBaseURL# . Do not include a trailing slash in the URL."
 msgstr ""
 
 # Staff Client > Appearance

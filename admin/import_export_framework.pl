@@ -21,10 +21,30 @@
 use strict;
 use warnings;
 use CGI;
+use CGI::Cookie;
 use C4::Context;
+use C4::Auth qw/check_cookie_auth/;
 use C4::ImportExportFramework;
 
+my %cookies = CGI::Cookie->fetch();
+my $authenticated = 0;
+my ($auth_status, $sessionID);
+if (exists $cookies{'CGISESSID'}) {
+    ($auth_status, $sessionID) = check_cookie_auth(
+        $cookies{'CGISESSID'}->value,
+        { parameters => 'parameters_remaining_permissions' },
+    );
+}
+if ($auth_status eq 'ok') {
+    $authenticated = 1;
+}
+
 my $input = new CGI;
+
+unless ($authenticated) {
+    print $input->header(-type => 'text/plain', -status => '403 Forbidden');
+    exit 0;
+}
 
 my $frameworkcode = $input->param('frameworkcode') || '';
 my $action = $input->param('action') || 'export';
@@ -37,10 +57,6 @@ if ($action eq 'export' && $input->request_method() eq 'GET') {
     if ($format eq 'csv') {
         # CSV file
         print $input->header(-type => 'application/vnd.ms-excel', -attachment => 'export_' . $frameworkcode . '.csv');
-        print $strXml;
-    } elsif ($format eq 'sql') {
-        # SQL file
-        print $input->header(-type => 'text/plain', -attachment => 'export_' . $frameworkcode . '.sql');
         print $strXml;
     } elsif ($format eq 'excel') {
         # Excel-xml file
@@ -59,7 +75,7 @@ if ($action eq 'export' && $input->request_method() eq 'GET') {
     my $fieldname = 'file_import_' . $frameworkcode;
     my $filename = $input->param($fieldname);
     # upload the input file
-    if ($filename && $filename =~ /\.(csv|ods|xml|sql)$/i) {
+    if ($filename && $filename =~ /\.(csv|ods|xml)$/i) {
         my $extension = $1;
         my $uploadFd = $input->upload($fieldname);
         if ($uploadFd && !$input->cgi_error) {

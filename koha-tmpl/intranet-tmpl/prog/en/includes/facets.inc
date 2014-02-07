@@ -8,14 +8,15 @@
 	</li>
 
 	[% FOREACH facets_loo IN facets_loop %]
+[% IF facets_loo.facets.size > 0 %]
 	<li id="[% facets_loo.type_id %]">
 [% facets_loo.type_label %]
-[% IF ( facets_loo.type_label_Authors ) %]Authors[% END %]
+[% IF ( facets_loo.type_label_Authors ) %]<span id = "facet-authors">Authors</span>[% END %]
 [% IF ( facets_loo.type_label_Titles ) %]Titles[% END %]
-[% IF ( facets_loo.type_label_Topics ) %]Topics[% END %]
-[% IF ( facets_loo.type_label_Places ) %]Places[% END %]
-[% IF ( facets_loo.type_label_Series ) %]Series[% END %]
-[% IF ( facets_loo.type_label_ItemTypes ) %]Item types[% END %]
+[% IF ( facets_loo.type_label_Topics ) %]<span id = "facet-topics">Topics</span>[% END %]
+[% IF ( facets_loo.type_label_Places ) %]<span id="facet-places">Places</span>[% END %]
+[% IF ( facets_loo.type_label_Series ) %]<span id="facet-series">Series</span>[% END %]
+[% IF ( facets_loo.type_label_ItemTypes ) %]<span id="facet-itemtypes">Item types</span>[% END %]
 [% IF ( facets_loo.type_label_Libraries ) %]Libraries[% END %]
 [% IF ( facets_loo.type_label_Location ) %]Locations[% END %]
 <ul>
@@ -23,6 +24,7 @@
         <li class="showmore"><a href="/cgi-bin/koha/catalogue/search.pl?[% query_cgi |html %][% limit_cgi |html %][% IF ( sort_by ) %]&amp;sort_by=[% sort_by %][% END %][% IF ( offset ) %]&amp;offset=[% offset %][% END %]&amp;expand=[% facets_loo.expand %]#[% facets_loo.type_id %]">Show more</a></li>
 [% END %]
 </ul></li>
+[% END %]
 [% END %]
 </ul>
 </div>

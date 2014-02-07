@@ -288,6 +288,7 @@ sub SendAlerts {
 
             # 		warn "sending issues...";
             my $userenv = C4::Context->userenv;
+            my $branchdetails = GetBranchDetail($_->{'branchcode'});
             my $letter = GetPreparedLetter (
                 module => 'serial',
                 letter_code => $letter_code,
@@ -304,7 +305,7 @@ sub SendAlerts {
             # ... then send mail
             my %mail = (
                 To      => $email,
-                From    => $email,
+                From    => $branchdetails->{'branchemail'} || C4::Context->preference("KohaAdminEmailAddress"),
                 Subject => Encode::encode( "utf8", "" . $letter->{title} ),
                 Message => Encode::encode( "utf8", "" . $letter->{content} ),
                 'Content-Type' => 'text/plain; charset="utf8"',
@@ -550,6 +551,7 @@ sub _substitute_tables {
             $sth->execute( $ref ? @$param : $param );
 
             $values = $sth->fetchrow_hashref;
+            $sth->finish();
         }
 
         _parseletter ( $letter, $table, $values );
@@ -611,7 +613,7 @@ sub _parseletter {
         my @waitingdate = split /-/, $values->{'waitingdate'};
 
         my $dt = dt_from_string();
-        $dt->add( days => C4::Context->preference('ReservesMaxPickUpDelay') );
+        $dt->add( days => C4::Context->preference('ReservesMaxPickUpDelay') || 0);
         $values->{'expirationdate'} = output_pref( $dt, undef, 1 );
 
         $values->{'waitingdate'} = output_pref( dt_from_string( $values->{'waitingdate'} ), undef, 1 );

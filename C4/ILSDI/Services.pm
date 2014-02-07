@@ -34,6 +34,7 @@ use XML::Simple;
 use HTML::Entities;
 use CGI;
 use DateTime;
+use C4::Auth;
 
 =head1 NAME
 
@@ -60,7 +61,7 @@ hashref that will be printed by XML::Simple in opac/ilsdi.pl
 		noattr => 1, 
 		noescape => 1,
 		nosort => 1,
-		xmldecl => '<?xml version="1.0" encoding="ISO-8859-1" ?>', 
+                xmldecl => '<?xml version="1.0" encoding="UTF-8" ?>',
 		RootName => 'LookupPatron', 
 		SuppressEmpty => 1);
 
@@ -105,7 +106,7 @@ availability
 sub GetAvailability {
     my ($cgi) = @_;
 
-    my $out = "<?xml version=\"1.0\" encoding=\"ISO-8859-1\" ?>\n";
+    my $out = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n";
     $out .= "<dlf:collection\n";
     $out .= "  xmlns:dlf=\"http://diglib.org/ilsdi/1.1\"\n";
     $out .= "  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n";
@@ -312,28 +313,24 @@ the patron.
 Parameters:
 
   - username (Required)
-	user's login identifier
+    user's login identifier (userid or cardnumber)
   - password (Required)
-	user's password
+    user's password
 
 =cut
 
 sub AuthenticatePatron {
     my ($cgi) = @_;
-
-    # Check if borrower exists, using a C4::Auth function...
-    unless( C4::Auth::checkpw( C4::Context->dbh, $cgi->param('username'), $cgi->param('password') ) ) {
+    my ($status, $cardnumber, $userid) = C4::Auth::checkpw( C4::Context->dbh, $cgi->param('username'), $cgi->param('password') );
+    if ( $status ) {
+        # Get the borrower
+        my $borrower = GetMember( cardnumber => $cardnumber );
+        my $patron->{'id'} = $borrower->{'borrowernumber'};
+        return $patron;
+    }
+    else {
         return { code => 'PatronNotFound' };
     }
-
-    # Get the borrower
-    my $borrower = GetMember( userid => $cgi->param('username') );
-
-    # Build the hashref
-    my $patron->{'id'} = $borrower->{'borrowernumber'};
-
-    # ... and return his ID
-    return $patron;
 }
 
 =head2 GetPatronInfo

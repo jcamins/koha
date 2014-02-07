@@ -90,11 +90,15 @@ Create a branch selector with the following code.
 
 =head3 in TEMPLATE
 
-    <select name="branch">
-        <option value="">Default</option>
-        <!-- TMPL_LOOP name="branchloop" -->
-        <option value="<!-- TMPL_VAR name="value" -->" <!-- TMPL_IF name="selected" -->selected<!-- /TMPL_IF -->><!-- TMPL_VAR name="branchname" --></option>
-        <!-- /TMPL_LOOP -->
+    <select name="branch" id="branch">
+        <option value=""></option>
+            [% FOREACH branchloo IN branchloop %]
+                [% IF ( branchloo.selected ) %]
+                    <option value="[% branchloo.value %]" selected="selected">[% branchloo.branchname %]</option>
+                [% ELSE %]
+                    <option value="[% branchloo.value %]" >[% branchloo.branchname %]</option>
+                [% END %]
+            [% END %]
     </select>
 
 =head4 Note that you often will want to just use GetBranchesLoop, for exactly the example above.
@@ -182,7 +186,6 @@ sub GetBranchName {
     $sth = $dbh->prepare("Select branchname from branches where branchcode=?");
     $sth->execute($branchcode);
     my $branchname = $sth->fetchrow_array;
-    $sth->finish;
     return ($branchname);
 }
 
@@ -248,7 +251,7 @@ sub ModBranch {
     }
     # sort out the categories....
     my @checkedcats;
-    my $cats = GetBranchCategory();
+    my $cats = GetBranchCategories();
     foreach my $cat (@$cats) {
         my $code = $cat->{'categorycode'};
         if ( $data->{$code} ) {
@@ -278,7 +281,6 @@ sub ModBranch {
 "insert into branchrelations (branchcode, categorycode) values(?, ?)"
           );
         $sth->execute( $branchcode, $cat );
-        $sth->finish;
     }
     foreach my $cat (@removecats) {
         my $sth =
@@ -286,7 +288,6 @@ sub ModBranch {
             "delete from branchrelations where branchcode=? and categorycode=?"
           );
         $sth->execute( $branchcode, $cat );
-        $sth->finish;
     }
 }
 
@@ -294,87 +295,66 @@ sub ModBranch {
 
 $results = GetBranchCategory($categorycode);
 
-C<$results> is an ref to an array.
+C<$results> is an hashref
 
 =cut
 
 sub GetBranchCategory {
-
-    # returns a reference to an array of hashes containing branches,
     my ($catcode) = @_;
+    return unless $catcode;
+
     my $dbh = C4::Context->dbh;
     my $sth;
 
-    #    print DEBUG "GetBranchCategory: entry: catcode=".cvs($catcode)."\n";
-    if ($catcode) {
-        $sth =
-          $dbh->prepare(
-            "select * from branchcategories where categorycode = ?");
-        $sth->execute($catcode);
-    }
-    else {
-        $sth = $dbh->prepare("Select * from branchcategories");
-        $sth->execute();
-    }
-    my @results;
-    while ( my $data = $sth->fetchrow_hashref ) {
-        push( @results, $data );
-    }
-    $sth->finish;
-
-    #    print DEBUG "GetBranchCategory: exit: returning ".cvs(\@results)."\n";
-    return \@results;
+    $sth = $dbh->prepare(q{
+        SELECT *
+        FROM branchcategories
+        WHERE categorycode = ?
+    });
+    $sth->execute( $catcode );
+    return $sth->fetchrow_hashref;
 }
 
 =head2 GetBranchCategories
 
-  my $categories = GetBranchCategories($branchcode,$categorytype,$show_in_pulldown,$selected_in_pulldown);
+  my $categories = GetBranchCategories($categorytype,$show_in_pulldown,$selected_in_pulldown);
 
 Returns a list ref of anon hashrefs with keys eq columns of branchcategories table,
-i.e. categorycode, categorydescription, categorytype, categoryname.
-if $branchcode and/or $categorytype are passed, limit set to categories that
-$branchcode is a member of , and to $categorytype.
+i.e. categorydescription, categorytype, categoryname.
 
 =cut
 
 sub GetBranchCategories {
-    my ( $branchcode, $categorytype, $show_in_pulldown, $selected_in_pulldown ) = @_;
+    my ( $categorytype, $show_in_pulldown, $selected_in_pulldown ) = @_;
     my $dbh = C4::Context->dbh();
 
-    my $query = "SELECT c.* FROM branchcategories c";
+    my $query = "SELECT * FROM branchcategories ";
+
     my ( @where, @bind );
-
-    if( $branchcode ) {
-        $query .= ",branchrelations r, branches b ";
-        push @where, "c.categorycode = r.categorycode AND r.branchcode = ? ";
-        push @bind , $branchcode;
-    }
-
     if ( $categorytype ) {
-        push @where, " c.categorytype = ? ";
+        push @where, " categorytype = ? ";
         push @bind, $categorytype;
     }
 
     if ( defined( $show_in_pulldown ) ) {
-        push( @where, " c.show_in_pulldown = ? " );
+        push( @where, " show_in_pulldown = ? " );
         push( @bind, $show_in_pulldown );
     }
 
     $query .= " WHERE " . join(" AND ", @where) if(@where);
-    $query .= " ORDER BY categorytype,c.categorycode";
+    $query .= " ORDER BY categorytype, categorycode";
     my $sth=$dbh->prepare( $query);
     $sth->execute(@bind);
 
     my $branchcats = $sth->fetchall_arrayref({});
-    $sth->finish();
 
     if ( $selected_in_pulldown ) {
         foreach my $bc ( @$branchcats ) {
-            $bc->{'selected'} = 1 if ( $bc->{'categorycode'} eq $selected_in_pulldown );
+            $bc->{selected} = 1 if $bc->{categorycode} eq $selected_in_pulldown;
         }
     }
 
-    return( $branchcats );
+    return $branchcats;
 }
 
 =head2 GetCategoryTypes
@@ -443,7 +423,6 @@ sub GetBranchesInCategory {
 	while (my $branch = $sth->fetchrow) {
 		push @branches, $branch;
 	}
-	$sth->finish();
 	return( \@branches );
 }
 
@@ -488,11 +467,9 @@ sub GetBranchInfo {
         while ( my ($cat) = $nsth->fetchrow_array ) {
             push( @cats, $cat );
         }
-        $nsth->finish;
         $data->{'categories'} = \@cats;
         push( @results, $data );
     }
-    $sth->finish;
     return \@results;
 }
 
@@ -507,7 +484,6 @@ sub DelBranch {
     my $dbh = C4::Context->dbh;
     my $sth = $dbh->prepare("delete from branches where branchcode = ?");
     $sth->execute($branchcode);
-    $sth->finish;
 }
 
 =head2 ModBranchCategoryInfo
@@ -524,13 +500,11 @@ sub ModBranchCategoryInfo {
 	# we are doing an insert
   my $sth   = $dbh->prepare("INSERT INTO branchcategories (categorycode,categoryname,codedescription,categorytype,show_in_pulldown) VALUES (?,?,?,?,?)");
         $sth->execute(uc( $data->{'categorycode'} ),$data->{'categoryname'}, $data->{'codedescription'},$data->{'categorytype'},$data->{'show_in_pulldown'} );
-	$sth->finish();		
     }
     else {
 	# modifying
         my $sth = $dbh->prepare("UPDATE branchcategories SET categoryname=?,codedescription=?,categorytype=?,show_in_pulldown=? WHERE categorycode=?");
         $sth->execute($data->{'categoryname'}, $data->{'codedescription'},$data->{'categorytype'},$data->{'show_in_pulldown'},uc( $data->{'categorycode'} ) );
-	$sth->finish();
     }
 }
 
@@ -567,7 +541,6 @@ sub DelBranchCategory {
     my $dbh = C4::Context->dbh;
     my $sth = $dbh->prepare("delete from branchcategories where categorycode = ?");
     $sth->execute($categorycode);
-    $sth->finish;
 }
 
 =head2 CheckBranchCategorycode

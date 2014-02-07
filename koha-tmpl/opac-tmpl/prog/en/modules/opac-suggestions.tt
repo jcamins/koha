@@ -1,3 +1,5 @@
+[% USE Koha %]
+[% USE KohaAuthorisedValues %]
 [% INCLUDE 'doc-head-open.inc' %][% IF ( LibraryNameTitle ) %][% LibraryNameTitle %][% ELSE %]Koha online[% END %] catalog &rsaquo;
 [% IF ( op_add ) %]Enter a new purchase suggestion[% END %]
 [% IF ( op_else ) %]Purchase Suggestions[% END %]
@@ -105,8 +107,8 @@ $.tablesorter.addParser({
    <fieldset class="rows"> <ol>
     <li><label class="required" for="title">Title:</label><input type="text" id="title" name="title" size="80" maxlength="255" /></li>
     <li><label for="author">Author:</label><input type="text" id="author" name="author" size="50" maxlength="80" /></li>
-    <li><label for="copyrightdate">Copyright Date:</label><input type="text" id="copyrightdate" name="copyrightdate" size="4" maxlength="4" /></li>
-    <li><label for="isbn">Standard Number (ISBN, ISSN or Other):</label><input type="text" id="isbn" name="isbn" size="50" maxlength="80" /></li>
+    <li><label for="copyrightdate">Copyright date:</label><input type="text" id="copyrightdate" name="copyrightdate" size="4" maxlength="4" /></li>
+    <li><label for="isbn">Standard number (ISBN, ISSN or other):</label><input type="text" id="isbn" name="isbn" size="50" maxlength="80" /></li>
     <li><label for="publishercode">Publisher:</label><input type="text" id="publishercode" name="publishercode" size="50" maxlength="80" /></li>
     <li><label for="collectiontitle">Collection title:</label><input type="text" id="collectiontitle" name="collectiontitle" size="50" maxlength="80" /></li>
     <li><label for="place">Publication place:</label><input type="text" id="place" name="place" size="50" maxlength="80" /></li>
@@ -134,7 +136,7 @@ $.tablesorter.addParser({
     [% END %]</select></li>[% END %]
     <li><label for="note">Notes:</label><textarea name="note" id="note" rows="5" cols="40"></textarea></li>
     </ol></fieldset>
-        <fieldset class="action"><input type="hidden" name="suggestedby" value="[% suggestedbyme %]" /><input type="hidden" name="op" value="add_confirm" /><input type="submit" onclick="Check(this.form); return false;" value="Submit Your Suggestion" /> <a class="action" href="/cgi-bin/koha/opac-suggestions.pl">Cancel</a></fieldset>
+        <fieldset class="action"><input type="hidden" name="suggestedby" value="[% suggestedbyme %]" /><input type="hidden" name="op" value="add_confirm" /><input type="submit" onclick="Check(this.form); return false;" value="Submit your suggestion" /> <a class="action" href="/cgi-bin/koha/opac-suggestions.pl">Cancel</a></fieldset>
     </form>
 
 [% END %]
@@ -198,16 +200,16 @@ $.tablesorter.addParser({
                 </td>[% END %]
                 <td>
                     <p><strong>[% suggestions_loo.title |html %]</strong></p>
-                    <p>[% IF ( suggestions_loo.author ) %][% suggestions_loo.author %],[% END %]
-                        [% IF ( suggestions_loo.copyrightdate ) %] - [% suggestions_loo.copyrightdate %],[% END %] 
-                        [% IF ( suggestions_loo.publishercode ) %] - [% suggestions_loo.publishercode %][% END %]
-                        [% IF ( suggestions_loo.place ) %]([% suggestions_loo.place %])[% END %]
-                        [% IF ( suggestions_loo.collectiontitle ) %] , [% suggestions_loo.collectiontitle %][% END %]
+                    <p>[% IF ( suggestions_loo.author ) %][% suggestions_loo.author |html %],[% END %]
+                        [% IF ( suggestions_loo.copyrightdate ) %] - [% suggestions_loo.copyrightdate |html %],[% END %]
+                        [% IF ( suggestions_loo.publishercode ) %] - [% suggestions_loo.publishercode |html %][% END %]
+                        [% IF ( suggestions_loo.place ) %]([% suggestions_loo.place |html %])[% END %]
+                        [% IF ( suggestions_loo.collectiontitle ) %] , [% suggestions_loo.collectiontitle |html%][% END %]
                         [% IF ( suggestions_loo.itemtype ) %] - [% suggestions_loo.itemtype %][% END %]
                     </p>
                 </td>
                 <td>
-                    [% suggestions_loo.note %]
+                    [% suggestions_loo.note |html %]
                 </td>
                 [% IF ( OPACViewOthersSuggestions ) %]<td>
                     [% IF ( suggestions_loo.branchcodesuggestedby ) %][% suggestions_loo.branchcodesuggestedby %][% ELSE %]&nbsp;[% END %]
@@ -222,7 +224,7 @@ $.tablesorter.addParser({
                     [% IF ( suggestions_loo.ORDERED ) %]Ordered by the library[% END %]
                     [% IF ( suggestions_loo.REJECTED ) %]Suggestion declined [% END %]
                     [% IF ( suggestions_loo.AVAILABLE ) %]Available in the library[% END %]
-                    [% IF ( suggestions_loo.reason ) %]([% suggestions_loo.reason %])[% END %]
+                    [% IF ( suggestions_loo.reason ) %]([% suggestions_loo.reason | html %])[% END %]
                 </td>
             </tr>
         [% END %]

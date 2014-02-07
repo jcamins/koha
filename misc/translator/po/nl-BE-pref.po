@@ -3,15 +3,16 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2013-05-16 03:25+0200\n"
-"PO-Revision-Date: 2013-05-30 20:20+0200\n"
-"Last-Translator: ljhelbo <lars@helbo.org>\n"
+"PO-Revision-Date: 2013-12-03 16:36+0000\n"
+"Last-Translator: Hans <hans.supply@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: da\n"
+"Language: nl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Pootle 2.1.6\n"
+"X-Generator: Pootle 2.5.0\n"
+"X-POOTLE-MTIME: 1386088615.0\n"
 
 # Acquisitions
 msgid "acquisitions.pref"
@@ -91,11 +92,11 @@ msgstr "tijdens afdrukken van groepen mandjes."
 
 # Acquisitions > Policy
 msgid "acquisitions.pref#UniqueItemFields# (separated by a space)"
-msgstr ""
+msgstr "(door een spatie gescheiden)"
 
 # Acquisitions > Policy
 msgid "acquisitions.pref#UniqueItemFields# The following <a href='http://schema.koha-community.org/tables/items.html' target='blank'>database columns</a> should be unique in an item:"
-msgstr ""
+msgstr "De volgende <a href='http://schema.koha-community.org/tables/items.html' target='blank'>database kolommen</a> moeten uniek zijn in een item:"
 
 # Acquisitions > Policy
 msgid "acquisitions.pref#gist# (enter in numeric form, 0.12 for 12%. First is the default. If you want more than 1 value, please separate with |)"
@@ -794,8 +795,8 @@ msgid "cataloguing.pref#item-level_itypes# Use the item type of the"
 msgstr "Gebruik het item type van"
 
 # Cataloging > Record Structure
-msgid "cataloguing.pref#item-level_itypes# as the authoritative item type (for determining circulation and fines rules, etc)."
-msgstr "als het element item type (om circulatie, regels, en zo te bepalen)."
+msgid "cataloguing.pref#item-level_itypes# as the authoritative item type (for determining circulation and fines rules, for displaying an item type icon on either opac detail or results page, etc)."
+msgstr ""
 
 # Cataloging > Record Structure
 msgid "cataloguing.pref#item-level_itypes# biblio record"
@@ -1119,19 +1120,19 @@ msgstr "het teruggeven van een teruggetrokken item."
 
 # Circulation > Checkin Policy
 msgid "circulation.pref#CalculateFinesOnReturn# <br /><b>NOTE If you are doing hourly loans then you should have this on.</b>"
-msgstr ""
+msgstr "<br /><b>NOTA Indien u ontleningen van een uur doet laat u dit beter aan staan.</b>"
 
 # Circulation > Checkin Policy
 msgid "circulation.pref#CalculateFinesOnReturn# Do"
-msgstr ""
+msgstr "Herberekenen en updaten"
 
 # Circulation > Checkin Policy
 msgid "circulation.pref#CalculateFinesOnReturn# Don't"
-msgstr ""
+msgstr "Niet herberekenen en updaten"
 
 # Circulation > Checkin Policy
 msgid "circulation.pref#CalculateFinesOnReturn# calculate and update overdue charges when an item is returned."
-msgstr ""
+msgstr "van boetes als een item binnengebracht wordt."
 
 # Circulation > Interface
 msgid "circulation.pref#CircAutoPrintQuickSlip# ."
@@ -2970,8 +2971,8 @@ msgid "opac.pref#LibraryName# as the name of the library on the OPAC."
 msgstr "als bibliotheeknaam in de OPAC."
 
 # OPAC > Appearance
-msgid "opac.pref#OPACBaseURL# . (This must be filled in correctly for RSS, unAPI, and search plugins to work.)"
-msgstr ". (Om met RSS, unAPI en zoek plugins te werken, moet dit correct ingevuld worden.)"
+msgid "opac.pref#OPACBaseURL# . Do not include a trailing slash in the URL. (This must be filled in correctly for RSS, unAPI, and search plugins to work.)"
+msgstr "Voeg geen slash toe op het einde van de URL. (Dit moet correct zijn opdat RSS, unAPI en de zoekmodules zouden werken.)"
 
 # OPAC > Appearance
 msgid "opac.pref#OPACBaseURL# The OPAC is located at http://"
@@ -4822,8 +4823,8 @@ msgid "staff_client.pref#intranetuserjs# Include the following JavaScript on all
 msgstr "Verwende das folgende Javascript auf allen Seiten der Dienstoberfläche:"
 
 # Staff Client > Appearance
-msgid "staff_client.pref#staffClientBaseURL# ."
-msgstr "."
+msgid "staff_client.pref#staffClientBaseURL# . Do not include a trailing slash in the URL."
+msgstr "Voeg geen slash toe op het einde van de URL."
 
 # Staff Client > Appearance
 msgid "staff_client.pref#staffClientBaseURL# The staff client is located at http://"

@@ -861,7 +861,7 @@
                     </a>
                 </xsl:when>
                 <xsl:otherwise>
-                    <a><xsl:attribute name="href">/cgi-bin/koha/opac-search.pl?q=<xsl:value-of select="translate($f780, '()', '')"/></xsl:attribute>
+                    <a><xsl:attribute name="href">/cgi-bin/koha/opac-search.pl?q=ti,phr:<xsl:value-of select="translate($f780, '()', '')"/></xsl:attribute>
                         <xsl:value-of select="translate($f780, '()', '')"/>
                     </a>
                 </xsl:otherwise>
@@ -924,7 +924,7 @@
                     </a>
                 </xsl:when>
                 <xsl:otherwise>
-                    <a><xsl:attribute name="href">/cgi-bin/koha/opac-search.pl?q=<xsl:value-of select="translate($f785, '()', '')"/></xsl:attribute>
+                    <a><xsl:attribute name="href">/cgi-bin/koha/opac-search.pl?q=ti,phr:<xsl:value-of select="translate($f785, '()', '')"/></xsl:attribute>
                         <xsl:value-of select="translate($f785, '()', '')"/>
                     </a>
                 </xsl:otherwise>
@@ -985,7 +985,7 @@
             </a>
             <xsl:if test="marc:subfield[@code=9]">
                 <a class='authlink'>
-                    <xsl:attribute name="href">/cgi-bin/koha/opac-authoritiesdetail.pl?authid="<xsl:value-of select="marc:subfield[@code=9]"/>"</xsl:attribute>
+                    <xsl:attribute name="href">/cgi-bin/koha/opac-authoritiesdetail.pl?authid=<xsl:value-of select="marc:subfield[@code=9]"/></xsl:attribute>
                     <img style="vertical-align:middle" height="15" width="15" src="/opac-tmpl/prog/images/filefind.png"/>
                 </a>
             </xsl:if>

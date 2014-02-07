@@ -6917,6 +6917,63 @@ if ( CheckVersion($DBversion) ) {
     SetVersion ($DBversion);
 }
 
+$DBversion = "3.12.04.000";
+if ( CheckVersion($DBversion) ) {
+    print "Upgrade to $DBversion done (3.12.4 release)\n";
+    SetVersion ($DBversion);
+}
+
+$DBversion = "3.12.05.000";
+if ( CheckVersion($DBversion) ) {
+    print "Upgrade to $DBversion done (3.12.5 release)\n";
+    SetVersion ($DBversion);
+}
+
+$DBversion = "3.12.06.000";
+if ( CheckVersion($DBversion) ) {
+    print "Upgrade to $DBversion done (3.12.6 release)\n";
+    SetVersion ($DBversion);
+}
+
+$DBversion = "3.12.06.001";
+if ( CheckVersion($DBversion) ) {
+    $dbh->do("DELETE from auth_tag_structure WHERE tagfield IN ('68a','68b')");
+    $dbh->do("DELETE from auth_subfield_structure WHERE tagfield IN ('68a','68b')");
+    print "Upgrade to $DBversion done (Bug 10687 - Delete erroneous tags 68a and 68b on default MARC21 auth framework)\n";
+    SetVersion($DBversion);
+}
+
+$DBversion = "3.12.07.000";
+if ( CheckVersion($DBversion) ) {
+    print "Upgrade to $DBversion done (3.12.7 release)\n";
+    SetVersion ($DBversion);
+}
+
+$DBversion = "3.12.07.001";
+if(CheckVersion($DBversion)) {
+    $dbh->do("ALTER TABLE deleteditems MODIFY materials text;");
+    print "Upgrade to $DBversion done (Bug 11275: alter deleteditems.materials from varchar(10) to text)\n";
+    SetVersion($DBversion);
+}
+
+$DBversion = "3.12.08.000";
+if ( CheckVersion($DBversion) ) {
+    print "Upgrade to $DBversion done (3.12.8 release)\n";
+    SetVersion ($DBversion);
+}
+
+$DBversion = "3.12.09.000";
+if ( CheckVersion($DBversion) ) {
+    print "Upgrade to $DBversion done (3.12.9 release)\n";
+    SetVersion ($DBversion);
+}
+
+$DBversion = "3.12.10.000";
+if ( CheckVersion($DBversion) ) {
+    print "Upgrade to $DBversion done (3.12.10 release)\n";
+    SetVersion ($DBversion);
+}
+
 =head1 FUNCTIONS
 
 =head2 TableExists($table)

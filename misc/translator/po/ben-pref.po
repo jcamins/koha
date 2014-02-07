@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2013-05-14 17:47+0200\n"
-"PO-Revision-Date: 2013-05-14 17:46+0200\n"
+"PO-Revision-Date: 2013-12-11 08:12+0000\n"
 "Last-Translator: Kazi Farhad <nomankazidu@yahoo.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: bn\n"
@@ -11,7 +11,8 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Pootle 2.1.6\n"
+"X-Generator: Pootle 2.5.0\n"
+"X-POOTLE-MTIME: 1386749556.0\n"
 
 # Acquisitions
 msgid "acquisitions.pref"
@@ -23,7 +24,7 @@ msgstr "একুইজিসনস.পছন্দ করুন নীতি  �
 
 # Acquisitions > Printing
 msgid "acquisitions.pref Printing"
-msgstr "acquisitions.pref Printing"
+msgstr "সংগ্রহসমূহ. প্রিন্টিং পছন্দ"
 
 # Acquisitions > Policy
 msgid "acquisitions.pref#AcqCreateItem# Create an item when"
@@ -794,7 +795,7 @@ msgid "cataloguing.pref#item-level_itypes# Use the item type of the"
 msgstr ""
 
 # Cataloging > Record Structure
-msgid "cataloguing.pref#item-level_itypes# as the authoritative item type (for determining circulation and fines rules, etc)."
+msgid "cataloguing.pref#item-level_itypes# as the authoritative item type (for determining circulation and fines rules, for displaying an item type icon on either opac detail or results page, etc)."
 msgstr ""
 
 # Cataloging > Record Structure
@@ -2970,7 +2971,7 @@ msgid "opac.pref#LibraryName# as the name of the library on the OPAC."
 msgstr ""
 
 # OPAC > Appearance
-msgid "opac.pref#OPACBaseURL# . (This must be filled in correctly for RSS, unAPI, and search plugins to work.)"
+msgid "opac.pref#OPACBaseURL# . Do not include a trailing slash in the URL. (This must be filled in correctly for RSS, unAPI, and search plugins to work.)"
 msgstr ""
 
 # OPAC > Appearance
@@ -4822,7 +4823,7 @@ msgid "staff_client.pref#intranetuserjs# Include the following JavaScript on all
 msgstr "Verwende das folgende Javascript auf allen Seiten der Dienstoberfläche:"
 
 # Staff Client > Appearance
-msgid "staff_client.pref#staffClientBaseURL# ."
+msgid "staff_client.pref#staffClientBaseURL# . Do not include a trailing slash in the URL."
 msgstr ""
 
 # Staff Client > Appearance

@@ -11,7 +11,10 @@
             <span class="RT">RT: [% heading | html %]</span>
         [% END %]
     [% ELSE %]
-        [% IF ( label ) %]<span class="label">[% label | html %]</span>[% END %]
+        [% IF ( label ) %]<span class="label">[% SWITCH label %]
+        [% CASE 'see also:' %]see also:
+        [% CASE 'used for/see from:' %]used for/see from:
+        [% END %]</span>[% END %]
         <span class="heading">
         [% IF ( linkpath && search ) %]<a href="[% link | url %][% search | url %]">[% heading | html %]</a>
         [% ELSE %][% heading | html %][% END %]
@@ -43,6 +46,14 @@
                [% note.note | html %]</span>
              [% END %]
              </div>
+            [% END %]
+            [% IF summary.seefrom %]
+              <div class="authres_seefrom">
+              [% FOREACH see IN summary.seefrom %]
+                 [% PROCESS showreference heading=see.heading label="" type=see.type search='' %]
+                 [% IF ! loop.last %] ; [% END %]
+              [% END %]
+              </div>
             [% END %]
             [% IF summary.seealso %]
               <div class="authres_seealso">
@@ -78,4 +89,13 @@
             [% END %]
         [% END %]
     [% END %]
+[% END %]
+[% BLOCK language %]
+  [% SWITCH lang %]
+   [% CASE ['heb'] %]Hebrew
+   [% CASE ['ara'] %]Arabic
+   [% CASE ['gre'] %]Greek (modern)
+   [% CASE ['grc'] %]Greek (to 1453)
+   [% CASE %][% lang %]
+  [% END %]
 [% END %]

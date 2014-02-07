@@ -12,7 +12,7 @@ use YAML;
 use C4::Debug;
 require C4::Context;
 
-use Test::More tests => 78;
+use Test::More tests => 82;
 use Test::MockModule;
 use MARC::Record;
 use File::Spec;
@@ -162,6 +162,9 @@ my $dbh = C4::Context->dbh;
 $dbh->{mock_add_resultset} = {
     sql     => 'SHOW COLUMNS FROM items',
     results => [
+        [ 'rows' ], # seems like $sth->rows is getting called
+                    # implicitly, so we need this to make
+                    # DBD::Mock return all of the results
         [ 'itemnumber' ], [ 'biblionumber' ], [ 'biblioitemnumber' ],
         [ 'barcode' ], [ 'dateaccessioned' ], [ 'booksellerid' ],
         [ 'homebranch' ], [ 'price' ], [ 'replacementprice' ],
@@ -385,6 +388,13 @@ $stopwords_removed, $query_type ) = buildQuery([], [ '' ], [ 'kw' ], [ 'mc-loc:G
 ($error, $results_hashref, $facets_loop) = getRecords($query,$simple_query,[ ], [ 'biblioserver' ],20,0,undef,\%branches,\%itemtypes,$query_type,0);
 is($results_hashref->{biblioserver}->{hits}, 2, "getRecords generated multi-faceted search matched right number of records");
 
+( $error, $query, $simple_query, $query_cgi,
+$query_desc, $limit, $limit_cgi, $limit_desc,
+$stopwords_removed, $query_type ) = buildQuery([], [ 'NEKLS' ], [ 'Code-institution' ], [], [], 0, 'en');
+($error, $results_hashref, $facets_loop) = getRecords($query,$simple_query,[ ], [ 'biblioserver' ],20,0,undef,\%branches,\%itemtypes,$query_type,0);
+is($results_hashref->{biblioserver}->{hits}, 12,
+       'search using index whose name contains "ns" returns expected results (bug 10271)');
+
 
 # FIXME: the availability limit does not actually work, so for the moment we
 # are just checking that it behaves consistently
@@ -409,7 +419,7 @@ $query_desc, $limit, $limit_cgi, $limit_desc,
 $stopwords_removed, $query_type ) = buildQuery([], [ 'pqf=@attr 1=_ALLRECORDS @attr 2=103 ""' ], [], [], [], 0, 'en');
 
 ($error, $results_hashref, $facets_loop) = getRecords($query,$simple_query,[ ], [ 'biblioserver' ],20,0,undef,\%branches,\%itemtypes,$query_type,0);
-is($results_hashref->{biblioserver}->{hits}, 178, "getRecords on _ALLRECORDS PQF returned all records");
+is($results_hashref->{biblioserver}->{hits}, 179, "getRecords on _ALLRECORDS PQF returned all records");
 
 ( $error, $query, $simple_query, $query_cgi,
 $query_desc, $limit, $limit_cgi, $limit_desc,
@@ -511,6 +521,33 @@ warning_like {( undef, $results_hashref, $facets_loop ) =
 @newresults = searchResults('intranet', $query_desc, $results_hashref->{'biblioserver'}->{'hits'}, 17, 0, 0,
     $results_hashref->{'biblioserver'}->{"RECORDS"});
 is($newresults[0]->{'alternateholdings_count'}, 1, 'Alternate holdings filled in correctly');
+
+
+## Regression test for Bug 10741
+
+# make one of the test items appear to be in transit
+my $circ_module = new Test::MockModule('C4::Circulation');
+$circ_module->mock('GetTransfers', sub {
+    my $itemnumber = shift;
+    if ($itemnumber == 11) {
+        return ('2013-07-19', 'MPL', 'CPL');
+    } else {
+        return;
+    }
+});
+
+($error, $results_hashref, $facets_loop) = getRecords("TEST12121212","TEST12121212",[ ], [ 'biblioserver' ],20,0,undef,\%branches,\%itemtypes,$query_type,0);
+@newresults = searchResults('intranet', $query_desc, $results_hashref->{'biblioserver'}->{'hits'}, 17, 0, 0,
+    $results_hashref->{'biblioserver'}->{"RECORDS"});
+ok(!exists($newresults[0]->{norequests}), 'presence of a transit does not block hold request action (bug 10741)');
+
+## Regression test for bug 10684
+( undef, $results_hashref, $facets_loop ) =
+    getRecords('ti:punctuation', 'punctuation', [], [ 'biblioserver' ], '19', 0, undef, \%branches, \%itemtypes, 'ccl', undef);
+is($results_hashref->{biblioserver}->{hits}, 1, "search for ti:punctuation returned expected number of records");
+@newresults = searchResults('intranet', $query_desc, $results_hashref->{'biblioserver'}->{'hits'}, 20, 0, 0,
+   $results_hashref->{'biblioserver'}->{"RECORDS"});
+is(scalar(@newresults), 0, 'a record that cannot be parsed by MARC::Record is simply skipped (bug 10684)');
 
 END {
     if ($child) {

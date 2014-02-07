@@ -120,7 +120,7 @@ CREATE TABLE `biblio` ( -- table that stores bibliographic information
   `title` mediumtext, -- title (without the subtitle) from the MARC record (245$a in MARC21)
   `unititle` mediumtext, -- uniform title (without the subtitle) from the MARC record (240$a in MARC21)
   `notes` mediumtext, -- values from the general notes field in the MARC record (500$a in MARC21) split by bar (|)
-  `serial` tinyint(1) default NULL, -- foreign key, linking to the subscriptionid in the serial table
+  `serial` tinyint(1) default NULL, -- Boolean indicating whether biblio is for a serial
   `seriestitle` mediumtext,
   `copyrightdate` smallint(6) default NULL, -- publication or copyright date from the MARC record
   `timestamp` timestamp NOT NULL default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP, -- date and time this record was last touched
@@ -607,7 +607,7 @@ CREATE TABLE `deletedbiblio` ( -- stores information about bibliographic records
   `title` mediumtext, -- title (without the subtitle) from the MARC record (245$a in MARC21)
   `unititle` mediumtext, -- uniform title (without the subtitle) from the MARC record (240$a in MARC21)
   `notes` mediumtext, -- values from the general notes field in the MARC record (500$a in MARC21) split by bar (|)
-  `serial` tinyint(1) default NULL, -- foreign key, linking to the subscriptionid in the serial table
+  `serial` tinyint(1) default NULL, -- Boolean indicating whether biblio is for a serial
   `seriestitle` mediumtext,
   `copyrightdate` smallint(6) default NULL, -- publication or copyright date from the MARC record
   `timestamp` timestamp NOT NULL default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP, -- date and time this record was last touched
@@ -781,7 +781,7 @@ CREATE TABLE `deleteditems` (
   `cn_source` varchar(10) default NULL, -- classification source used on this item (MARC21 952$2)
   `cn_sort` varchar(30) default NULL, -- normalized form of the call number (MARC21 952$o) used for sorting
   `ccode` varchar(10) default NULL, -- authorized value for the collection code associated with this item (MARC21 952$8)
-  `materials` varchar(10) default NULL, -- materials specified (MARC21 952$3)
+  `materials` text default NULL, -- materials specified (MARC21 952$3)
   `uri` varchar(255) default NULL, -- URL for the item (MARC21 952$u)
   `itype` varchar(10) default NULL, -- foreign key from the itemtypes table defining the type for this item (MARC21 952$y)
   `more_subfields_xml` longtext default NULL, -- additional 952 subfields in XML format
@@ -2422,14 +2422,14 @@ CREATE TABLE `message_transports` (
 --
 
 DROP TABLE IF EXISTS `borrower_files`;
-CREATE TABLE IF NOT EXISTS `borrower_files` (
-  `file_id` int(11) NOT NULL AUTO_INCREMENT,
-  `borrowernumber` int(11) NOT NULL,
-  `file_name` varchar(255) NOT NULL,
-  `file_type` varchar(255) NOT NULL,
-  `file_description` varchar(255) DEFAULT NULL,
-  `file_content` longblob NOT NULL,
-  `date_uploaded` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+CREATE TABLE IF NOT EXISTS `borrower_files` ( -- files attached to the patron/borrower record
+  `file_id` int(11) NOT NULL AUTO_INCREMENT, -- unique key
+  `borrowernumber` int(11) NOT NULL, -- foreign key linking to the patron via the borrowernumber
+  `file_name` varchar(255) NOT NULL, -- file name
+  `file_type` varchar(255) NOT NULL, -- type of file
+  `file_description` varchar(255) DEFAULT NULL, -- description given to the file
+  `file_content` longblob NOT NULL, -- the file
+  `date_uploaded` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP, -- date and time the file was added
   PRIMARY KEY (`file_id`),
   KEY `borrowernumber` (`borrowernumber`),
   CONSTRAINT borrower_files_ibfk_1 FOREIGN KEY (borrowernumber) REFERENCES borrowers (borrowernumber) ON DELETE CASCADE ON UPDATE CASCADE
@@ -2913,12 +2913,12 @@ CREATE TABLE transport_cost (
 
 DROP TABLE IF EXISTS `biblioimages`;
 
-CREATE TABLE `biblioimages` (
- `imagenumber` int(11) NOT NULL AUTO_INCREMENT,
- `biblionumber` int(11) NOT NULL,
- `mimetype` varchar(15) NOT NULL,
- `imagefile` mediumblob NOT NULL,
- `thumbnail` mediumblob NOT NULL,
+CREATE TABLE `biblioimages` ( -- local cover images
+ `imagenumber` int(11) NOT NULL AUTO_INCREMENT, -- unique identifier for the image
+ `biblionumber` int(11) NOT NULL, -- foreign key from biblio table to link to biblionumber
+ `mimetype` varchar(15) NOT NULL, -- image type
+ `imagefile` mediumblob NOT NULL, -- image file contents
+ `thumbnail` mediumblob NOT NULL, -- thumbnail file contents
  PRIMARY KEY (`imagenumber`),
  CONSTRAINT `bibliocoverimage_fk1` FOREIGN KEY (`biblionumber`) REFERENCES `biblio` (`biblionumber`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -2959,11 +2959,11 @@ CREATE TABLE ratings ( -- information related to the star ratings in the OPAC
 --
 
 DROP TABLE IF EXISTS quotes;
-CREATE TABLE `quotes` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `source` text DEFAULT NULL,
-  `text` mediumtext NOT NULL,
-  `timestamp` datetime NOT NULL,
+CREATE TABLE `quotes` ( -- data for the quote of the day feature
+  `id` int(11) NOT NULL AUTO_INCREMENT, -- unique id for the quote
+  `source` text DEFAULT NULL, -- source/credit for the quote
+  `text` mediumtext NOT NULL, -- text of the quote
+  `timestamp` datetime NOT NULL, -- date and time that the quote last appeared in the opac
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 

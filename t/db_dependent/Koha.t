@@ -6,11 +6,10 @@
 use strict;
 use warnings;
 use C4::Context;
+use Koha::DateUtils qw(dt_from_string);
 
 use Test::More tests => 6;
 use DateTime::Format::MySQL;
-
-eval {use Test::Deep;};
 
 BEGIN {
     use_ok('C4::Koha', qw( :DEFAULT GetDailyQuote ));
@@ -18,9 +17,11 @@ BEGIN {
 }
 
 my $dbh = C4::Context->dbh;
+$dbh->{AutoCommit} = 0;
+$dbh->{RaiseError} = 1;
 
 subtest 'Authorized Values Tests' => sub {
-    plan tests => 6;
+    plan tests => 8;
 
     my $data = {
         category            => 'CATEGORY',
@@ -59,6 +60,85 @@ subtest 'Authorized Values Tests' => sub {
         my $sth = $dbh->prepare($query);
         $sth->execute($data->{category}, $data->{authorised_value}, $data->{lib}, $data->{lib_opac}, $data->{imageurl});
     }
+
+    SKIP: {
+        eval { require Test::Deep; import Test::Deep; };
+        skip "Test::Deep required to run the GetAuthorisedValues() tests.", 2 if $@;
+        AddAuthorisedValue('BUG10656', 'ZZZ', 'Z_STAFF', 'A_PUBLIC', '');
+        AddAuthorisedValue('BUG10656', 'AAA', 'A_STAFF', 'Z_PUBLIC', '');
+        # the next one sets lib_opac to NULL; in that case, the staff
+        # display value is meant to be used.
+        AddAuthorisedValue('BUG10656', 'DDD', 'D_STAFF', undef, '');
+        my $authvals = GetAuthorisedValues('BUG10656');
+        cmp_deeply(
+            $authvals,
+            [
+                {
+                    id => ignore(),
+                    category => 'BUG10656',
+                    authorised_value => 'AAA',
+                    selected => 0,
+                    lib => 'A_STAFF',
+                    lib_opac => 'Z_PUBLIC',
+                    imageurl => '',
+                },
+                {
+                    id => ignore(),
+                    category => 'BUG10656',
+                    authorised_value => 'DDD',
+                    selected => 0,
+                    lib => 'D_STAFF',
+                    lib_opac => undef,
+                    imageurl => '',
+                },
+                {
+                    id => ignore(),
+                    category => 'BUG10656',
+                    authorised_value => 'ZZZ',
+                    selected => 0,
+                    lib => 'Z_STAFF',
+                    lib_opac => 'A_PUBLIC',
+                    imageurl => '',
+                },
+            ],
+            'list of authorised values in staff mode sorted by staff label (bug 10656)'
+        );
+        $authvals = GetAuthorisedValues('BUG10656', '', 1);
+        cmp_deeply(
+            $authvals,
+            [
+                {
+                    id => ignore(),
+                    category => 'BUG10656',
+                    authorised_value => 'ZZZ',
+                    selected => 0,
+                    lib => 'A_PUBLIC',
+                    lib_opac => 'A_PUBLIC',
+                    imageurl => '',
+                },
+                {
+                    id => ignore(),
+                    category => 'BUG10656',
+                    authorised_value => 'DDD',
+                    selected => 0,
+                    lib => 'D_STAFF',
+                    lib_opac => undef,
+                    imageurl => '',
+                },
+                {
+                    id => ignore(),
+                    category => 'BUG10656',
+                    authorised_value => 'AAA',
+                    selected => 0,
+                    lib => 'Z_PUBLIC',
+                    lib_opac => 'Z_PUBLIC',
+                    imageurl => '',
+                },
+            ],
+            'list of authorised values in OPAC mode sorted by OPAC label (bug 10656)'
+        );
+    }
+
 };
 
 subtest 'Itemtype info Tests' => sub {
@@ -84,6 +164,7 @@ subtest 'Itemtype info Tests' => sub {
 ### test for C4::Koha->GetDailyQuote()
 SKIP:
     {
+        eval { require Test::Deep; import Test::Deep; };
         skip "Test::Deep required to run the GetDailyQuote tests.", 1 if $@;
 
         subtest 'Daily Quotes Test' => sub {
@@ -106,25 +187,25 @@ SKIP:
                 cmp_deeply ($quote, $expected_quote, "Got a quote based on id.") or
                     diag('Be sure to run this test on a clean install of sample data.');
 
-# test random quote retrieval
-
-                $quote = GetDailyQuote('random'=>1);
-                ok ($quote, "Got a random quote.");
-
 # test quote retrieval based on today's date
 
                 my $query = 'UPDATE quotes SET timestamp = ? WHERE id = ?';
                 my $sth = C4::Context->dbh->prepare($query);
-                $sth->execute(DateTime::Format::MySQL->format_datetime(DateTime->now), $expected_quote->{'id'});
+                $sth->execute(DateTime::Format::MySQL->format_datetime( dt_from_string() ), $expected_quote->{'id'});
 
-                DateTime::Format::MySQL->format_datetime(DateTime->now) =~ m/(\d{4}-\d{2}-\d{2})/;
+                DateTime::Format::MySQL->format_datetime( dt_from_string() ) =~ m/(\d{4}-\d{2}-\d{2})/;
                 $expected_quote->{'timestamp'} = re("^$1");
 
-#        $expected_quote->{'timestamp'} = DateTime::Format::MySQL->format_datetime(DateTime->now);   # update the timestamp of expected quote data
+#        $expected_quote->{'timestamp'} = DateTime::Format::MySQL->format_datetime( dt_from_string() );   # update the timestamp of expected quote data
 
                 $quote = GetDailyQuote(); # this is the "default" mode of selection
                 cmp_deeply ($quote, $expected_quote, "Got a quote based on today's date.") or
                     diag('Be sure to run this test on a clean install of sample data.');
+
+# test random quote retrieval
+
+                $quote = GetDailyQuote('random'=>1);
+                ok ($quote, "Got a random quote.");
             }
         };
 }

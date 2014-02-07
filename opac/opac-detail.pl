@@ -142,6 +142,7 @@ if ($session->param('busc')) {
 
         my $expanded_facet = $arrParamsBusc->{'expand'};
         my $branches = GetBranches();
+        my $itemtypes = GetItemTypes;
         my @servers;
         @servers = @{$arrParamsBusc->{'server'}} if $arrParamsBusc->{'server'};
         @servers = ("biblioserver") unless (@servers);
@@ -152,7 +153,7 @@ if ($session->param('busc')) {
         $sort_by[0] = $default_sort_by if !$sort_by[0] && defined($default_sort_by);
         my ($error, $results_hashref, $facets);
         eval {
-            ($error, $results_hashref, $facets) = getRecords($arrParamsBusc->{'query'},$arrParamsBusc->{'simple_query'},\@sort_by,\@servers,$results_per_page,$offset,$expanded_facet,$branches,$arrParamsBusc->{'query_type'},$arrParamsBusc->{'scan'});
+            ($error, $results_hashref, $facets) = getRecords($arrParamsBusc->{'query'},$arrParamsBusc->{'simple_query'},\@sort_by,\@servers,$results_per_page,$offset,$expanded_facet,$branches,$itemtypes,$arrParamsBusc->{'query_type'},$arrParamsBusc->{'scan'});
         };
         my $hits;
         my @newresults;
@@ -364,13 +365,13 @@ if ($session->param('busc')) {
     my ($previous, $next, $dataBiblioPaging);
     # Previous biblio
     if ($paging{'previous'}->{biblionumber}) {
-        $previous = 'opac-detail.pl?biblionumber=' . $paging{'previous'}->{biblionumber};
+        $previous = 'opac-detail.pl?biblionumber=' . $paging{'previous'}->{biblionumber}  . '&query_desc=' . $query->param('query_desc');
         $dataBiblioPaging = GetBiblioData($paging{'previous'}->{biblionumber});
         $template->param('previousTitle' => $dataBiblioPaging->{'title'}) if ($dataBiblioPaging);
     }
     # Next biblio
     if ($paging{'next'}->{biblionumber}) {
-        $next = 'opac-detail.pl?biblionumber=' . $paging{'next'}->{biblionumber};
+        $next = 'opac-detail.pl?biblionumber=' . $paging{'next'}->{biblionumber} . '&query_desc=' . $query->param('query_desc');
         $dataBiblioPaging = GetBiblioData($paging{'next'}->{biblionumber});
         $template->param('nextTitle' => $dataBiblioPaging->{'title'}) if ($dataBiblioPaging);
     }
@@ -565,7 +566,7 @@ for my $itm (@items) {
 
     # get collection code description, too
     my $ccode = $itm->{'ccode'};
-    $itm->{'ccode'} = $collections->{$ccode} if ( defined($collections) && exists( $collections->{$ccode} ) );
+    $itm->{'ccode'} = $collections->{$ccode} if defined($ccode) && $collections && exists( $collections->{$ccode} );
     my $copynumber = $itm->{'copynumber'};
     $itm->{'copynumber'} = $copynumbers->{$copynumber} if ( defined($copynumbers) && defined($copynumber) && exists( $copynumbers->{$copynumber} ) );
     if ( defined $itm->{'location'} ) {
@@ -623,7 +624,10 @@ if (scalar(@itemloop) == 0 || scalar(@otheritemloop) == 0) {
 # TODO: The limit of 50 could be a syspref
 my $viewallitems = $query->param('viewallitems');
 if (scalar(@itemloop) >= 50 && !$viewallitems) {
-    $template->param('lotsofitems' => 1);
+    $template->param('lotsofholdingsitems' => 1);
+}
+if (scalar(@otheritemloop) >= 50 && !$viewallitems) {
+    $template->param('lotsofothersholdingsitems' => 1);
 }
 
 ## get notes and subjects from MARC record

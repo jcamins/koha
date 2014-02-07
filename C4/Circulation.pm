@@ -890,8 +890,10 @@ sub CanBookBeIssued {
     if ( C4::Context->preference("IndependantBranches") ) {
         my $userenv = C4::Context->userenv;
         if ( ($userenv) && ( $userenv->{flags} % 2 != 1 ) ) {
-            $issuingimpossible{ITEMNOTSAMEBRANCH} = 1
-              if ( $item->{C4::Context->preference("HomeOrHoldingBranch")} ne $userenv->{branch} );
+            if ( $item->{C4::Context->preference("HomeOrHoldingBranch")} ne $userenv->{branch} ){
+                $issuingimpossible{ITEMNOTSAMEBRANCH} = 1;
+                $issuingimpossible{'itemhomebranch'} = $item->{C4::Context->preference("HomeOrHoldingBranch")};
+            }
             $needsconfirmation{BORRNOTSAMEBRANCH} = GetBranchName( $borrower->{'branchcode'} )
               if ( $borrower->{'branchcode'} ne $userenv->{branch} );
         }
@@ -2419,8 +2421,8 @@ SELECT issues.*, items.itype as itemtype, items.homebranch, TO_DAYS( date_due )-
 FROM issues 
 LEFT JOIN items USING (itemnumber)
 LEFT OUTER JOIN branches USING (branchcode)
-WhERE returndate is NULL
-AND ( TO_DAYS( NOW() )-TO_DAYS( date_due ) ) < ?
+WHERE returndate is NULL
+HAVING days_until_due >= 0 AND days_until_due <= ?
 END_SQL
 
     my @bind_parameters = ( $params->{'days_in_advance'} );
@@ -2478,8 +2480,9 @@ sub CanBookBeRenewed {
         $error = "too_many";
     }
 
-    my $resstatus = C4::Reserves::GetReserveStatus($itemnumber);
-    if ( $resstatus eq "Waiting" or $resstatus eq "Reserved" ) {
+    my ( $resfound, $resrec, undef ) = C4::Reserves::CheckReserves( $itemnumber );
+
+    if ( $resfound ) { # '' when no hold was found
         $renewokay = 0;
         $error = "on_reserve";
     }
@@ -3242,13 +3245,13 @@ $code is either itemtype or collection code depending on what the pref BranchTra
 
 sub CreateBranchTransferLimit {
    my ( $toBranch, $fromBranch, $code ) = @_;
-
+   return unless defined($toBranch) && defined($fromBranch);
    my $limitType = C4::Context->preference("BranchTransferLimitsType");
    
    my $dbh = C4::Context->dbh;
    
    my $sth = $dbh->prepare("INSERT INTO branch_transfer_limits ( $limitType, toBranch, fromBranch ) VALUES ( ?, ?, ? )");
-   $sth->execute( $code, $toBranch, $fromBranch );
+   return $sth->execute( $code, $toBranch, $fromBranch );
 }
 
 =head2 DeleteBranchTransferLimits
@@ -3261,9 +3264,10 @@ Deletes all the branch transfer limits for one branch
 
 sub DeleteBranchTransferLimits {
     my $branch = shift;
+    return unless $branch;
     my $dbh    = C4::Context->dbh;
     my $sth    = $dbh->prepare("DELETE FROM branch_transfer_limits WHERE fromBranch = ?");
-    $sth->execute($branch);
+    return $sth->execute($branch);
 }
 
 sub ReturnLostItem{
