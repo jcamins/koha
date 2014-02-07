@@ -34,6 +34,18 @@ field_mappings:
       enabled: 1
       index: corporate
       label: Corporate
+    corporatephr:
+      aliases:
+      bib1_mapping:
+        biblioserver:
+          1: 1005
+        authorityserver:
+          1: Corporate-name
+          4: 1
+          6: 3
+      enabled: 1
+      index: corporate
+      label: Corporate
     exactauthor:
       aliases:
         - exactauthor
